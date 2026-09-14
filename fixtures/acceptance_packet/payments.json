@@ -1,0 +1,6 @@
+{
+  "payments": [
+    {"invoice_number": "INV-1001", "amount": 110},
+    {"invoice_number": "INV-1002", "amount": 88}
+  ]
+}

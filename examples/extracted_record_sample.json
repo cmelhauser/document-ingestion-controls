@@ -1,0 +1,76 @@
+{
+  "sample_metadata": {
+    "label": "SAMPLE - FICTIONAL - NOT CLIENT DATA",
+    "purpose": "Illustrates the evidence-bearing extracted-record shape and supported commercial-invoice fields.",
+    "not_for": ["client decisions", "accuracy claims", "calibration", "production loading"],
+    "authoritative_schema": "references/extraction-schema.md"
+  },
+  "records": [
+    {
+      "document_id": "SAMPLE-INV-0001",
+      "page_id": "000001_commercial_invoice",
+      "source_file": "sample_delivery.pdf",
+      "source_page_range": "1",
+      "document_type": "commercial_invoice",
+      "engine": "sample_engine",
+      "engine_version": "sample-1.0",
+      "run_timestamp": "2026-08-12T00:00:00Z",
+      "branch": "A",
+      "has_handwriting": false,
+      "jbig2_suspect": false,
+      "header": {
+        "invoice_number": {"value": "SAMPLE-INV-10482", "confidence": 0.99, "source": "printed"},
+        "invoice_date": {"value": "2026-07-22", "confidence": 0.99, "source": "printed"},
+        "due_date": {"value": "2026-08-21", "confidence": 0.99, "source": "printed"},
+        "payment_terms": {"value": "NET 30", "confidence": 0.98, "source": "printed"},
+        "purchase_order_number": {"value": "SAMPLE-PO-78451", "confidence": 0.99, "source": "printed"},
+        "seller_name": {"value": "Sample Industrial Supply LLC", "confidence": 0.99, "source": "printed"},
+        "seller_address": {"value": "100 Example Way, Sampletown, NY 10001", "confidence": 0.97, "source": "printed"},
+        "seller_tax_id": {"value": "SAMPLE-TAX-001", "confidence": 0.96, "source": "printed"},
+        "buyer_name": {"value": "Sample Facilities Group Inc.", "confidence": 0.99, "source": "printed"},
+        "buyer_address": {"value": "200 Demo Avenue, Sampletown, NY 10002", "confidence": 0.97, "source": "printed"},
+        "buyer_tax_id": {"value": "SAMPLE-TAX-002", "confidence": 0.96, "source": "printed"},
+        "ship_to_name": {"value": "Sample Manufacturing Plant", "confidence": 0.99, "source": "printed"},
+        "ship_to_address": {"value": "300 Test Road, Sampletown, NY 10003", "confidence": 0.97, "source": "printed"},
+        "currency": {"value": "USD", "confidence": 1.0, "source": "printed"},
+        "subtotal": {"value": "1250.00", "confidence": 0.99, "source": "printed"},
+        "tax_amount": {"value": "100.00", "confidence": 0.99, "source": "printed"},
+        "tax_rate": {"value": "0.08", "confidence": 0.98, "source": "printed"},
+        "freight_amount": {"value": "25.00", "confidence": 0.99, "source": "printed"},
+        "accessorial_total": {"value": "0.00", "confidence": 0.99, "source": "printed"},
+        "discount_amount": {"value": "0.00", "confidence": 0.99, "source": "printed"},
+        "total_amount": {"value": "1375.00", "confidence": 0.99, "source": "printed"},
+        "amount_due": {"value": "1375.00", "confidence": 0.99, "source": "printed"},
+        "remit_to_address": {"value": "PO Box 101, Sampletown, NY 10004", "confidence": 0.95, "source": "printed"}
+      },
+      "lines": [
+        {
+          "line_number": 1,
+          "item_code": {"value": "SAMPLE-WIDGET-01", "confidence": 0.98, "source": "printed"},
+          "description": {"value": "Sample precision widget", "confidence": 0.98, "source": "printed"},
+          "quantity": {"value": "10", "confidence": 0.99, "source": "printed"},
+          "uom": {"value": "EA", "confidence": 0.99, "source": "printed"},
+          "unit_price": {"value": "100.00", "confidence": 0.99, "source": "printed"},
+          "extended_amount": {"value": "1000.00", "confidence": 0.99, "source": "printed"},
+          "discount": {"value": "0.00", "confidence": 0.99, "source": "printed"},
+          "tax_code": {"value": "SAMPLE-TAX", "confidence": 0.96, "source": "printed"},
+          "gl_code": {"value": "SAMPLE-5100", "confidence": 0.95, "source": "printed"},
+          "country_of_origin": {"value": "US", "confidence": 0.96, "source": "printed"},
+          "hs_code": {"value": "9999.99", "confidence": 0.95, "source": "printed"}
+        },
+        {
+          "line_number": 2,
+          "item_code": {"value": "SAMPLE-SERVICE-01", "confidence": 0.98, "source": "printed"},
+          "description": {"value": "Sample installation service", "confidence": 0.98, "source": "printed"},
+          "quantity": {"value": "1", "confidence": 0.99, "source": "printed"},
+          "uom": {"value": "EA", "confidence": 0.99, "source": "printed"},
+          "unit_price": {"value": "250.00", "confidence": 0.99, "source": "printed"},
+          "extended_amount": {"value": "250.00", "confidence": 0.99, "source": "printed"}
+        }
+      ],
+      "accessorials": [],
+      "amendments": [],
+      "handwriting_regions": []
+    }
+  ]
+}

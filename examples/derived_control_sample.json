@@ -1,0 +1,221 @@
+{
+  "sample_metadata": {
+    "label": "SAMPLE - FICTIONAL - NOT CLIENT DATA",
+    "purpose": "Illustrates fields produced by consensus, validation, local and optional provider-backed address normalization, attribution, entity resolution, sampling, and the final review gate.",
+    "not_for": [
+      "source evidence",
+      "client decisions",
+      "accuracy claims",
+      "calibration",
+      "production loading"
+    ],
+    "authoritative_schema": "references/derived-field-schema.md"
+  },
+  "document_id": "SAMPLE-INV-0001",
+  "control_results": {
+    "consensus": {
+      "review_status": "auto_accepted",
+      "consensus_flag": "consensus_2of2",
+      "field_count": 43,
+      "accepted_field_count": 43,
+      "hard_exception_count": 0,
+      "handwritten_field_count": 0,
+      "fields": {
+        "header.total_amount": {
+          "value": "1375.00",
+          "candidate_values": null,
+          "confidence": 0.99,
+          "source": "printed",
+          "consensus_flag": "consensus_2of2",
+          "agreeing_engines": [
+            "sample_engine_a",
+            "sample_engine_b"
+          ],
+          "engine_count": 2,
+          "rule": "printed_majority",
+          "accepted": true,
+          "is_handwritten": false,
+          "queue_for_review": false
+        }
+      }
+    },
+    "arithmetic_proof": {
+      "arithmetic_status": "proved",
+      "checks_run": 4,
+      "checks_failed": 0,
+      "largest_discrepancy": 0.0,
+      "handwriting_involved": false,
+      "lines_missing_fields": [],
+      "checks": [
+        {
+          "check": "lines_sum_to_subtotal",
+          "status": "pass",
+          "expected": 1250.0,
+          "stated": 1250.0,
+          "delta": 0.0
+        }
+      ],
+      "disposition": "Passes self-proof. Eligible for the sampled population."
+    },
+    "entity_resolution": {
+      "party_mentions": [
+        {
+          "raw_name": "Sample Industrial Supply LLC",
+          "raw_address": "100 Example Way, Sampletown, NY 10001",
+          "role": "biller",
+          "document_id": "SAMPLE-INV-0001",
+          "field": "seller_name",
+          "norm_name": "sample industrial supply",
+          "norm_address": "100 example way sampletown ny 10001",
+          "postal": "10001"
+        },
+        {
+          "raw_name": "Sample Facilities Group Inc.",
+          "raw_address": "200 Demo Avenue, Sampletown, NY 10002",
+          "role": "payer",
+          "document_id": "SAMPLE-INV-0001",
+          "field": "buyer_name",
+          "norm_name": "sample facilities group",
+          "norm_address": "200 demo avenue sampletown ny 10002",
+          "postal": "10002"
+        }
+      ],
+      "merge_proposal": {
+        "left": "Sample Industrial Supply LLC",
+        "right": "Sample Industrial Supply, LLC",
+        "score": 0.98,
+        "disposition": "auto_merge_candidate"
+      }
+    },
+    "attribution": {
+      "amount": 1375.0,
+      "ack_number": "SAMPLE-ACK-1001",
+      "rank": 3,
+      "attribution_method": "purchase_order_reference",
+      "attribution_confidence": 0.95,
+      "evidence_chain": [
+        "SAMPLE-PO-78451",
+        "SAMPLE-ACK-1001",
+        "SAMPLE-INV-0001"
+      ],
+      "selling_location": "Sampletown",
+      "method": "reference_table"
+    },
+    "sampling": {
+      "stratum": "commercial_invoice|2026|tail|no_handwriting|high_confidence|branch_A",
+      "eligible": true,
+      "selection": "attribute_sample",
+      "sample_seed": 42
+    },
+    "final_review": {
+      "priority": null,
+      "field": null,
+      "reason": null,
+      "review_source": null,
+      "disposition": "not_queued"
+    },
+    "address_normalization": {
+      "address_normalizations": [
+        {
+          "source_field": "buyer_address",
+          "raw_value": "200 Demo Avenue, Sampletown, NY 10002",
+          "derived_fields": {
+            "buyer_address_line1": {
+              "value": "200 Demo Avenue",
+              "confidence": null,
+              "source": "system"
+            },
+            "buyer_address_line2": {
+              "value": null,
+              "confidence": null,
+              "source": "system"
+            },
+            "buyer_city": {
+              "value": "Sampletown",
+              "confidence": null,
+              "source": "system"
+            },
+            "buyer_state_or_region": {
+              "value": "NY",
+              "confidence": null,
+              "source": "system"
+            },
+            "buyer_postal_code": {
+              "value": "10002",
+              "confidence": null,
+              "source": "system"
+            },
+            "buyer_country_code": {
+              "value": "US",
+              "confidence": null,
+              "source": "system"
+            }
+          },
+          "format_validation_status": "format_valid",
+          "external_validation_status": "validated",
+          "conflicting_existing_fields": [],
+          "google_address_validation": {
+            "provider": "google_maps_address_validation",
+            "response_id": "SAMPLE-GOOGLE-RESPONSE-0001",
+            "status": "validated",
+            "verdict": {
+              "address_complete": true,
+              "validation_granularity": "PREMISE",
+              "geocode_granularity": "PREMISE",
+              "has_unconfirmed_components": false,
+              "has_inferred_components": false,
+              "has_replaced_components": false,
+              "has_unresolved_tokens": false,
+              "possible_next_action": "ACCEPT"
+            },
+            "formatted_address": "200 Demo Avenue, Sampletown, NY 10002, USA",
+            "provider_derived_fields": {
+              "buyer_validated_address_line1": {
+                "value": "200 Demo Avenue",
+                "confidence": null,
+                "source": "system"
+              },
+              "buyer_validated_city": {
+                "value": "Sampletown",
+                "confidence": null,
+                "source": "system"
+              },
+              "buyer_validated_state_or_region": {
+                "value": "NY",
+                "confidence": null,
+                "source": "system"
+              },
+              "buyer_validated_postal_code": {
+                "value": "10002",
+                "confidence": null,
+                "source": "system"
+              },
+              "buyer_validated_country_code": {
+                "value": "US",
+                "confidence": null,
+                "source": "system"
+              },
+              "buyer_geocode_latitude": {
+                "value": 40.71,
+                "confidence": null,
+                "source": "system"
+              },
+              "buyer_geocode_longitude": {
+                "value": -74,
+                "confidence": null,
+                "source": "system"
+              },
+              "buyer_google_place_id": {
+                "value": "SAMPLE-PLACE-ID",
+                "confidence": null,
+                "source": "system"
+              }
+            },
+            "usps_data_present": true
+          }
+        }
+      ],
+      "address_validation_status": "clear"
+    }
+  }
+}

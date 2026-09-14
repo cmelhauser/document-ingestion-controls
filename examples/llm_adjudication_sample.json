@@ -1,0 +1,59 @@
+{
+  "sample_metadata": {
+    "label": "SAMPLE - FICTIONAL - NOT CLIENT DATA",
+    "purpose": "Illustrates the optional audit-only LLM adjudication candidate and its review-required amendment proposal.",
+    "not_for": [
+      "source evidence",
+      "client approval",
+      "accuracy claims",
+      "calibration",
+      "production loading"
+    ],
+    "authoritative_schema": "references/artifact-contracts.md"
+  },
+  "candidate": {
+    "candidate_id": "SAMPLE-LLM-CANDIDATE-0001",
+    "document_id": "SAMPLE-INV-0001",
+    "page_id": "000001_commercial_invoice",
+    "field": "seller_name",
+    "original_value": "Sample Industrial Supply L.L.C.",
+    "candidate_value": "Sample Industrial Supply LLC",
+    "original_source": "printed",
+    "evidence_text": "Seller: Sample Industrial Supply LLC",
+    "deterministic_validation_status": "clear",
+    "independent_extractor": {
+      "engine": "sample_engine_b/1.0",
+      "value": "Sample Industrial Supply LLC"
+    },
+    "has_handwriting": false,
+    "is_reassembly": false,
+    "has_disagreement": false
+  },
+  "result": {
+    "decision": "llm_generated_amendment_proposal",
+    "decision_source": "llm",
+    "amendment_source": "llm",
+    "reason": "llm_adjudication_eligible_high_confidence",
+    "client_review_required": true,
+    "disposition": "llm_generated_amendment_requires_client_review",
+    "sampling_required": true,
+    "audit": {
+      "model": "SAMPLE-MODEL",
+      "reasoning_effort": "medium",
+      "prompt_version": "llm-adjudication-v1",
+      "raw_response": "SAMPLE-RAW-RESPONSE-PATH",
+      "raw_response_sha256": "SAMPLE-SHA256",
+      "model_decision": "propose_amendment",
+      "model_confidence": 0.99,
+      "minimum_confidence": 0.99,
+      "model_rationale": "The visible printed seller header supports the supplied nonfinancial candidate.",
+      "model_evidence_text": "Seller: Sample Industrial Supply LLC",
+      "deterministic_validation_status": "clear",
+      "independent_extractor": {
+        "engine": "sample_engine_b/1.0",
+        "value": "Sample Industrial Supply LLC"
+      }
+    }
+  },
+  "important": "This is still an amendment proposal. It never changes source evidence and always remains in the final client-review queue."
+}

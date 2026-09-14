@@ -1,0 +1,28 @@
+\begin{tikzpicture}[x=1mm,y=1mm]
+  \node[bdi,text width=56mm] (A) at (0,0)   {Authorize scope and providers\\\texttt{logs/run\_authorization.md}};
+  \node[bdi,text width=56mm] (B) at (0,-18) {Retain and fingerprint source\\$\rightarrow$ profile, split, prepare, manifest};
+  \node[bdi,text width=56mm] (C) at (0,-36) {Independent extraction lanes\\$\rightarrow$ consensus};
+  \node[bdi,text width=56mm] (D) at (0,-52) {Arithmetic and validation};
+  \node[bdi,text width=56mm] (E) at (0,-68) {Entity, attribution, completeness,\\sampling, and final-review controls};
+  \node[bdigate,text width=30mm] (F) at (0,-88) {\textbf{Open findings?}};
+  \node[bdi,text width=52mm] (G) at (-62,-88) {Client package $\rightarrow$ preserved return\\$\rightarrow$ authorized append-only changes\\$\rightarrow$ targeted rerun};
+  \node[bdiout,text width=56mm] (H) at (0,-112) {Final gate\\\texttt{final\_reconciliation\_manifest.json}};
+
+  \foreach \a/\b in {A/B,B/C,C/D,D/E,E/F}{\draw[bdiflow] (\a)--(\b);}
+  \draw[bdiflow] (F)--node[bdilbl,right]{no}(H);
+  \draw[bdiflow] (F)--node[bdilbl,above]{yes}(G);
+  \draw[bdiflow] (G.south) |- (H.west);
+  % Routed up the empty left column so it crosses no control box.
+  \draw[bdiback] (G.north) -- node[bdilbl,left,align=right]{rerun\\affected\\lanes}
+        (G.north |- C.west) -- (C.west);
+
+  \node[bdiopt,text width=44mm] (P1) at (66,-44) {\textbf{Optional proposal path}\\(disabled by default)\\Preserved responses $\rightarrow$ Primary LLM};
+  \node[bdiopt,text width=44mm] (P2) at (66,-64) {Secondary LLM};
+  \node[bdiopt,text width=44mm] (P3) at (66,-82) {Graph / cross-packet /\\schema overlays};
+  \draw[bdiflow,draw=bdiOptEdge] (P1)--(P2);
+  \draw[bdiflow,draw=bdiOptEdge] (P2)--(P3);
+  \draw[bdiback,draw=bdiOptEdge] (E.east)--(P1.west);
+  \draw[bdiback,draw=bdiOptEdge] (P3.south) |- (F.east);
+  \node[bdilbl,align=center,text width=34mm] at (40,-99)
+        {review only; the originating\\control must run again};
+\end{tikzpicture}

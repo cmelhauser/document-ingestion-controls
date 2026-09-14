@@ -1,0 +1,48 @@
+{
+  "schema_version": "1.0",
+  "generated_at": "2026-08-18T01:24:55.413634+00:00",
+  "run_directory": "fixtures/acceptance_packet",
+  "source_policy": {
+    "raw_provider_responses_are_retained": true,
+    "only_successful_responses_with_provider_usage_are_counted": true,
+    "failed_attempts_without_usage_are_not_invented": true,
+    "superseded_raw_attempts_are_excluded_from_totals": true
+  },
+  "current_run": {
+    "pages": null,
+    "lanes": [],
+    "tokens": {},
+    "provider_failure_count": 0,
+    "review_finding_count": 0,
+    "retry_telemetry": {
+      "retry_attempts": 0,
+      "rate_limit_attempts": 0,
+      "total_retry_delay_seconds": 0.0
+    },
+    "pricing_status": "rates_not_configured",
+    "estimated_cost_usd": null,
+    "spend_metadata_fields_captured": [
+      "model",
+      "billing.payer",
+      "service_tier",
+      "traffic_type",
+      "prompt/input tokens",
+      "output/candidates tokens",
+      "reasoning/thoughts tokens",
+      "total tokens",
+      "cached tokens",
+      "cache-write tokens"
+    ]
+  },
+  "how_to_price": {
+    "formula": "estimated_cost_usd = (input_tokens * input_usd_per_million + output_tokens * output_usd_per_million + reasoning_tokens * reasoning_usd_per_million) / 1_000_000",
+    "required_inputs": [
+      "provider",
+      "model",
+      "input_usd_per_million",
+      "output_usd_per_million",
+      "reasoning_usd_per_million"
+    ],
+    "cache_note": "Cached and cache-write token fields are retained separately; apply provider billing rules before pricing them."
+  }
+}

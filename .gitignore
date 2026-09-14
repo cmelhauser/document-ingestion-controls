@@ -1,0 +1,34 @@
+.env
+# Local Google Cloud service-account credential; never commit or include in run artifacts.
+gmp-demo-project-162294954-2e3a7b248e83.json
+.venv/
+.coverage
+coverage.xml
+htmlcov/
+__pycache__/
+.pytest_cache/
+.worktrees/
+docs/*.aux
+docs/*.log
+docs/*.synctex.gz
+.DS_Store
+output/
+/client_review_grouping_post_reassembly.json
+/client_review_package/
+/client_review_package.zip
+/client_decisions.json
+/returned_client_review*.xlsx
+.llm-cache*/
+.llm-rate-limit*/
+tmp/
+private/
+# mutmut writes generated mutant sources and a cache beside the project.
+mutants/
+.mutmut-cache
+mutmut-stats.json
+fixtures/real_world_calibration/originals/
+fixtures/real_world_calibration/ground_truth/
+fixtures/real_world_calibration/derived/
+fixtures/real_world_calibration/manifest.json
+*.sqlite
+mcp/*.local.json

@@ -1,0 +1,29 @@
+% Release-document layout safeguards injected by scripts/generate_docs.sh.
+\usepackage{fvextra}
+\fvset{breaklines=true,breakanywhere=true,fontsize=\small}
+\RecustomVerbatimEnvironment{verbatim}{Verbatim}{breaklines=true,breakanywhere=true,fontsize=\small}
+\setlength{\emergencystretch}{3em}
+\AtBeginDocument{\sloppy}
+% Workflow-figure support: mermaid blocks in the canonical Markdown are mapped
+% to hand-authored TikZ figures by scripts/pandoc_bounded_tables.lua.
+\usepackage{tikz}
+\usetikzlibrary{shapes.geometric,arrows.meta,positioning,fit,backgrounds,calc}
+\definecolor{bdiStep}{HTML}{EAF2FB}
+\definecolor{bdiEdge}{HTML}{365F91}
+\definecolor{bdiText}{HTML}{17253A}
+\definecolor{bdiGate}{HTML}{FFF5D6}
+\definecolor{bdiGateEdge}{HTML}{9B6B00}
+\definecolor{bdiOpt}{HTML}{F0EAF7}
+\definecolor{bdiOptEdge}{HTML}{5B3E86}
+\definecolor{bdiOut}{HTML}{E6F4EA}
+\definecolor{bdiOutEdge}{HTML}{1E6B3A}
+\tikzset{
+  bdi/.style={draw=bdiEdge,line width=1pt,fill=bdiStep,text=bdiText,rounded corners=3pt,
+              align=center,inner sep=4pt,font=\scriptsize\sffamily},
+  bdigate/.style={bdi,draw=bdiGateEdge,fill=bdiGate},
+  bdiopt/.style={bdi,draw=bdiOptEdge,fill=bdiOpt,dashed},
+  bdiout/.style={bdi,draw=bdiOutEdge,fill=bdiOut},
+  bdiflow/.style={-{Stealth[length=2mm]},draw=bdiEdge,line width=0.9pt},
+  bdiback/.style={bdiflow,dashed},
+  bdilbl/.style={font=\tiny\sffamily,text=bdiText,inner sep=1.5pt,fill=white},
+}

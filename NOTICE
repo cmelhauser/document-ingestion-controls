@@ -1,0 +1,18 @@
+Business Document Ingestion
+
+Courtesy credit for the original repository structure, source, documentation,
+tests, examples, and configuration:
+
+- Christopher Melhauser <christopher.melhauser@gmail.com>
+- theonlymuffinbot <theonlymuffinbot@outlook.com>
+
+In this repository, “theonlymuffinbot” is the collaborative AI identity used
+for work produced through a mix of Anthropic Claude Opus 5, OpenAI GPT-5.6
+Terra and Sol, and xAI Grok 4.5 models. This is descriptive courtesy context,
+not a claim that an AI system has legal authorship or ownership.
+
+The repository is dedicated to the public domain under `LICENSE`. This credit
+is requested as a courtesy and does not add a restriction to the dedication.
+Third-party dependencies and separately supplied assets may carry their own
+licenses; consult the dependency metadata and each asset's accompanying
+notice.

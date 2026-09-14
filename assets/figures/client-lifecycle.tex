@@ -1,0 +1,31 @@
+\begin{tikzpicture}[node distance=5mm and 9mm]
+  \node[bdi,text width=52mm] (src) {\textbf{1. Source material}\\Original PDFs, reference,\\ledger, and payment exports};
+  \node[bdi,text width=52mm,below=of src] (keep) {\textbf{2. Preserve and prepare}\\Byte-verified copy, SHA-256,\\one master page per source page};
+  \node[bdi,text width=52mm,below=of keep] (read) {\textbf{3. Classify and extract}\\Two independent readers,\\source-native table rows};
+  \node[bdi,text width=52mm,below=of read] (check) {\textbf{4. Prove and validate}\\Page order, duplicates, fields,\\arithmetic, entities};
+  \node[bdi,text width=52mm,below=of check] (attr) {\textbf{5. Attribute and complete}\\Approved references, GL variance,\\payment matching, aging};
+  \node[bdigate,text width=52mm,below=of attr] (gate) {\textbf{6. Final review gate}\\Every unresolved item, with\\document, page, reason, priority};
+  \node[bdi,text width=52mm,below=of gate] (client) {\textbf{7. Client review}\\Issued workbook, preserved return,\\compiled plan, authorization};
+  \node[bdiout,text width=52mm,below=of client] (out) {\textbf{8. Approved delivery}\\Reporting, no-send staging,\\or read-only retrieval};
+
+  \draw[bdiflow] (src)--(keep);
+  \draw[bdiflow] (keep)--(read);
+  \draw[bdiflow] (read)--(check);
+  \draw[bdiflow] (check)--(attr);
+  \draw[bdiflow] (attr)--(gate);
+  \draw[bdiflow] (gate)--node[bdilbl,right]{not clear}(client);
+  \draw[bdiflow] (client)--node[bdilbl,right]{clear}(out);
+
+  % Optional proposal layer, to the right of the deterministic spine.
+  \node[bdiopt,text width=44mm,right=16mm of read] (llm1) {\textbf{Optional proposal layer}\\Preserved client responses\\$\rightarrow$ Primary LLM};
+  \node[bdiopt,text width=44mm,below=of llm1] (llm2) {Secondary LLM check:\\confirmed / close / conflict /\\unsupported};
+  \node[bdiopt,text width=44mm,below=of llm2] (llm3) {Evidence graph overlay\\$\rightarrow$ cross-packet refinement\\$\rightarrow$ schema proposal};
+
+  \draw[bdiflow,draw=bdiOptEdge] (llm1)--(llm2);
+  \draw[bdiflow,draw=bdiOptEdge] (llm2)--(llm3);
+  \draw[bdiback,draw=bdiOptEdge] (read.east)--(llm1.west);
+  \draw[bdiback,draw=bdiOptEdge] (llm3.south) |- ($(gate.east)+(0,3mm)$);
+
+  % The authorized-amendment return path.
+  \draw[bdiback] (client.west) -- ++(-9mm,0) |- node[bdilbl,pos=0.25,left,align=right]{authorized\\append-only\\amendment,\\targeted rerun} (read.west);
+\end{tikzpicture}

@@ -1,0 +1,7 @@
+# Development and test dependencies, declared without version pins.
+# See requirements.txt for why; requirements.lock holds the pinned resolution.
+-r requirements.txt
+pytest
+coverage
+ruff
+PyYAML

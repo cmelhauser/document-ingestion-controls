@@ -1,0 +1,23 @@
+{
+  "sample_metadata": {
+    "label": "SAMPLE - FICTIONAL - NOT CLIENT DATA",
+    "authoritative_schema": "references/artifact-contracts.md"
+  },
+  "templates": [
+    {
+      "template_id": "fictional-dealer-summary-v1",
+      "evidence": [{"document_id": "sample-document-001", "page_id": "page-0001", "region_id": "table-01"}],
+      "headers": [
+        {"source_label": "ACK Number", "sample_values": ["ACK-1042"]},
+        {"source_label": "Order Ref", "sample_values": ["ORDER-88"]},
+        {"source_label": "Brand", "sample_values": ["Sample Brand"]},
+        {"source_label": "Dealer City", "sample_values": ["Sampletown"]}
+      ],
+      "entities": [
+        {"entity_id": "dealer-01", "entity_type": "dealer", "name": "Sample Dealer", "city_hint": "Sampletown", "country_code": "US"},
+        {"entity_id": "brand-01", "entity_type": "brand", "name": "Sample Brand", "city_hint": "Sampletown", "country_code": "US"}
+      ],
+      "relationships": [{"from_entity_id": "dealer-01", "to_entity_id": "brand-01", "source_label": "Brand"}]
+    }
+  ]
+}

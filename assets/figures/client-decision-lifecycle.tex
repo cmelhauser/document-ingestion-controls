@@ -1,0 +1,39 @@
+\begin{tikzpicture}[x=1mm,y=1mm]
+  % Deterministic spine.
+  \node[bdi,text width=40mm] (A) at (0,0)    {Receive original PDFs\\and supporting exports};
+  \node[bdi,text width=40mm] (B) at (0,-18)  {Retain pages and\\their evidence};
+  \node[bdi,text width=40mm] (C) at (0,-36)  {Read visible rows\\and run checks};
+  \node[bdigate,text width=32mm] (D) at (0,-54) {\textbf{Material\\uncertainty?}};
+  \node[bdiout,text width=40mm] (G) at (0,-72) {Approved record};
+  \node[bdiout,text width=48mm] (H) at (0,-90) {Reporting, no-send staging,\\or read-only retrieval};
+
+  % Client decision path, to the left.
+  \node[bdi,text width=40mm] (F) at (-62,-36) {Cited correction,\\confirmation, or deferral};
+  \node[bdi,text width=40mm] (E) at (-62,-54) {Client decision card\\or retained exception};
+
+  \draw[bdiflow] (A)--(B);
+  \draw[bdiflow] (B)--(C);
+  \draw[bdiflow] (C)--(D);
+  \draw[bdiflow] (D)--node[bdilbl,right]{No}(G);
+  \draw[bdiflow] (G)--(H);
+  \draw[bdiflow] (D)--node[bdilbl,above]{Yes}(E);
+  \draw[bdiflow] (E)--(F);
+  % The amendment return path is routed above the row so its label sits clear of
+  % both the decision box it leaves and the extraction box it re-enters.
+  \draw[bdiflow] (F.north) -- ++(0,5) coordinate (m)
+        -- node[bdilbl,above,align=center,text width=50mm]
+           {authorized append-only amendment,\\targeted rerun}
+           (m -| C.north) -- (C.north);
+
+  % Optional AI layer, to the right.
+  \node[bdiopt,text width=42mm] (I) at (66,-27) {\textbf{Optional, cost-bounded AI layer}\\Preserve client comments;\\infer source-bound links};
+  \node[bdiopt,text width=42mm] (J) at (66,-45) {Primary LLM $\rightarrow$ Secondary LLM\\$\rightarrow$ proposal graph};
+  \node[bdiopt,text width=42mm] (K) at (66,-63) {Cross-packet refinement of\\unresolved documents};
+
+  \draw[bdiflow,draw=bdiOptEdge] (I)--(J);
+  \draw[bdiflow,draw=bdiOptEdge] (J)--(K);
+  \draw[bdiback,draw=bdiOptEdge] (C.north east) -- ++(6,0) |- (I.west);
+  \draw[bdiback,draw=bdiOptEdge] (K.west) -- ++(-14,0) |- (C.south east);
+  \node[bdilbl,align=center,text width=21mm] at (33,-51)
+        {proposals only;\\never closes\\the gate};
+\end{tikzpicture}

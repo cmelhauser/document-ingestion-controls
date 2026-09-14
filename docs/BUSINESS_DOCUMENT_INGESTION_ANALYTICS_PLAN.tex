@@ -1,0 +1,2872 @@
+% source-sha256: 7db9d60041e090b7f53ee5d05947ec50ee8ce80561c5aeeace2f354bfcd674f5
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+\documentclass[
+]{article}
+\usepackage{xcolor}
+\usepackage[letterpaper,margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math} % this also loads fontspec
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+\usepackage{lmodern}
+\ifPDFTeX\else
+  % xetex/luatex font selection
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{longtable,booktabs,array}
+\usepackage{caption}
+\captionsetup[table]{skip=6pt}
+\newcounter{none} % for unnumbered tables
+\usepackage{calc} % for calculating minipage widths
+% Correct order of tables after \paragraph or \subparagraph
+\usepackage{etoolbox}
+\makeatletter
+\patchcmd\longtable{\par}{\if@noskipsec\mbox{}\fi\par}{}{}
+\makeatother
+% Allow footnotes in longtable head/foot
+\IfFileExists{footnotehyper.sty}{\usepackage{footnotehyper}}{\usepackage{footnote}}
+\makesavenoteenv{longtable}
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+% Release-document layout safeguards injected by scripts/generate_docs.sh.
+\usepackage{fvextra}
+\fvset{breaklines=true,breakanywhere=true,fontsize=\small}
+\RecustomVerbatimEnvironment{verbatim}{Verbatim}{breaklines=true,breakanywhere=true,fontsize=\small}
+\setlength{\emergencystretch}{3em}
+\AtBeginDocument{\sloppy}
+% Workflow-figure support: mermaid blocks in the canonical Markdown are mapped
+% to hand-authored TikZ figures by scripts/pandoc_bounded_tables.lua.
+\usepackage{tikz}
+\usetikzlibrary{shapes.geometric,arrows.meta,positioning,fit,backgrounds,calc}
+\definecolor{bdiStep}{HTML}{EAF2FB}
+\definecolor{bdiEdge}{HTML}{365F91}
+\definecolor{bdiText}{HTML}{17253A}
+\definecolor{bdiGate}{HTML}{FFF5D6}
+\definecolor{bdiGateEdge}{HTML}{9B6B00}
+\definecolor{bdiOpt}{HTML}{F0EAF7}
+\definecolor{bdiOptEdge}{HTML}{5B3E86}
+\definecolor{bdiOut}{HTML}{E6F4EA}
+\definecolor{bdiOutEdge}{HTML}{1E6B3A}
+\tikzset{
+  bdi/.style={draw=bdiEdge,line width=1pt,fill=bdiStep,text=bdiText,rounded corners=3pt,
+              align=center,inner sep=4pt,font=\scriptsize\sffamily},
+  bdigate/.style={bdi,draw=bdiGateEdge,fill=bdiGate},
+  bdiopt/.style={bdi,draw=bdiOptEdge,fill=bdiOpt,dashed},
+  bdiout/.style={bdi,draw=bdiOutEdge,fill=bdiOut},
+  bdiflow/.style={-{Stealth[length=2mm]},draw=bdiEdge,line width=0.9pt},
+  bdiback/.style={bdiflow,dashed},
+  bdilbl/.style={font=\tiny\sffamily,text=bdiText,inner sep=1.5pt,fill=white},
+}
+\usepackage{bookmark}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\urlstyle{same}
+% fallback for those not using the hyperref driver hyperxmp:
+\makeatletter
+\@ifundefined{xmpquote}{\newcommand{\xmpquote}[1]{#1}}{}
+\makeatother
+\hypersetup{
+  pdftitle={Business Document Ingestion{,} Extraction \& Analytics Program},
+  pdfauthor={Christopher Melhauser and theonlymuffinbot},
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+
+\title{Business Document Ingestion, Extraction \& Analytics Program}
+\usepackage{etoolbox}
+\makeatletter
+\providecommand{\subtitle}[1]{% add subtitle to \maketitle
+  \apptocmd{\@title}{\par {\large #1 \par}}{}{}
+}
+\makeatother
+\subtitle{Self-Contained Operating Plan and Vendor-Neutral Handoff
+Specification --- Release 1.0}
+\author{Christopher Melhauser and theonlymuffinbot}
+\date{September 3, 2026}
+
+\begin{document}
+\maketitle
+
+\section{0. Document Purpose and
+Scope}\label{document-purpose-and-scope}
+
+\subsection{0.0.1 Authorship and AI collaboration
+context}\label{authorship-and-ai-collaboration-context}
+
+Courtesy credit for this manuscript is given to Christopher Melhauser
+and \texttt{theonlymuffinbot}. In this context,
+\texttt{theonlymuffinbot} describes collaborative AI tooling. This
+describes the tooling collaboration and does not assign legal authorship
+or ownership to an AI system; legal attribution remains with human
+contributors.
+
+\subsection{0.1 What this document is}\label{what-this-document-is}
+
+This is a self-contained operating plan for converting retained business
+documents --- invoices, receipts, purchase orders, memos, remittances,
+statements, and shipping records where present --- into a validated,
+reconciled financial and operational dataset suitable for an agreed
+business-system handoff.
+
+ACKs, jobs, commission statements, shipment records, black-and-white
+scans, sales-origin analysis, and email are illustrative configuration
+examples only. They are not assumed client facts, required fields, or
+delivery commitments. Replace them with the engagement's approved
+document families, relationship keys, controls, and business questions
+during Phase 0.
+
+\subsection{0.2 Delivery package}\label{delivery-package}
+
+This plan is self-contained for client delivery: it defines the
+operating gates, evidence-preservation rules, quality controls, data
+model, output contract, and remaining integration limits. The current
+delivery package preserves source PDFs and run artifacts and supplies
+the final review package as canonical JSON plus CSV, formatted XLSX
+workbook, and HTML reviewer views.
+\texttt{references/\allowbreak{}artifact-\allowbreak{}contracts.md}
+supplies the definitive review interface;
+\texttt{references/\allowbreak{}extraction-\allowbreak{}schema.md} and
+\texttt{references/\allowbreak{}derived-\allowbreak{}field-\allowbreak{}schema.md}
+supply the field dictionaries. The \texttt{examples/\allowbreak{}}
+folder is explicitly fictional field-shape material, not an operational
+review package.
+
+\subsection{0.2.1 Delivery workflow and optional AI
+integration}\label{delivery-workflow-and-optional-ai-integration}
+
+\textbf{Source PDFs, references, and operating constraints} →
+\textbf{preserve/profile} → \textbf{immutable page intake} →
+\textbf{independent proposals and consensus} → \textbf{arithmetic,
+validation, attribution, completeness, and sampling} →
+\textbf{exhaustive final client review} → \textbf{analytics and agreed
+load handoff}.
+
+Optional OpenAI, Gemini-on-Vertex, OpenRouter, Document AI, HTR,
+semantic-discovery, address, and LLM-adjudication lanes feed retained
+evidence or proposals into this same path. None may bypass the
+deterministic controls, close an exception, or supply client approval.
+
+The selected run-level LLM adapter does not control the final decision
+path. It runs only after immutable intake, retains raw provider evidence
+and a page hash, and contributes one structured proposal to consensus.
+Provider uncertainty, type proposals, handwriting flags, and failures
+enter the review gate; no adapter can approve a record or close an
+exception. Primary and secondary consensus lanes are invoked separately
+and count as independent only when their providers are genuinely
+independent.
+
+The separately disabled LLM adjudication lane is intentionally narrower.
+It may query only explicit nonfinancial, printed candidates after clear
+deterministic validation and exact independent-extractor agreement.
+\texttt{LLM\_\allowbreak{}ADJUDICATION\_\allowbreak{}MIN\_\allowbreak{}CONFIDENCE}
+defaults to \texttt{0.99} and can be adjusted in \texttt{.env} only
+through \texttt{1.0}; it cannot override financial, address,
+handwriting, reassembly, or disagreement controls. Every result is an
+audit-marked amendment proposal or exception and always enters the final
+client-review gate.
+
+\subsection{0.2.2 Semantic schema discovery, entity history, and future
+CRM/RAG
+delivery}\label{semantic-schema-discovery-entity-history-and-future-crmrag-delivery}
+
+New source layouts are governed by a versioned canonical vocabulary and
+a source-alias registry.
+\texttt{scripts/\allowbreak{}schema\_\allowbreak{}discovery.py} produces
+strict LLM suggestions for canonical field, semantic type, alternatives,
+confidence, rationale, and supplied evidence only. It cannot create a
+canonical field, alter a party or entity master, or approve a mapping.
+Each new alias/template requires explicit client approval; the registry
+update creates a new effective-dated snapshot. Familiar sources
+presenting changed headers, dealer or brand names, city clues, or
+relationship evidence return to review. Names, addresses, and
+relationships are temporal evidence, not overwritten labels.
+
+Use address evidence from the source page and the separate
+address-validation stage first. Google Places (New), when enabled, is
+only a bounded candidate-discovery source for observed dealer/brand
+names and city hints. It never establishes entity identity, selects a
+city/address, or bypasses review. The approved registry and validated
+provenance-linked records constitute a vendor-neutral CRM staging
+interface. The implemented local retrieval database indexes approved
+canonical facts and preserves document/page/source-hash and
+mapping-version citations. A specific CRM connector, remote vector
+service, or ChatGPT connection remains deferred until the client selects
+its security, retention, and access model.
+
+\subsection{0.2.3 Flexible allocation
+policy}\label{flexible-allocation-policy}
+
+Commission and sales-credit logic is a versioned policy layer, not a
+globally hard-coded percentage or a column rename.
+\texttt{allocation\_\allowbreak{}policy.py} calculates effective
+commission rate from retained source amounts and separately records
+stated rates, shares, and formula proof. A client-approved rule may use
+any approved source dimension---brand, dealer, product, client,
+location, or a later schema-approved layer---and an effective-date
+window. The most-specific active rule applies; missing/ambiguous rules,
+unknown layers, invalid dates, and formula mismatches remain review
+work.
+
+For a new report layout, strict LLM output proposes allocation roles and
+a policy card only. The client edits only the generated decision return
+file to approve/defer, specify dimensions and dates, and make an
+explicit approved override. The next registry snapshot preserves the
+prior policy history. The LLM cannot create sales credit or alter a
+historical result. See
+\texttt{references/\allowbreak{}allocation-\allowbreak{}policy.md}.
+
+The implemented control layer is ready to operate when client records,
+reference exports, and approved provider configurations are received. It
+does not claim that OCR/HTR vendor calls, handwriting-region detection,
+broad automatic classification, or CRM loading have been deployed; those
+require client-approved integrations and a representative golden-set
+evaluation.
+
+\subsection{0.3 Capability status and future
+steps}\label{capability-status-and-future-steps}
+
+This plan retains the 1.0.0 control baseline and also describes
+implemented development additions in this checkout. See
+\texttt{HANDOFF.md} for merge/deployment state; an \textbf{Unreleased}
+capability is not a claim of production acceptance.
+
+{\def\LTcaptype{none} % do not increment counter
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.3333}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.3333}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.3333}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Capability
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Status
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Engagement next step
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+Immutable intake, proposal-only extraction, consensus, arithmetic,
+validation, review packages, and JSON graph overlays & Implemented
+control layer & Select the applicable source records and run
+configuration. \\
+Configured-primary/configured-buddy relationship inference and
+cross-packet verification & Implemented proposal workflow & Set an
+approved provider budget; review retained proposals and exceptions. \\
+Reference schema, attribution keys, analytic dimensions, and allocation
+policy & Configurable implemented controls & Approve the relationship
+key, field mappings, and policy for the engagement. \\
+Approved-fact MCP/API, account cards, governed queries, sales slices,
+seven standard reports and remote CSV/XLSX downloads & Implemented
+shared service and transports & Build an approved non-empty snapshot;
+accept the selected TLS/OAuth/client deployment. \\
+Schema-guided PNG/JPEG intake and local source-only export & Implemented
+optional proposal pilot & Authorize image/model data flow; verify real
+transfer, receipts, source package and normal pipeline re-entry. \\
+Authoritative GL, payment, reference, or authorization evidence &
+External operating control & Supply it when available; otherwise retain
+an unavailable-control exception. \\
+Additional OCR/HTR vendors, calibrated detector/template deployment,
+email ingestion, target CRM connector, hosted retrieval, and production
+accuracy claims & Future integration work & Define vendor, security,
+retention, evaluation, and acceptance criteria before implementation. \\
+\end{longtable}
+}
+
+Nothing in this template turns an inference or a missing client control
+into an approved fact. Future steps remain explicitly future until their
+integration, test evidence, and client acceptance are recorded.
+
+\subsubsection{Optional visual intake and remaining adapter
+work}\label{optional-visual-intake-and-remaining-adapter-work}
+
+The current MCP servers can add eleven operations for schema discovery,
+session discovery, original-page upload/read, proposal submission,
+reviewer grants, review summaries, and status/proposal retrieval. The
+remote OAuth service exposes equivalent JSON API routes. Intake is
+disabled unless \texttt{-\/-ingestion-dir} is supplied. Local discovery
+grows from 12 to 23 tools; remote discovery grows from 14 to at most 25,
+filtered by scopes. The TLS/bearer GET API and default local launcher
+remain unchanged. The combined servers still require an approved
+snapshot and separate activation authorization.
+
+The connected vision-capable assistant reads retained images; the server
+makes no additional model call. Originals, source references, unknown
+fields, uncertainties and all rejected/corrected proposals remain
+append-only in a separate journal. A valid submission is pending review,
+not an approved record. No native capture client or chat-attachment
+relay is included. Client upload and vision support must be demonstrated
+rather than inferred from MCP access.
+
+\texttt{visual\_\allowbreak{}ingestion\_\allowbreak{}export.py}
+snapshots an existing session read-only into a new source package,
+preserves every original attempt/proposal/rejection, and only for
+complete usable pages prepares a session-named image PDF with a
+provenance map. Verify against the separately retained receipt, inspect
+the PDF, and use normal profiling/intake. Missing or failed pages block
+progression. Every source-package exception belongs in final review. The
+package is neither a consensus handoff nor an approved CRM import.
+
+The \href{../references/visual-ingestion.md}{visual contract} and
+\href{TECHNICAL_DOCUMENTATION.md}{technical manual} define flags, sizes
+and recovery. Governed create/update, shared review, saved custom
+reports, safe general joins and broader analytics remain in the
+\href{../references/business-data-platform-roadmap.md}{vendor-neutral
+roadmap}. They do not depend on Salesforce. The existing no-send
+common-object package already prepares twelve CRM import files; live
+target adapters still require tenant-specific mapping, sandbox evidence
+and separate authorization.
+
+\subsection{0.4 What is in scope}\label{what-is-in-scope}
+
+Ingestion and normalization; document reassembly, classification, and
+field extraction; handwriting capture and linkage; \textbf{attribution
+of every monetary amount to a configured business reference}; origin
+resolution; validation, entity resolution, and reconciliation;
+completeness controls covering all purchases and payments; analytics;
+canonical data model and CRM load sequence. Email integration is in
+scope as a deferred option.
+
+\subsection{0.5 What is out of scope}\label{what-is-out-of-scope}
+
+Construction of the CRM application itself. This program terminates at a
+documented, validated, load-ready dataset plus the load order and
+integrity rules the CRM must honour.
+
+\subsection{0.6 Stated outcome}\label{stated-outcome}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  A \textbf{complete, auditable financial record} of every purchase and
+  payment evidenced in the corpus, each figure traceable to a specific
+  source page.
+\item
+  \textbf{Every monetary amount attributed} to a configured business
+  reference, or explicitly registered as unattributable with a stated
+  reason and a dollar value.
+\item
+  A \textbf{quantified statement of accuracy and completeness} --- a
+  measured error rate with confidence bounds and an explicit enumeration
+  of what is missing.
+\item
+  A \textbf{canonical dataset}, deduplicated and entity-resolved, ready
+  for CRM load in a defined order.
+\item
+  A \textbf{standing analytics layer} answering the client's decision
+  questions, including revenue by originating city and by job.
+\item
+  A \textbf{reusable pipeline} and a permanent regression test set.
+\end{enumerate}
+
+\subsection{0.7 Governing principles}\label{governing-principles}
+
+\textbf{Nothing is silently discarded.} Every input page produces an
+output record, even if that record is ``unreadable, escalated.''
+
+\textbf{Original values are never overwritten.} Corrections are stored
+as amendments alongside originals, with source attribution and effective
+time.
+
+\textbf{Documents prove themselves arithmetically.} A confidence score
+is not evidence. Internal arithmetic consistency is. This principle
+carries disproportionate weight in every financial-document engagement
+--- see §1.2.
+
+\textbf{Completeness is reported on the face of every analysis.} Never
+plug a variance to make totals agree.
+
+\textbf{Every dollar carries an attribution or an explicit reason it has
+none.} Silently unattributed revenue defeats the purpose of the
+exercise.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\section{1. Engagement Configuration and Open
+Variables}\label{engagement-configuration-and-open-variables}
+
+\subsection{1.1 Example: black-and-white scan
+corpus}\label{example-black-and-white-scan-corpus}
+
+The following is an illustrative configuration for a black-and-white
+corpus. For each client, Phase 0.5 measures the actual colour depth, bit
+depth, and scan quality; it does not assume this example or choose a
+processing path before that evidence exists.
+
+\subsubsection{Direct consequences}\label{direct-consequences}
+
+{\def\LTcaptype{none} % do not increment counter
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.3333}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.3333}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.3333}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Capability
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Status
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Consequence
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+Ink/colour separation for handwriting detection & \textbf{Unavailable} &
+Pen and print are the same colour. Annotation detection falls back to
+stroke shape and layout deviation. \\
+Stamp and seal detection & \textbf{Unavailable by colour} & ``PAID''
+stamps, approval stamps, and received-date stamps no longer separate
+from print. Planned template matching requires client calibration
+(§3.5). \\
+Highlighter and markup detection & \textbf{Lost} & Highlighted regions
+render as grey wash or, on bilevel scans, erase the underlying text
+entirely. Affected regions are flagged as damaged, not silently read. \\
+Handwriting recognition accuracy & \textbf{Degraded} & Lower stroke
+fidelity, particularly on 1-bit scans. \\
+Printed-text OCR & \textbf{Largely unaffected} & Print OCR is designed
+for bilevel input. \\
+Classification, matching, reconciliation, attribution &
+\textbf{Unaffected} & Structural, not tonal. \\
+\end{longtable}
+}
+
+\subsubsection{What this changes in the
+plan}\label{what-this-changes-in-the-plan}
+
+For a black-and-white corpus, use these compensating controls:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  \textbf{Use at least two genuinely independent extraction providers;
+  target three where the client risk assessment requires triple entry.}
+  Release 1.0 supplies the consensus contract and optional OpenAI,
+  Gemini-on-Vertex, OpenRouter, and Document AI evidence adapters, but
+  the client must select and accept the independent production
+  providers. Single-engine error rates rise materially on bilevel input.
+\item
+  \textbf{Multi-binarization ensemble} on any 8-bit grayscale pages
+  (§3.4). Each variant is retained comparison evidence; readings from
+  one vendor remain correlated and are not separate independent engines.
+\item
+  \textbf{Arithmetic self-proof is promoted from a validation rule to
+  the primary error-detection mechanism} (§1.2).
+\item
+  \textbf{Handwriting is assumed present until proven absent.}
+  Proposal/detector output sets processing priority, never eligibility;
+  local detection still requires client calibration.
+\item
+  \textbf{QA oversampling on handwriting-bearing strata rises to
+  8--10×}.
+\end{enumerate}
+
+\subsubsection{The one remaining question about the
+scans}\label{the-one-remaining-question-about-the-scans}
+
+The corpus is black-and-white, but \textbf{8-bit grayscale and 1-bit
+bilevel are very different inputs} and the difference is not visible to
+the eye at normal zoom. Grayscale retains stroke intensity information
+that stroke-morphology detection depends on; bilevel has discarded it
+irreversibly.
+
+Phase 0.5 measures the split. If a material share is bilevel, and
+grayscale or colour masters still exist anywhere --- original paper, an
+earlier scan generation, a scanner's retained output folder ---
+re-deriving those pages from the better source is by far the cheapest
+accuracy improvement available in this project.
+
+\subsection{1.2 Why arithmetic proof now carries the
+program}\label{why-arithmetic-proof-now-carries-the-program}
+
+With ink separation gone, some handwritten annotations \textbf{will} go
+undetected. That is a certainty, not a risk to be mitigated to zero.
+
+The recovery mechanism is arithmetic. A handwritten quantity correction
+or price override that the detector missed will, in most cases, break
+the document's internal arithmetic --- the printed lines will no longer
+sum to the printed total once the real quantity is what governs. The
+failure surfaces the annotation that detection missed.
+
+This is why the self-proof rule remains non-negotiable whenever
+handwritten financial changes may be present. \textbf{Arithmetic proof
+is the backstop when recognition is unavailable, deferred, or
+intentionally out of scope.}
+
+\subsection{1.3 Example configuration
+parameters}\label{example-configuration-parameters}
+
+{\def\LTcaptype{none} % do not increment counter
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 2\tabcolsep) * \real{0.5000}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 2\tabcolsep) * \real{0.5000}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Parameter
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Value
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+Scan colour depth & Example: black-and-white source corpus; Phase 0.5
+records the measured grayscale/bilevel split per page \\
+QA model & Sampling-only on the clean population; 100\% review of all
+exceptions \\
+Efficiency posture & Robustness prioritised over cost \\
+Financial coverage & All purchases and payments documented and
+reconciled \\
+Handwriting & Example: present; recognition deferred; capture-and-link
+retained (§7) \\
+Dollar attribution & Example: every dollar ties to an approved
+relationship key such as ACK, job, project, order, or PO \\
+Sales origin & Example analytic dimension; replace with approved
+reporting dimensions \\
+Email corpus & Optional future phase if separately authorized \\
+Corpus period & Engagement-defined \\
+Corpus ordering & Unordered; pages not grouped into documents \\
+\end{longtable}
+}
+
+\subsection{1.4 Parameters requiring client
+input}\label{parameters-requiring-client-input}
+
+\begin{itemize}
+\tightlist
+\item
+  Total page count across all scan files
+\item
+  \textbf{ACK and job-number format conventions}, including any changes
+  over the five-year period
+\item
+  \textbf{Definition of ``sales origin city''} --- see §8.4, which
+  explains why this must be settled explicitly
+\item
+  Materiality threshold for monetary-unit sampling
+\item
+  Tolerable error rate per field class
+\item
+  GL variance tolerance
+\item
+  Availability of grayscale or colour masters for any bilevel pages
+\item
+  Email export format, date range, and mailbox scope (if Phase 7
+  proceeds)
+\item
+  Data residency and PII handling constraints
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\section{2. Phase 0 --- Discovery}\label{phase-0-discovery}
+
+Working session with the client. Output is a one-page constraint
+document.
+
+\subsection{2.1 Inventory}\label{inventory}
+
+File count, total page count, scan DPI, single- or double-sided capture,
+presence of any native text layer.
+
+\subsection{2.2 Document taxonomy}\label{document-taxonomy}
+
+Confirm which types exist. Do not assume the list. Candidates:
+commercial invoice, packing list, bill of lading, air waybill, carrier
+freight bill, customs entry, proof of delivery, credit memo, debit memo,
+remittance advice, purchase order, \textbf{acknowledgement (ACK)},
+statement of account.
+
+The acknowledgement document type is load-bearing when it is a
+configured relationship key. If ACKs exist as their own document class
+in the corpus, they are the authoritative source for the attribution key
+and are processed first.
+
+\subsection{2.3 Attribution conventions}\label{attribution-conventions}
+
+An essential discovery item when acknowledgement or order references are
+in scope.
+
+\begin{itemize}
+\tightlist
+\item
+  What does an ACK number look like? Fixed prefix, length, check digit?
+\item
+  What does a job or project number look like?
+\item
+  Did either convention change during the measured period? Format
+  changes are the most common cause of silent attribution failure.
+\item
+  Which is authoritative when a document carries both?
+\item
+  Are there dollars that legitimately have neither --- internal
+  transfers, rebates, rebilled freight, credits? These need a defined
+  disposition rather than showing up as failures.
+\item
+  Where does the number physically appear on each document type? Printed
+  field, stamped, or handwritten?
+\end{itemize}
+
+The last question determines how much of §7 is required. If ACK numbers
+are routinely handwritten, handwriting capture is not optional
+regardless of the general descoping instruction.
+
+\subsection{2.4 Systems of record}\label{systems-of-record}
+
+Accounting platform, TMS, order-entry or quoting system, carrier
+portals.
+
+\textbf{An order-entry or quoting system is material}: when an
+authoritative digital list of relationship keys, dates, parties, and
+amounts exists, it becomes the attribution reference table and makes §8
+more reliable than deriving everything from documents alone.
+
+\subsection{2.5 Retention, privacy,
+residency}\label{retention-privacy-residency}
+
+What may leave the client network, permitted cloud regions, statutory
+retention on originals. Extend to mailbox scope if Phase 7 is
+anticipated.
+
+\subsection{2.6 Decision list}\label{decision-list}
+
+The questions the analytics must answer, as literal sentences. Defines
+``finished.'' Include the city-of-sale question explicitly, because its
+phrasing determines the §8.4 resolution hierarchy.
+
+\subsection{2.7 Deliverables}\label{deliverables}
+
+Constraint document; 50-page random calibration sample; ACK/job format
+specification.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\section{3. Phase 0.5 --- Scan
+Profiling}\label{phase-0.5-scan-profiling}
+
+Runs against the \textbf{full corpus}, not the sample. About an hour of
+compute.
+
+The purpose is to measure the source evidence before selecting a
+processing path. The profiling now characterises \textbf{how degraded
+the black-and-white corpus is} and routes pages to the appropriate
+enhancement path.
+
+\subsection{3.1 Probe}\label{probe}
+
+Per page: bit depth, effective DPI, compression codec, ink coverage
+ratio, estimated blur, contrast range, skew residual, speckle density,
+scanner make and model from XMP or producer string.
+
+\subsection{3.2 Primary output: the grayscale/bilevel
+split}\label{primary-output-the-grayscalebilevel-split}
+
+{\def\LTcaptype{none} % do not increment counter
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.3333}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.3333}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.3333}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Bucket
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Definition
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Handling
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+\textbf{G} & 8-bit grayscale & Full stroke-morphology detection
+available; multi-binarization ensemble applies \\
+\textbf{B1} & 1-bit bilevel, lossless (CCITT G4) & Stroke intensity
+discarded; morphology degraded but workable \\
+\textbf{B2} & 1-bit bilevel, lossy (JBIG2) & As B1, plus
+digit-substitution hazard (§3.3) \\
+\end{longtable}
+}
+
+Bucket G is materially better input than B1 or B2 and should be
+preserved as grayscale through the pipeline rather than binarized early.
+Binarizing a grayscale page and discarding the original throws away the
+information that stroke detection needs, and it is a one-way operation.
+
+\subsection{3.3 JBIG2 hazard}\label{jbig2-hazard}
+
+JBIG2 lossy compression substitutes visually similar glyph patches
+across a document and can alter digits with no visible artefact. This
+risk is elevated in an engagement when the corpus includes
+bilevel-eligible pages.
+
+All numerics from JBIG2 pages are marked suspect regardless of OCR
+confidence. Those strata are escalated in QA sampling. If a material
+share of the corpus is JBIG2 and any better-quality source exists,
+re-deriving those pages is the single highest-return remediation
+available.
+
+\subsection{3.4 Image quality scoring and planned remediation
+routing}\label{image-quality-scoring-and-planned-remediation-routing}
+
+The implemented profiler records the measurable PDF/image
+characteristics and scan branch. The following calibrated quality score
+and remediation router is a target integration that requires the client
+golden set:
+
+{\def\LTcaptype{none} % do not increment counter
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 2\tabcolsep) * \real{0.5000}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 2\tabcolsep) * \real{0.5000}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Score
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Path
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+Good & Standard pipeline \\
+Marginal & Enhancement pass --- deskew, despeckle, contrast
+normalization, and for grayscale, multi-binarization ensemble \\
+Poor & Enhancement plus mandatory QA sampling inclusion regardless of
+stratum quotas \\
+\end{longtable}
+}
+
+The implemented \textbf{multi-binarization ensemble} (grayscale pages
+only) produces three binarized variants using global thresholding,
+adaptive local thresholding, and a stroke-preserving method. OCR each
+variant independently. Each variant becomes an additional consensus
+voter. On degraded scans this recovers characters that any single
+threshold loses, and it costs only compute.
+
+\textbf{Upscaling} for pages below 300 DPI remains planned before any
+calibrated handwriting-region processing. Sub-300 DPI is where
+handwritten digit recognition fails hardest.
+
+\subsection{3.5 Stamp recovery}\label{stamp-recovery}
+
+Colour separation would have found stamps trivially. The planned
+compensating control is template matching against a client-approved
+library of recurring ``PAID'', received-date, and approval stamps. It is
+not implemented in release 1.0 and must be calibrated before it can
+affect payment status.
+
+This matters specifically for payment matching. A ``PAID'' stamp with a
+handwritten date is frequently the only evidence that an invoice was
+settled, and losing it inflates the apparent open-receivables balance in
+§9.
+
+\subsection{3.6 Decision gate}\label{decision-gate}
+
+Outputs: bucket counts, quality distribution, JBIG2 page count, DPI
+distribution, and a costed remediation recommendation if better-quality
+masters exist.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\section{4. Phase 1 --- Ingestion}\label{phase-1-ingestion}
+
+\subsection{4.1 Retain, burst, and prepare
+variants}\label{retain-burst-and-prepare-variants}
+
+The implemented intake retains a byte-verified source PDF and creates
+one immutable PDF master per page. The implemented preparation ensemble
+then creates a grayscale master, contrast-enhanced sibling, and three
+complementary binarized siblings without changing any PDF master.
+Scan-specific upscaling, deskew, despeckle, and auto-rotation remain
+calibrated integration work and must create retained variants rather
+than replace evidence.
+
+\subsection{4.2 Text-layer detection}\label{text-layer-detection}
+
+\texttt{pdftotext} is retained per page. In the implemented optional
+OpenAI lane, rule-classified pages may use native text and all other
+pages use their one-page PDF. Routing for any other OCR provider
+requires its own approved adapter and golden-set test.
+
+\subsection{4.3 Document reassembly}\label{document-reassembly}
+
+The implemented control proposes a group only from a complete
+consecutive \texttt{PAGE\ X\ OF\ Y} sequence with an agreeing type and
+identifier. Its explicit broad mode proposes, but does not order,
+same-type/unique-ID candidates. The target signal hierarchy is:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  OCR-recovered ``Page X of Y'' markers
+\item
+  Invoice, BOL, AWB, \textbf{ACK, or job number} continuity across
+  consecutive pages
+\item
+  Header-page classifier
+\item
+  Blank-page or separator-sheet detection
+\end{enumerate}
+
+Signal 2 is stronger when attribution keys are extracted as first-class
+fields, ACK and job numbers become reassembly evidence as well as
+attribution evidence.
+
+Pages that cannot be confidently assigned go to an unassigned pool and
+are worked manually. Never force-fit.
+
+\subsection{4.4 OCR engine integration
+target}\label{ocr-engine-integration-target}
+
+Release 1.0 includes the optional OpenAI proposal voter, vendor-neutral
+OCR/HTR contracts, and a separately enabled Google Document AI
+OCR/table-evidence adapter. Document AI retains raw page response and
+table/cell evidence but makes no canonical decision; it is a conditional
+buddy-audit/reconciliation input. The target production configuration
+uses independently tested readers after client selection and golden-set
+benchmarking. Bilevel input raises single-engine error rates enough that
+a third independent reading should be routine, not a last-resort
+tiebreaker.
+
+When provider adapters and the retained variant ensemble are
+independently calibrated, one page may contribute multiple readings.
+Variants from one engine are correlated evidence and must not be
+misrepresented as independent vendors.
+
+\subsection{4.5 Deduplication}\label{deduplication}
+
+Release 1.0 records exact retained-artifact duplicates. Perceptual-image
+and normalized-text near-duplicate matching remain a calibrated
+proposal-only extension; candidates may never be silently deleted.
+
+\subsection{4.6 Provenance}\label{provenance}
+
+Every record carries source file, page range, engine, engine version,
+binarization variant, run timestamp, per-field confidence, and quality
+score.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\section{5. Phase 2 --- Classification}\label{phase-2-classification}
+
+Two levels: document type, then party role.
+
+Deterministic rules on form numbers, letterhead tokens, and header
+strings first; measure against the calibration sample; train a
+classifier only if rules plateau below target.
+
+\textbf{Acknowledgements are classified first and processed first} where
+they exist as a document class, because they populate the attribution
+reference table that Phase 3A depends on.
+
+Below-threshold classifications route to human review. A misclassified
+document produces a structurally wrong extraction, not a merely
+inaccurate one.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\section{6. Phase 3 --- Extraction}\label{phase-3-extraction}
+
+\subsection{6.1 Field schema}\label{field-schema}
+
+Per document type. Header fields are cheap; line items are 3--5× the
+effort and are the primary cost driver.
+
+\textbf{Two new mandatory header fields on every financial document
+type:} \texttt{ack\_\allowbreak{}number} and
+\texttt{job\_\allowbreak{}number}. These are extracted with the same
+rigour as monetary fields, because §8 makes them load-bearing.
+
+\subsection{6.2 Independent extraction and
+consensus}\label{independent-extraction-and-consensus}
+
+{\def\LTcaptype{none} % do not increment counter
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.3333}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.3333}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.3333}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Condition
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Disposition
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Flag
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+Independent primary and secondary readings agree & Consensus proposal;
+applicable deterministic controls still run &
+\texttt{consensus\_\allowbreak{}confirmed} \\
+Independent readings differ or a provider fails & Explicit exception;
+never silently accepted & \texttt{no\_\allowbreak{}consensus} \\
+A later independent corroboration is available & Retain it as additional
+evidence; it does not erase prior disagreement &
+\texttt{consensus\_\allowbreak{}corroborated} \\
+\end{longtable}
+}
+
+Where the multi-binarization ensemble applies, variant readings are
+additional evidence within one provider's result rather than independent
+proof. A field where binarization variants disagree is a signal that the
+page is degraded at that location, and it is flagged even if the
+providers agree overall.
+
+Provider budgets are set per engagement. Independent evidence is
+preserved because a wrong figure can propagate through a long-lived
+financial history.
+
+\subsection{6.3 Arithmetic self-proof}\label{arithmetic-self-proof}
+
+Line extensions reconcile to line totals; lines sum to subtotal;
+subtotal + tax + freight + accessorials = stated total, to the cent.
+
+A document failing its own arithmetic is an exception regardless of
+confidence. It can also be the primary means of discovering handwritten
+overrides that detection missed (§1.2).
+
+\subsection{6.4 Additional validation}\label{additional-validation}
+
+Dates within the operating window; currency and UOM against controlled
+vocabularies; invoice numbers against detected per-vendor format
+patterns; \textbf{ACK and job numbers against the format specification
+from §2.3}; tax rates within plausible ranges.
+
+Format validation on attribution keys is the cheapest error detection in
+the project. A five-character ACK number in a corpus where every other
+ACK is six characters is an OCR error, and the check costs nothing.
+
+Raw addresses are retained as evidence and locally split into CRM
+components: address line 1, address line 2, city, state or region,
+postal code, and ISO country code. An approved run may then explicitly
+call Google Address Validation with a non-secret API key and a maximum
+of 5,000 provider requests. It records a separate standardized-address,
+deliverability, and geocode proposal only when the verdict is complete
+and premise-level without component uncertainty. Provider failures,
+including unsupported country coverage, caps, incomplete verdicts, and
+conflicts stay in the final-review queue; no source value is
+overwritten. Address Validation itself supplies the geocode evidence, so
+this path does not call the separate Geocoding API.
+
+\subsection{6.5 Exception policy}\label{exception-policy}
+
+Sampling governs the clean population only. Every record failing
+consensus, arithmetic, validation, or reconciliation is worked by a
+human, 100\% of the time. Expect this to run at the upper end of the
+typical 5--15\% band given bilevel input.
+
+\subsection{6.6 Entity resolution}\label{entity-resolution}
+
+Party names and addresses normalized and fuzzy-matched into a
+deduplicated master with defined surviving-record rules. ``ACME Corp'',
+``Acme Corporation'', and ``ACME CORP.'' must collapse to one account or
+the CRM is worthless on delivery.
+
+Every merge decision is logged and reversible. Ambiguous clusters are
+presented for adjudication, not guessed at.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\section{7. Phase 3H --- Handwriting Capture
+Track}\label{phase-3h-handwriting-capture-track}
+
+\subsection{7.1 Scope decision and its
+boundary}\label{scope-decision-and-its-boundary}
+
+The client has directed that handwriting may be ignored. That direction
+is accepted for \textbf{recognition} --- full handwritten text
+recognition with 3-of-3 consensus is descoped, along with its manual
+review burden.
+
+It cannot be accepted for \textbf{capture}, for two specific reasons:
+
+\textbf{First, the attribution requirement.} §2.3 asks where ACK and job
+numbers physically appear. On shipping paperwork these are very often
+handwritten --- written on at the point of order entry or at receiving.
+If handwriting is discarded entirely and ACK numbers are among the
+discarded content, the attribution requirement in §8 cannot be met at
+all. The two instructions are in direct tension, and attribution is the
+harder requirement.
+
+\textbf{Second, arithmetic integrity.} Handwritten quantity and price
+corrections change what a document actually says. Ignoring them does not
+make the printed figure correct; it makes it wrong and unflagged.
+Arithmetic proof will surface these regardless (§1.2), so the work of
+dealing with them is not avoided by descoping --- only the ability to
+resolve them cheaply is lost.
+
+\subsubsection{The resulting scope}\label{the-resulting-scope}
+
+{\def\LTcaptype{none} % do not increment counter
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 2\tabcolsep) * \real{0.5000}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 2\tabcolsep) * \real{0.5000}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Activity
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Status
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+Detect handwritten regions & \textbf{Retained} --- cheap, and required
+for the flag \\
+Crop and store region images & \textbf{Retained} --- the artefact the
+CRM links to \\
+Read ACK / job numbers from handwriting & \textbf{Retained} --- mandated
+by §8 \\
+Read quantities/amounts where arithmetic fails & \textbf{Retained} ---
+triggered by failure, not by default \\
+Read cheque numbers and payment marks & \textbf{Retained} --- needed for
+§9 aging closure \\
+Read all other handwritten content & \textbf{Descoped} --- captured as
+an image, flagged, not transcribed \\
+3-of-3 consensus on all handwritten numerics & \textbf{Narrowed} ---
+applies only to the retained categories \\
+Manual review of every handwritten amendment & \textbf{Narrowed} ---
+applies only where a dollar figure or attribution key is affected \\
+\end{longtable}
+}
+
+This preserves the client's cost saving --- the bulk of handwriting is
+delivery notes, initials, and marginalia that genuinely does not need
+transcription --- while protecting the two things that would otherwise
+break.
+
+\subsection{7.2 Detection without colour: target
+architecture}\label{detection-without-colour-target-architecture}
+
+Three signals in combination, since ink separation is unavailable.
+
+\textbf{Stroke morphology} --- planned local stroke-width variance,
+baseline instability, slant irregularity, curvature entropy. Primary
+detector. Degraded on bilevel relative to grayscale, which is why the
+§3.2 bucket split matters.
+
+\textbf{Layout delta} --- planned registration against a learned,
+client-approved form template; ink outside the printed field grid or
+overlapping printed glyphs is annotation. Strong on standardized forms,
+weak on free-format documents.
+
+\textbf{Full-page vision-language model proposal} --- the implemented
+optional PDF-mode OpenAI lane may enumerate likely handwritten regions
+with bounding boxes. It is proposal-only and cannot substitute for a
+calibrated detector or independent HTR.
+
+Detection recall will be materially below what colour scans would give.
+Detector output sets processing priority, never eligibility.
+
+\subsection{7.3 Capture and CRM linkage
+contract}\label{capture-and-crm-linkage-contract}
+
+The canonical contract supports a record for every detected region
+regardless of whether it is transcribed:
+
+\begin{verbatim}
+handwriting_region:
+  document_id, page, bounding_box, region_image_path,
+  detector, detector_confidence,
+  annotation_type_guess, transcribed (bool),
+  transcribed_text (nullable), recognition_agreement (nullable)
+\end{verbatim}
+
+The target CRM adapter stores and links the cropped region image. The
+practical effect: a user viewing an invoice sees a flag that the
+document carries handwriting, and can click through to the actual
+cropped image of it without anyone having transcribed it. This satisfies
+the client's instruction to ``capture it somehow and log it'' at
+near-zero marginal cost, and it means the decision to transcribe can be
+revisited later without reprocessing the corpus.
+
+\subsection{7.4 Targeted recognition
+triggers}\label{targeted-recognition-triggers}
+
+Transcription runs only when triggered:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  Region classified as likely containing an ACK or job number, by
+  position and character pattern
+\item
+  Document failed arithmetic self-proof and a handwritten region
+  overlaps a quantity, price, or total field
+\item
+  Region overlaps a payment block, or a ``PAID'' stamp was matched
+  nearby
+\item
+  Region falls within a QA sample selection
+\end{enumerate}
+
+The target integration uses dedicated independent HTR engines in
+parallel, full-page context rather than isolated crops, 3-of-3 agreement
+required for numerics. The strictness is retained where it is applied;
+only the scope of application is narrowed.
+
+\subsection{7.5 Precedence rule}\label{precedence-rule}
+
+Unchanged and non-negotiable:
+
+\begin{quote}
+\textbf{Printed values are the baseline. Handwritten values are
+amendments carrying a later effective time. Both are stored.}
+\end{quote}
+
+The canonical layer exposes the amended value as current and the printed
+value as \texttt{original\_\allowbreak{}value}, with
+\texttt{amendment\_\allowbreak{}source = 'handwritten'}. Auditable and
+reversible.
+
+\subsection{7.6 Signatures}\label{signatures}
+
+Never transcribed as data. Recorded as \texttt{signed} (boolean), region
+bounding box, and approver identity only where separately legible from a
+printed name line. Reading cursive signatures as names produces
+confident nonsense that contaminates entity resolution.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\section{8. Phase 3A --- Attribution}\label{phase-3a-attribution}
+
+New phase. Every dollar in the dataset ties to an ACK or job/project
+number, and every sale carries an originating city. This is a hard gate,
+not an enrichment.
+
+\subsection{8.1 Why this is a separate
+phase}\label{why-this-is-a-separate-phase}
+
+Attribution is not a field extraction problem. Roughly half the
+documents in a corpus of this kind will not state the attribution key
+directly --- a carrier freight bill carries a PRO number and a BOL
+reference, not a job number. The key has to be \textbf{derived through
+the document graph}, which requires extraction and entity resolution to
+be complete first.
+
+Treating it as just another extracted field is the most common way this
+requirement fails. It has its own phase, its own resolution hierarchy,
+its own coverage metric, and its own gate.
+
+\subsection{8.2 Attribution reference
+table}\label{attribution-reference-table}
+
+Built first, before any resolution is attempted. Sources in order of
+authority:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  Client's order-entry or quoting system export, if one exists --- a
+  digital list of ACK numbers with dates, customers, and amounts. This
+  is by far the best input and §2.4 asks for it specifically.
+\item
+  Acknowledgement documents in the corpus, extracted in Phase 3.
+\item
+  ACK and job numbers appearing on any other document type.
+\end{enumerate}
+
+The reference table gives every known ACK and job number a validated
+format, a date range, a customer, and an expected value. Every
+subsequent resolution is checked against it, which converts attribution
+from guesswork into lookup.
+
+\subsection{8.3 Resolution hierarchy}\label{resolution-hierarchy}
+
+Applied in order. The first method that resolves wins, and \textbf{the
+method is recorded on the record}.
+
+{\def\LTcaptype{none} % do not increment counter
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.2500}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.2500}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.2500}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.2500}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Rank
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Method
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Confidence
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Notes
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+1 & Explicit printed ACK or job number on the document & Highest &
+Validated against reference table \\
+2 & Explicit handwritten ACK or job number & High & Requires 3-of-3
+recognition per §7.4 \\
+3 & Purchase order number cross-reference & High & PO → ACK via
+reference table \\
+4 & Invoice-to-shipment linkage & Medium & Shipment already attributed;
+invoice inherits \\
+5 & Payment-to-invoice linkage & Medium & Invoice already attributed;
+payment inherits \\
+6 & Customer + date-window + amount match against reference table &
+Medium-low & Requires a unique match; ambiguous matches are not
+resolved \\
+7 & Email evidence & Low & Phase 7 only. Corroborating, never
+overriding \\
+8 & Manual assignment & Recorded & Assigner and date logged \\
+--- & \textbf{Unattributable} & --- & Explicit disposition with a stated
+reason and dollar value \\
+\end{longtable}
+}
+
+Ranks 4 and 5 are inheritance rules and they are what make the
+requirement achievable. A carrier freight bill that states no job number
+inherits one from the shipment it bills for, which inherited it from the
+invoice, which stated it explicitly. The chain is recorded so the
+inference is auditable.
+
+\subsection{8.4 Sales origin city}\label{sales-origin-city}
+
+The client requires knowing what city a sale came from. \textbf{This
+phrase has at least four defensible meanings and they produce different
+numbers.} Settle it in Phase 0 rather than discovering the disagreement
+after the analysis is presented.
+
+{\def\LTcaptype{none} % do not increment counter
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.3333}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.3333}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.3333}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Interpretation
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Meaning
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Typical source
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+Selling location & Which of the client's offices or branches booked the
+sale & Letterhead, issuing office, ACK prefix, salesperson \\
+Ship-from origin & Where the goods physically departed & BOL origin,
+warehouse address \\
+Customer location & Where the customer is based & Bill-to address \\
+Delivery destination & Where the goods went & Ship-to address, POD \\
+\end{longtable}
+}
+
+In most businesses asking this question, the intended meaning is
+\textbf{selling location} --- a territory or branch performance
+question. It is also the hardest of the four to source, because it is
+frequently not stated on the document at all and has to be inferred from
+letterhead, ACK number prefix, or salesperson assignment.
+
+\subsubsection{Resolution hierarchy for selling
+location}\label{resolution-hierarchy-for-selling-location}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  Explicit branch or office field on the document
+\item
+  Letterhead or footer address on the issuing document --- recoverable
+  by template matching against a small library of the client's
+  letterhead variants
+\item
+  ACK number prefix, where the numbering scheme encodes location
+  (common; check in §2.3)
+\item
+  Salesperson or rep name, mapped to a territory table
+\item
+  Customer's assigned territory from the reference table
+\item
+  Email evidence (Phase 7)
+\item
+  Unresolved --- explicit, with dollar value
+\end{enumerate}
+
+All four interpretations are captured where the data supports it, stored
+as separate fields. This costs little and means the client can change
+their mind about which one they meant without reprocessing.
+
+\subsection{8.5 Attribution coverage
+gate}\label{attribution-coverage-gate}
+
+The exit condition for this phase.
+
+{\def\LTcaptype{none} % do not increment counter
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 2\tabcolsep) * \real{0.5000}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 2\tabcolsep) * \real{0.5000}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Metric
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Requirement
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+Dollars attributed to ACK or job number & 100\% attributed \textbf{or}
+explicitly registered unattributable \\
+Attribution by method & Reported --- the mix of ranks 1--8 is a quality
+indicator in itself \\
+Dollars with resolved selling location & Reported, with unresolved
+quantified \\
+Unattributable register & Every entry has a reason code and a dollar
+value \\
+\end{longtable}
+}
+
+An attribution rate of ``97\%'' is not a passing result unless the
+remaining 3\% is enumerated with reasons and a dollar figure. The gate
+is not high attribution; it is that \textbf{no dollar is unaccounted for
+silently.}
+
+Reason codes for legitimate unattributables --- internal transfer,
+rebate, rebilled freight, pre-system-implementation, credit against a
+closed job --- are agreed in Phase 0 so they are dispositions rather
+than failures.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\section{9. Phase 4 --- Completeness and Data Quality
+Gate}\label{phase-4-completeness-and-data-quality-gate}
+
+Completeness is a harder requirement than accuracy. A missing document
+is invisible; a wrong one is at least detectable.
+
+\subsection{9.1 Financial event stream}\label{financial-event-stream}
+
+All documents normalize to a ledger-shaped stream:
+
+\begin{verbatim}
+event_id, event_type, party_id, amount, currency, effective_date,
+source_document_id, ack_number, job_number, selling_location
+\end{verbatim}
+
+\texttt{event\_\allowbreak{}type in \{purchase, payment, credit, adjustment, accrual\}}
+
+Attribution keys travel on the event, not just on the source document,
+so every downstream aggregation can be cut by job without a join back
+through the document graph.
+
+Non-financial documents register with a null amount so the shipment
+lifecycle stays complete.
+
+\subsection{9.2 Matching}\label{matching}
+
+\textbf{Three-way match:} PO \textless-\textgreater{} receipt (packing
+list or POD) \textless-\textgreater{} invoice.
+
+\textbf{Open-item matching:} invoice \textless-\textgreater{} payment
+\textless-\textgreater{} remittance advice, supporting partial payments
+and one-payment-to-many-invoices.
+
+\textbf{ACK-to-invoice match:} every ACK in the reference table should
+resolve to one or more invoices. ACKs with no invoice are either open
+jobs or missing documents --- the distinction matters and is reported.
+
+Every match carries a method and confidence.
+
+\subsection{9.3 Completeness controls}\label{completeness-controls}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  \textbf{Sequence continuity} --- invoice numbering per vendor; all
+  gaps enumerated. When acknowledgements are in scope, apply the control
+  to \textbf{ACK number sequences}, which are typically client-issued
+  and therefore far more reliably sequential than vendor invoice
+  numbers. A gap in the client's own ACK sequence is strong evidence of
+  a missing job.
+\item
+  \textbf{Calendar continuity} --- document counts and amounts by vendor
+  by month.
+\item
+  \textbf{Period reconciliation} --- extracted totals vs GL by period
+  and vendor. Variance reported, never plugged.
+\item
+  \textbf{Bank/cash reconciliation} --- payment events vs bank statement
+  totals.
+\item
+  \textbf{Aging closure} --- every invoice terminates in a payment,
+  credit, write-off, or explicit open status.
+\item
+  \textbf{Attribution closure} --- every dollar attributed or explicitly
+  registered (§8.5).
+\end{enumerate}
+
+\subsection{9.4 Completeness Report}\label{completeness-report}
+
+A standing deliverable regenerated on every run: total documents and
+value; unmatched count and value by cause; sequence gaps including ACK
+gaps; calendar gaps; GL variance; \textbf{attribution coverage and the
+unattributable register}; exception queue volume and clearance.
+
+Every analytic output carries these figures on its face.
+
+\subsection{9.5 Gate}\label{gate}
+
+Does not proceed to analytics until the one-sided MUS bound is completed
+and within tolerance (or the affected population was fully reworked),
+the Completeness Report has \texttt{gate\_\allowbreak{}status: clear},
+separately reviewed attribute results are accepted, and the §8.5
+attribution gate is met.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\section{10. Phase 4Q --- Sampling QA}\label{phase-4q-sampling-qa}
+
+Two schemes in parallel, both drawing only from records marked
+\texttt{auto\_\allowbreak{}accepted} whose arithmetic status is
+explicitly \texttt{proved} or \texttt{not\_\allowbreak{}applicable}.
+
+\subsection{10.1 Monetary unit sampling}\label{monetary-unit-sampling}
+
+Selection probability proportional to document value. Everything above
+the materiality threshold, plus any item larger than the provisional
+systematic interval, is examined with certainty. Produces a one-sided
+projected overstatement and dollar-denominated 95\% upper overstatement
+bound. Observed understatement and completeness are reported separately.
+
+\subsection{10.2 Stratified attribute
+sampling}\label{stratified-attribute-sampling}
+
+The checked-in script creates a reproducible document-selection plan by
+document type × year × processing branch ×
+\texttt{has\_\allowbreak{}handwriting}; JBIG2 status is a separate
+oversampling trigger. It reports a zero-finding rule-of-three planning
+bound per stratum, not observed field accuracy. Vendor rank,
+image-quality/scan-bucket, period-edge, and ACK/job field strata require
+an engagement-specific extension and validation before they can be
+reported.
+
+\textbf{Oversampling:}
+
+{\def\LTcaptype{none} % do not increment counter
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 2\tabcolsep) * \real{0.5000}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 2\tabcolsep) * \real{0.5000}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Stratum
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Multiplier
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+Handwriting-bearing Branch A & 4× \\
+Handwriting-bearing Branch B & 9× \\
+Handwriting-bearing B-rescan & 4× \\
+JBIG2-suspect stratum & at least 5× \\
+\end{longtable}
+}
+
+Attribution keys are a recommended engagement-specific oversample
+because a wrong ACK number does not produce a wrong total. The current
+generic planner does not derive a field-level ACK/job stratum, so an
+operator must not claim it did.
+
+\subsection{10.3 Sizing}\label{sizing}
+
+Rule of three: zero errors in \emph{n} gives an upper 95\% bound of
+approximately 3/\emph{n}.
+
+{\def\LTcaptype{none} % do not increment counter
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 2\tabcolsep) * \real{0.5000}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 2\tabcolsep) * \real{0.5000}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+n
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Upper bound
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+60 & \textasciitilde5\% \\
+300 & \textasciitilde1\% \\
+600 & \textasciitilde0.5\% \\
+\end{longtable}
+}
+
+Sizing derives from tolerable error rate, not corpus size.
+
+\subsection{10.4 Escalation}\label{escalation}
+
+If the completed MUS upper overstatement bound exceeds tolerance, the
+affected population goes to 100\% review and is re-sampled after
+remediation. Invalid, duplicate, off-sample, or
+confidence-factor-table-exhausting findings block the calculation
+instead of producing a bound.
+
+\subsection{10.5 Golden set}\label{golden-set}
+
+500--1,000 hand-labelled pages spanning every document type, vendor
+format, quality band, both bilevel and grayscale buckets, and heavy
+handwriting representation. Permanent regression infrastructure; every
+pipeline change is benchmarked against it before deployment.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\section{11. Phase 5 --- Analytics}\label{phase-5-analytics}
+
+Scoped against the Phase 0 decision list.
+
+\subsection{11.1 Job and ACK analytics}\label{job-and-ack-analytics}
+
+When configured under §8, this is a primary analytic frame.
+
+\begin{itemize}
+\tightlist
+\item
+  Revenue, cost, and margin by job or ACK
+\item
+  Job profitability distribution; loss-making job identification
+\item
+  Cost composition by job --- materials, freight, accessorials, duty
+\item
+  Job cycle time: ACK date → ship date → invoice date → payment date
+\item
+  Open ACKs with no invoice; invoiced jobs with no payment
+\item
+  Revenue by job over time; job size distribution
+\end{itemize}
+
+\subsection{11.2 Geographic analytics}\label{geographic-analytics}
+
+\begin{itemize}
+\tightlist
+\item
+  Revenue by selling location, by period
+\item
+  Growth and decline by location
+\item
+  Customer concentration within each location
+\item
+  Lane and destination mix by originating location
+\item
+  Margin by location
+\end{itemize}
+
+Every geographic figure carries its resolution-method mix. A city total
+that is 60\% inferred from ACK prefix and 40\% explicitly stated is a
+different quality of number than one that is fully explicit, and the
+reader needs to know which they are looking at.
+
+\subsection{11.3 Customer analytics}\label{customer-analytics}
+
+Revenue by account and period; concentration; first-order date; RFM;
+churn signal; cohort retention; product mix.
+
+Churn findings are cross-checked against the calendar-gap report before
+presentation. A customer who appears to have stopped ordering may simply
+have documents in an unscanned batch --- the most common false finding
+in backfile analytics.
+
+\subsection{11.4 Vendor and carrier
+analytics}\label{vendor-and-carrier-analytics}
+
+Spend by carrier; rate variance by lane; on-time delivery from POD
+dates; claim and damage rate; vendor concentration; fuel surcharge
+ratio.
+
+\subsection{11.5 Cost analytics}\label{cost-analytics}
+
+Freight cost per shipment, per unit weight, per lane;
+\textbf{accessorial leakage} --- detention, demurrage, fuel surcharge,
+redelivery, storage; landed cost; cost trend normalized for volume.
+
+Accessorial leakage is usually where recoverable money is found. It
+requires accessorials itemized by code at extraction; collapsing them
+into a single freight figure makes the analysis impossible without
+re-extraction.
+
+\subsection{11.6 Financial control
+analytics}\label{financial-control-analytics}
+
+Duplicate invoice detection across the full corpus; price-vs-contract
+variance; payment terms adherence; DSO/DPO; early-payment discount
+capture; unapplied cash; overbilling via three-way match variance.
+
+\subsection{11.7 Data quality analytics}\label{data-quality-analytics}
+
+A permanent operational dashboard: extraction accuracy by field, type,
+and quality band; handwriting incidence and capture rate;
+\textbf{attribution coverage by method}; exception volume and clearance;
+completeness metrics; entity resolution status.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\section{12. Phase 6 --- Data Model and CRM
+Handoff}\label{phase-6-data-model-and-crm-handoff}
+
+\subsection{12.1 Layers}\label{layers}
+
+\textbf{Raw} (immutable engine output, retained permanently) →
+\textbf{staged} (typed, validated) → \textbf{canonical} (deduplicated,
+entity-resolved, amendments applied) → \textbf{CRM load}
+(target-shaped).
+
+Any downstream layer rebuilds from raw without re-OCR.
+
+\subsection{12.2 Core entities}\label{core-entities}
+
+\texttt{party}, \texttt{party\_\allowbreak{}role}, \texttt{address},
+\texttt{contact}, \texttt{item}, \texttt{carrier}, \texttt{lane},
+\texttt{shipment}, \texttt{document},
+\texttt{invoice\_\allowbreak{}header},
+\texttt{invoice\_\allowbreak{}line}, \texttt{payment},
+\texttt{payment\_\allowbreak{}application}, \texttt{amendment},
+\texttt{exception\_\allowbreak{}event}
+
+\textbf{Implemented control:}
+
+{\def\LTcaptype{none} % do not increment counter
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 2\tabcolsep) * \real{0.5000}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 2\tabcolsep) * \real{0.5000}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Entity
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Purpose
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+\texttt{acknowledgement} & The ACK master. Number, date, customer,
+selling location, value, status \\
+\texttt{job} & Job or project master where distinct from ACK \\
+\texttt{attribution} & Links any financial row to an ACK or job, with
+method, confidence, and evidence chain \\
+\texttt{selling\_\allowbreak{}location} & Branch/office master with
+territory mapping \\
+\texttt{handwriting\_\allowbreak{}region} & Detected annotation regions,
+cropped images, transcription status \\
+\texttt{email\_\allowbreak{}message} & Phase 7 only \\
+\texttt{email\_\allowbreak{}evidence} & Phase 7 only --- links an email
+to a document, attribution, or party \\
+\end{longtable}
+}
+
+\subsection{12.3 Common control columns}\label{common-control-columns}
+
+Every batch-managed business row carries its idempotency key,
+\texttt{batch\_\allowbreak{}id}, and
+\texttt{review\_\allowbreak{}status}. Evidence-bearing rows also carry a
+direct source-document key or explicit decision-evidence link. Static
+vocabulary and pure association rows retain their own stable
+natural/composite keys without inventing page provenance.
+
+Applicable transaction fields include:
+
+\begin{itemize}
+\tightlist
+\item
+  Identity: stable primary/idempotency key and
+  \texttt{natural\_\allowbreak{}key} where applicable.
+\item
+  Source proof: \texttt{source\_\allowbreak{}document\_\allowbreak{}id}
+  and \texttt{source\_\allowbreak{}page\_\allowbreak{}range}.
+\item
+  Control: \texttt{source\_\allowbreak{}confidence},
+  \texttt{review\_\allowbreak{}status}, and
+  \texttt{has\_\allowbreak{}handwriting}.
+\item
+  Value lineage: \texttt{original\_\allowbreak{}value},
+  \texttt{amended\_\allowbreak{}value}, and
+  \texttt{amendment\_\allowbreak{}source}.
+\item
+  Quality band: \texttt{image\_\allowbreak{}quality\_\allowbreak{}band}.
+\item
+  Scan bucket: \texttt{scan\_\allowbreak{}bucket}.
+\item
+  Processing audit: \texttt{created\_\allowbreak{}at},
+  \texttt{updated\_\allowbreak{}at}, and
+  \texttt{batch\_\allowbreak{}id}.
+\end{itemize}
+
+Financial tables carry \texttt{ack\_\allowbreak{}number} and
+\texttt{job\_\allowbreak{}number}. They also carry
+\texttt{attribution\_\allowbreak{}method} and
+\texttt{selling\_\allowbreak{}location\_\allowbreak{}key}.
+
+\subsection{12.4 Load order}\label{load-order}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  Reference data --- currency, UOM, charge codes, country, document
+  type, \textbf{selling\_location}
+\item
+  \texttt{document} registry --- before every source-provenance foreign
+  key
+\item
+  \texttt{party} → \texttt{address} → \texttt{contact}
+\item
+  \texttt{carrier}, \texttt{item}, \texttt{lane}
+\item
+  \textbf{\texttt{acknowledgement}, \texttt{job}}
+\item
+  \texttt{shipment}
+\item
+  \texttt{invoice\_\allowbreak{}header}
+\item
+  \texttt{invoice\_\allowbreak{}line}
+\item
+  \texttt{payment}, then \texttt{payment\_\allowbreak{}application}
+\item
+  \textbf{\texttt{attribution}}
+\item
+  \textbf{\texttt{handwriting\_\allowbreak{}region}},
+  \texttt{amendment}, \texttt{exception\_\allowbreak{}event}
+\item
+  Phase 7 only: \texttt{email\_\allowbreak{}message},
+  \texttt{email\_\allowbreak{}evidence}
+\end{enumerate}
+
+ACK and job masters load before any transactional table that references
+them. Attribution loads after both sides exist.
+
+\subsection{12.5 Load mechanics}\label{load-mechanics}
+
+Idempotent upsert by natural key. Referential integrity enforced at
+load, not assumed --- a failed foreign key halts the load rather than
+silently dropping the row. Load manifest per run. Rollback by
+\texttt{batch\_\allowbreak{}id}.
+
+\subsection{12.6 Handoff deliverables}\label{handoff-deliverables}
+
+Canonical dataset; ERD and data dictionary; load order specification;
+integrity rules; Completeness Report; one-sided MUS overstatement bound
+and separately reviewed attribute-sample results; \textbf{attribution
+coverage report and unattributable register}; open exception register.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\section{13. Phase 7 --- Email Corpus Integration (Optional,
+Deferred)}\label{phase-7-email-corpus-integration-optional-deferred}
+
+An email corpus may be incorporated as an ancillary step when separately
+authorized. It is designed so that deferring it costs nothing and
+executing it requires no rework of Phases 0--6.
+
+\subsection{13.1 Scope mismatch, stated up
+front}\label{scope-mismatch-stated-up-front}
+
+An email corpus may cover a shorter or different period than the
+document corpus. \textbf{Email can enrich only its measured overlap
+window.} Any analytic conclusion drawn from email-derived data applies
+to that window and must state the coverage limit. Presenting an
+email-enriched metric alongside a full-period trend without noting the
+coverage break produces a false discontinuity that looks like a business
+change.
+
+\subsection{13.2 What email is good for}\label{what-email-is-good-for}
+
+In descending order of likely value:
+
+\textbf{1. Attachments.} Emails frequently contain a digitally generated
+PDF of an invoice that exists in the scan corpus only as a degraded
+black-and-white image. Where an attachment matches a scan, retain it as
+a separate source with its own hash and provenance. Compare its derived
+values to the scan/OCR proposals and record agreement or a cited
+amendment/discrepancy; never replace either source. Given that the
+historic corpus is bilevel, this is the single most valuable thing in
+the mailbox and on its own may justify the phase.
+
+\textbf{2. Attribution gap-filling.} Emails carry ACK numbers, job
+numbers, and PO references in subject lines and bodies. For dollars
+stranded at rank 8 or unattributable in §8.3, email is often the only
+remaining evidence.
+
+\textbf{3. Missing payment evidence.} Remittance advices, payment
+confirmations, and ``cheque is in the mail'' threads close aging items
+that the document corpus leaves open.
+
+\textbf{4. Selling location evidence.} Signature blocks carry office
+addresses. Sender identity maps to territory. This resolves §8.4 rank 6.
+
+\textbf{5. Contact enrichment for the CRM.} Names, titles, phone
+numbers, and current email addresses per account --- data the document
+corpus barely contains and the CRM genuinely needs.
+
+\textbf{6. Order-to-cash narrative.} Quote → ACK → change orders →
+dispute → settlement threads explain anomalies that the documents only
+record the outcome of.
+
+\subsection{13.3 What email must not be used
+for}\label{what-email-must-not-be-used-for}
+
+\textbf{Email is corroborating evidence. It never overrides a source
+document.}
+
+An email saying ``invoice 2231 is for \$5,500'' does not correct an
+invoice that says \$5,507.50. It raises a discrepancy for human
+resolution. The exception is §13.2 item 1: a PDF \emph{attachment} is a
+document, not an email, and is treated as such.
+
+All email-derived values carry
+\texttt{source\ =\ \textquotesingle{}email\textquotesingle{}} and are
+excluded from the document-based accuracy statement, which is computed
+on documents only.
+
+\subsection{13.4 Process}\label{process}
+
+\textbf{Screening first.} Before any content processing: define mailbox
+scope, date range, and an exclusion filter for personal correspondence,
+HR matters, legal advice, and anything privileged. Screening precedes
+ingestion, not follows it. The output of this step is a written scope
+agreement.
+
+\textbf{Ingest.} PST, MBOX, EML, or Graph API export. Normalize to a
+common structure: message id, thread id, sender, recipients, date,
+subject, body, attachments.
+
+\textbf{Thread reconstruction and deduplication.} Reply chains duplicate
+body text extensively; without deduplication the corpus inflates
+several-fold and reference extraction returns the same fact dozens of
+times.
+
+\textbf{Attachment extraction and matching.} Every attachment extracted,
+hashed, and matched against the document corpus by content and by
+reference number. Matched attachments are promoted into the document
+pipeline as higher-fidelity replacements, processed through Phases 2--3
+normally, and their extracted values compared against the scan-derived
+values. \textbf{Disagreements are findings}, not silent overwrites ---
+they measure how much the black-and-white scanning actually cost.
+
+\textbf{Reference extraction.} ACK numbers, job numbers, invoice
+numbers, PO numbers, cheque numbers, and amounts, by pattern match
+against the §8.2 reference table formats, plus a language-model pass for
+references stated in prose.
+
+\textbf{Entity linkage.} Sender and recipient domains and addresses
+matched to the resolved party master from §6.6. Contacts extracted for
+CRM load.
+
+\textbf{Evidence linkage.} Each extracted reference becomes an
+\texttt{email\_\allowbreak{}evidence} row linking a message to a
+document, attribution, or party, with the quoted text and a confidence.
+
+\subsection{13.5 Deliverables}\label{deliverables-1}
+
+Email-derived contact list for CRM load; attribution gap-fill report
+with before/after coverage; recovered payment evidence with its effect
+on aging closure; \textbf{attachment-versus-scan discrepancy report};
+revised Completeness Report for the email-covered window.
+
+\subsection{13.6 Why this is deferred rather than
+dropped}\label{why-this-is-deferred-rather-than-dropped}
+
+Executing Phase 7 later costs nothing extra provided Phases 0--6 leave
+room for it. The room required is: \texttt{source} fields on every
+value, an \texttt{attribution} table that accepts new evidence rows
+without schema change, and an unattributable register that persists
+rather than being cleared at handoff. All three are in the The current
+design.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\section{14. Build Sequence and
+Parallelization}\label{build-sequence-and-parallelization}
+
+{\def\LTcaptype{none} % do not increment counter
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.3333}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.3333}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.3333}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Track
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Dependency
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+May start
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+Scan profiling (0.5) & Corpus access & Immediately \\
+Ingestion (1) & Phase 0 taxonomy & After Phase 0 \\
+Classification, extraction (2--3) & Calibration sample & After Phase
+0 \\
+Handwriting capture (3H) & 0.5 quality bands & After 0.5 \\
+\textbf{Attribution reference table (8.2)} & ACK format spec &
+\textbf{After Phase 0 --- independent of scan processing} \\
+Attribution resolution (8.3) & Extraction + entity resolution & After
+Phase 3 \\
+Completeness (4) & Attribution, GL export & After 3A \\
+Data model and load spec (6) & Phase 0 taxonomy & After Phase 0 \\
+Analytics definitions (5) & Decision list & After Phase 0 \\
+Email (7) & Screening agreement & Any time after Phase 6 \\
+\end{longtable}
+}
+
+The attribution reference table is on the critical path and is buildable
+immediately from the client's order-entry export, independent of
+anything happening to the scans. Start it early; it de-risks §8 more
+than any other single action.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\section{15. Outputs and Deliverables}\label{outputs-and-deliverables}
+
+\subsection{15.1 Phase deliverables}\label{phase-deliverables}
+
+{\def\LTcaptype{none} % do not increment counter
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 2\tabcolsep) * \real{0.5000}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 2\tabcolsep) * \real{0.5000}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Phase
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Deliverable
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+0 & Constraint document; calibration sample; ACK/job format
+specification \\
+0.5 & Grayscale/bilevel split; quality distribution; JBIG2 register;
+remediation recommendation \\
+1 & Normalized page store; reassembled document register; deduplication
+report \\
+2 & Classification rules or model; accuracy report \\
+3 & Extracted field dataset; consensus and arithmetic exception
+queues \\
+3H & Handwriting region index with cropped images; targeted
+transcriptions; amendment table \\
+3A & Attribution reference table; attributed event stream; coverage
+report; unattributable register; selling-location assignment \\
+4 & Completeness Report; reconciliation statements; matched event
+ledger \\
+4Q & Golden set; sampling plan; one-sided MUS overstatement bound;
+separate reviewed attribute results \\
+5 & Analytics layer including job and geographic dashboards \\
+6 & Canonical dataset; data dictionary; ERD; load order; load
+manifests \\
+7 & Email-derived contacts; attribution gap-fill; attachment discrepancy
+report \\
+\end{longtable}
+}
+
+\subsection{15.2 Final output}\label{final-output}
+
+A single validated corpus supporting four uses:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  \textbf{Financial analysis} --- every purchase and payment documented,
+  matched, reconciled, with variances quantified.
+\item
+  \textbf{Job-level analysis} --- every dollar tied to an ACK or job
+  number, enabling per-reference profitability across the measured
+  period.
+\item
+  \textbf{Geographic and operational analysis} --- revenue by selling
+  location; shipment, lane, carrier, and transit performance.
+\item
+  \textbf{CRM foundation} --- deduplicated, entity-resolved,
+  load-ordered, with enforced integrity and full traceability from every
+  record to a source page.
+\end{enumerate}
+
+\subsection{15.3 What the client can state on
+completion}\label{what-the-client-can-state-on-completion}
+
+\begin{itemize}
+\tightlist
+\item
+  What the data says.
+\item
+  How accurate it is, with a numeric confidence bound, reported
+  separately for the better and worse scan quality bands.
+\item
+  What is missing, enumerated.
+\item
+  \textbf{Which dollars could not be attributed, and why, with a dollar
+  figure.}
+\item
+  Where every individual figure came from.
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\section{16. Immediate Next Actions}\label{immediate-next-actions}
+
+{\def\LTcaptype{none} % do not increment counter
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.2500}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.2500}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.2500}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.2500}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+\#
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Action
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Owner
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Blocks
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+1 & Total page count across all scan files & Client & QA sizing and cost
+model \\
+2 & Corpus access for the Phase 0.5 probe & Client & Quality banding,
+remediation decision \\
+3 & \textbf{Relationship-key format specification, including changes
+over the period} & Client & Attribution and schema mapping \\
+4 & \textbf{Reference-system export, if one exists} & Client &
+Highest-confidence attribution and relationship validation \\
+5 & \textbf{Approved reporting dimensions and business questions} &
+Client & Analytics and schema design \\
+6 & Confirm whether grayscale or colour masters exist for any pages &
+Client & Remediation option \\
+7 & Confirm whether relationship keys appear handwritten on documents &
+Client & §7 scope \\
+8 & Accounting system GL export & Client & Phase 4 reconciliation \\
+9 & Decision list & Client & Phase 5 scope \\
+10 & Email scope and screening agreement & Client & Phase 7 only --- not
+blocking \\
+\end{longtable}
+}
+
+Items 3, 4, and 5 materially change the shape of the work. Item 4 can
+reduce the cost of attribution substantially when an authoritative
+export exists; when it does not, inferred proposals remain clearly
+labelled and review-bound.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\section{17. Reference Implementation}\label{reference-implementation}
+
+A working toolkit implements the load-bearing controls in this plan. It
+includes optional, client-approved OpenAI Responses, Gemini-on-Vertex
+and OpenRouter page-extraction adapters, Document AI corroboration,
+Google Cloud Vision handwriting proposals, and a retained
+image-comparison ensemble. These are implemented integrations, not
+claims of deployed accuracy or automatic approval. Additional
+independent OCR/HTR providers, calibrated production detectors, broad
+automatic classification, and target-system execution still depend on
+client-selected integrations and acceptance. The validation and control
+layer determines whether the retained output can proceed; no provider or
+proposal lane may bypass it. The optional visual-intake journal and
+approved-fact MCP/API surfaces are described separately in §0.3 and
+§17.1.
+
+\subsection{17.1 Scripts}\label{scripts}
+
+This is a representative implementation map, not the complete CLI
+catalogue. Use
+\texttt{references/\allowbreak{}command-\allowbreak{}line-\allowbreak{}reference.md},
+its parser-derived help catalogue, and the operations skill's lane table
+for every current command and flag.
+
+{\def\LTcaptype{none} % do not increment counter
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.3333}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.3333}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.3333}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Script
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Implements
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Plan section
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+\texttt{scan\_\allowbreak{}profile.py} & Scan buckets, JBIG2 hazards,
+quality bands, false-colour checks, and rescan evidence & §3 \\
+\texttt{ingest\_\allowbreak{}pages.py} & Byte-verified source retention,
+immutable one-page PDFs, relative provenance, native text, conservative
+type labels, and exceptions & §4-5 \\
+\texttt{reassemble\_\allowbreak{}pages.py} & Safe manifest-path
+validation, review-required page groups, unordered candidates, and exact
+duplicates & §4.3 \\
+\texttt{preprocess\_\allowbreak{}pages.py} & Grayscale master, enhanced
+grayscale, and three complementary binarized siblings & §4/6 \\
+\texttt{openai\_\allowbreak{}adapter.py} & Optional structured
+extraction/type/handwriting-region proposal voter with raw-response
+retention & §5-7 \\
+\texttt{google\_\allowbreak{}document\_\allowbreak{}ai\_\allowbreak{}adapter.py}
+& Explicitly enabled independent OCR/table evidence with page hash, raw
+response, token, and table-cell provenance & §4/6 \\
+\texttt{table\_\allowbreak{}comprehension.py} & Source-native table
+profile, evidence-linked rows, non-independent audit, exact-registry
+mapping, and aggregated review/quality output & §6 \\
+\texttt{table\_\allowbreak{}comprehension\_\allowbreak{}corpus.py} &
+Sequential multi-manifest layout-context runner with bounded
+amendment-only refinement & §6 \\
+\texttt{independent\_\allowbreak{}table\_\allowbreak{}reconcile.py} &
+Deterministic approved-map comparison of source rows and Document AI
+cells & §6 \\
+\texttt{detection\_\allowbreak{}calibration.py} & Golden-set evaluator
+for handwriting-region and party-role proposals; no automatic deployment
+& §5/7 \\
+\texttt{llm\_\allowbreak{}adjudication.py} & Disabled-by-default,
+nonfinancial printed amendment proposals after independent agreement &
+§6.3 \\
+\texttt{schema\_\allowbreak{}discovery.py} & Proposal-only source-label,
+entity, relationship, and candidate-location discovery & §0/6 \\
+\texttt{allocation\_\allowbreak{}policy.py} & Client-approved,
+effective-dated allocation and sales-credit policy application &
+§8/11 \\
+\texttt{consensus.py} & Independent multi-engine agreement, per-field
+flags, and exception routing & §6.2 \\
+\texttt{arithmetic\_\allowbreak{}check.py} & Line, subtotal, charge,
+total, and payment arithmetic self-proof & §6.3 \\
+\texttt{adjudicate.py} & Bounded amendment proposal for a uniquely
+arithmetic-supported rejected total & §6.3 \\
+\texttt{validate\_\allowbreak{}extraction.py} & Deterministic
+provenance, date, currency, identifier, and plausibility checks &
+§6.3 \\
+\texttt{address\_\allowbreak{}normalize.py} & Raw-address retention,
+local CRM components, and optional capped Address Validation evidence &
+§6.4 \\
+\texttt{handwriting\_\allowbreak{}review.py} & Strict independent HTR
+reconciliation with a two-pass cap and amendment-only financial output &
+§7 \\
+\texttt{entity\_\allowbreak{}resolve.py} & Party clustering with a
+reversible merge log and ambiguity review & §6.6 \\
+\texttt{attribution.py} & Eight-rank reference resolution, evidence
+chains, location hierarchy, and unattributable register & §8 \\
+\texttt{completeness.py} & Sequence/calendar gaps, GL variance, aging
+closure, and explicit gate & §9 \\
+\texttt{sampling.py} & Monetary-unit and stratified sampling,
+projection, confidence bound, and escalation & §10 \\
+\texttt{final\_\allowbreak{}review\_\allowbreak{}queue.py} & Versioned,
+exhaustive eight-field canonical review package for supplied artifacts &
+§3-10 \\
+\texttt{operations.py} & Run manifests/state, adapter contracts, privacy
+inventory, and strict reviewer exports & Cross-phase \\
+\texttt{canonical\_\allowbreak{}deploy.py} & Validated non-secret
+PostgreSQL schema deployment plan and explicit execution & §12 \\
+\texttt{canonical\_\allowbreak{}load.py} & Ordered, checksummed load
+plan with review status, batch lineage, and unique idempotency keys &
+§12 \\
+\texttt{csv\_\allowbreak{}api\_\allowbreak{}staging.py} & No-send CSV
+files and API-operation envelope checked against the canonical load plan
+& §12 \\
+\texttt{retrieval\_\allowbreak{}store.py} & Approved-fact SQLite store
+with document, invoice, line, job, attribution, and location context &
+§12 \\
+\texttt{retrieval\_\allowbreak{}mcp.py} & Approved document/CRM search,
+exact lookup, schema, account cards, governed queries, sales and reports
+over stdio; optional separate proposal intake & §0.3/12 \\
+\texttt{retrieval\_\allowbreak{}remote\_\allowbreak{}mcp.py} & OAuth
+Streamable HTTP transport, owner-bound report downloads and optional
+intake JSON API & §0.3/12 \\
+\texttt{retrieval\_\allowbreak{}https.py} & TLS/bearer read-only GET
+business queries; not an MCP endpoint & §12 \\
+\texttt{visual\_\allowbreak{}ingestion\_\allowbreak{}export.py} &
+Receipt-verified source-only archive and image-PDF handoff; no proposal
+promotion & §0.3/4 \\
+\texttt{crm\_\allowbreak{}import\_\allowbreak{}package.py} & Verified
+no-send common-object CSVs, mapping template and write plan & §12 \\
+Schema-sample workbook builder & Regenerates clearly labelled fictional
+schema samples & Delivery documentation \\
+\end{longtable}
+}
+
+\subsection{17.2 Chain}\label{chain}
+
+The operational Python stages use JSON contracts and carry records
+forward; the review workbook and local retrieval database are derived
+delivery views:
+
+\begin{verbatim}
+scan_profile   → profile.json
+ingest_pages   → ingestion_manifest.json
+               → classification_exceptions.json
+reassemble     → reassembly.json
+               → reassembly_exceptions.json
+preprocess     → preprocessing_manifest.json
+openai_adapter → openai_engine.json + openai_adapter.json
+               → openai_exceptions.json + openai_raw/
+schema_discovery → schema_discovery.json + schema_discovery_exceptions.json
+allocation_policy → allocation_results.json + allocation_exceptions.json
+consensus      → consensus.json  + exceptions.json
+arithmetic     → proofed.json
+adjudicate     → amendments.json
+               → adjudication_exceptions.json
+validate       → validated.json
+               → validation_exceptions.json
+address_normalize → address_normalized.json
+               → address_exceptions.json
+handwriting    → handwriting_decisions.json
+               → handwriting_client_review.json
+entity_resolve → parties.json    + merges.json
+attribution    → attributed.json + unattributable.json
+completeness   → completeness.json
+sampling       → sample_plan.json
+               → accuracy_statement.json
+preprocess     → preprocessing_manifest.json
+operations     → run_manifest.json + run_state.json
+               → privacy_inventory.json
+final_review   → final_client_review.json
+review_export  → final_client_review.csv
+               → final_client_review.html
+               → final_client_review.xlsx
+canonical_load → canonical_load_plan.json
+retrieval_store → business_retrieval.sqlite
+retrieval_mcp  → approved-fact CRM queries, reports, and lookup
+\end{verbatim}
+
+\subsection{17.3 Delivery interface and update
+rule}\label{delivery-interface-and-update-rule}
+
+The schema-sample implementation is
+\texttt{scripts/\allowbreak{}build\_\allowbreak{}schema\_\allowbreak{}samples\_\allowbreak{}workbook.mjs}.
+
+The canonical final-review package is JSON; CSV, XLSX, and HTML are
+regenerated reviewer views. The XLSX workbook has a filterable
+\texttt{Client\ Review} sheet plus \texttt{Header\ Definitions},
+\texttt{Schema\ Definitions}, and \texttt{Runbook} sheets. Update the
+canonical JSON or create an amendment, then regenerate outputs; never
+use a workbook edit to alter a source value or close a gate. The
+\texttt{examples/\allowbreak{}} folder contains only artefacts labelled
+\textbf{SAMPLE - FICTIONAL - NOT CLIENT DATA}. It demonstrates extracted
+and derived field shapes, not client evidence, calibration, or review
+output.
+
+Address components use the role-prefixed CRM names
+\texttt{*\_\allowbreak{}address\_\allowbreak{}line1},
+\texttt{*\_\allowbreak{}address\_\allowbreak{}line2},
+\texttt{*\_\allowbreak{}city},
+\texttt{*\_\allowbreak{}state\_\allowbreak{}or\_\allowbreak{}region},
+\texttt{*\_\allowbreak{}postal\_\allowbreak{}code}, and
+\texttt{*\_\allowbreak{}country\_\allowbreak{}code}; raw addresses
+remain immutable evidence and local parsing does not prove
+deliverability. When client-approved Google Address Validation is
+explicitly enabled with a protected credential and a cap of at most
+5,000 calls per run, its deliverability and geocode result is separately
+retained evidence; uncertain, failed, exhausted, or conflicting results
+remain final-review work. Never put the credential in a handoff or
+delivered artifact.
+
+Runtime/provider controls are centralized in the Git-ignored root
+\texttt{.env}, copied from \texttt{.env.example}; explicit command-line
+options and existing environment values take precedence.
+\texttt{references/\allowbreak{}runtime-\allowbreak{}configuration.md}
+defines every setting. The selected adapter records its provider/model
+and supported reasoning effort, limits, timeout, retries, and non-secret
+credential reference. Resolve these from the specific lane; do not infer
+a model or reasoning default from another lane or from an old run.
+
+\subsection{17.4 Verification performed}\label{verification-performed}
+
+The chain was exercised end to end against a synthetic 60-document
+corpus carrying deliberately seeded faults. Results:
+
+{\def\LTcaptype{none} % do not increment counter
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 2\tabcolsep) * \real{0.5000}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 2\tabcolsep) * \real{0.5000}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Seeded fault
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Detected
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+Broken printed arithmetic & Yes --- flagged as exception, handwriting
+correctly ruled out \\
+Handwritten quantity amendment breaking the total & Yes --- flagged,
+handwriting correctly implicated \\
+Two-of-three engine disagreement & Yes --- accepted with
+\texttt{consensus\_\allowbreak{}2of3}, queued for review \\
+Three-way engine disagreement & Yes --- hard exception, not
+auto-resolved \\
+Malformed ACK number (\texttt{AK-99}) & Yes --- format-rejected, then
+recovered via shipment inheritance \\
+Vendor name variants (\texttt{ACME\ Corp} / \texttt{ACME\ Corporation} /
+\texttt{Acme\ Corp.}) & Yes --- merged to one party \\
+Dotted legal suffix (\texttt{Globex\ LLC} / \texttt{Globex\ L.L.C.}) &
+Yes --- merged after normalization fix \\
+GL inflated 4\% against documents & Yes --- variance reported, not
+plugged \\
+Bilevel, grayscale, and false-colour pages & Yes --- all bucketed
+correctly \\
+Sampling tolerance breach & Yes --- escalation to 100\% review
+triggered \\
+\end{longtable}
+}
+
+The synthetic test corpus exercised four example resolution ranks
+(explicit printed, explicit handwritten, cross-reference, and inherited
+linkage). This is test evidence for control behavior, not a claim that
+any client corpus has achieved attribution coverage.
+
+\subsection{17.5 Production operations
+controls}\label{production-operations-controls}
+
+The reference implementation now creates immutable run manifests, hashes
+non-secret configuration, blocks resumptions against a different
+manifest, validates vendor-neutral OCR/HTR handoff contracts, avoids
+embedded credentials, inventories obvious privacy patterns without
+changing evidence, creates grayscale and an enhanced grayscale and three
+complementary binarized sibling page variants, and exports the final
+review package to CSV, a formatted XLSX workbook, and static HTML. CI
+executes strict coverage, lint, acceptance, public-corpus validation,
+and LaTeX rendering. These controls improve reproducibility and
+operating safety; they do not establish an accuracy percentage without a
+representative golden set.
+
+\subsection{17.6 What remains to build}\label{what-remains-to-build}
+
+\begin{itemize}
+\tightlist
+\item
+  Additional independent OCR/HTR vendor adapters and calibrated local
+  handwriting-region detectors
+\item
+  Deskew, despeckle, rotation, and scan-specific enhancement beyond the
+  retained comparison ensemble
+\item
+  Calibrated automatic classification and party-role assignment beyond
+  the high-signal rules and proposal-only model lane
+\item
+  Approved-template layout-delta comparison and a configured stamp
+  library (§3.5)
+\item
+  Email ingestion, if Phase 7 proceeds (§13)
+\item
+  A target-specific CRM adapter, remote transport, and load
+  reconciliation against the chosen system (§12)
+\item
+  Representative golden-set calibration before any numerical production
+  accuracy claim
+\end{itemize}
+
+The control layer being complete first is deliberate. It means every
+component added above is measured against working checks from the day it
+lands, rather than being trusted until something downstream fails.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\section{Appendix A --- Plain-Language Illustrative
+Scenario}\label{appendix-a-plain-language-illustrative-scenario}
+
+\emph{This appendix restates the plan without technical vocabulary. It
+is a non-normative example only: the actual document families, coverage
+periods, relationship keys, locations, and optional evidence sources are
+established in Phase 0. The implemented controls and explicit
+future-work boundaries in the body of this plan govern if this appendix
+and the technical sections differ.}
+
+\subsection{A.1 What you have and what you
+want}\label{a.1-what-you-have-and-what-you-want}
+
+You have a retained collection of business records --- invoices,
+shipping receipts, delivery slips, or other approved document families
+--- scanned into PDF files. Some pages may have handwriting or degraded
+image quality.
+
+You want reliable, analyzable numbers; every monetary amount tied to a
+configured business reference where evidence permits; clear origin or
+other approved analytic dimensions; and clean party records for an
+agreed target system.
+
+You may also have a separately scoped email archive that can be
+considered later as corroborating evidence.
+
+\subsection{A.2 The core difficulty}\label{a.2-the-core-difficulty}
+
+Run the scans through ordinary scanning software and you get a
+spreadsheet full of numbers. Some are wrong. You will not know which.
+
+That is the real danger. Wrong numbers that look right are worse than no
+numbers, because you will act on them. A total off by a digit, a
+customer split across three phantom accounts, an invoice scanned twice
+and counted twice --- none of these announce themselves.
+
+So the plan is built around one question: \textbf{how do we know the
+numbers are right without relying on unchecked automation?}
+
+\subsection{A.3 How we answer that}\label{a.3-how-we-answer-that}
+
+\textbf{We compare genuinely independent readings and deterministic
+controls.}
+
+Not one system reading each page, but three independent ones, compared.
+When they agree, we accept it. When they disagree, it goes on a review
+list. Originally this plan called for two systems; black-and-white scans
+are harder to read accurately than colour ones, so we have added a
+third.
+
+\textbf{We make every invoice prove itself with arithmetic.}
+
+An invoice contains its own answer key. The line items should add up to
+the subtotal; the subtotal plus tax and freight should equal the total.
+If a document does not add up, something was read wrong --- and we know
+it, even if the software was confident.
+
+This has become the most important check in the whole project, for a
+reason explained in A.5.
+
+\textbf{We hand-check a sample, chosen to matter.}
+
+Not a random sample. A sample weighted toward \textbf{dollars}. A
+\$10,000 invoice is far more likely to be checked than a \$50 one,
+because that is where the risk is. Everything above a threshold you set
+gets checked for certain.
+
+The result is not ``we spot-checked it and it looked fine.'' It is a
+one-sided 95\% upper bound on monetary overstatement, paired with
+separately disclosed understatement observations and completeness
+results. That is a number whose scope a client can evaluate without
+mistaking it for proof of missing records.
+
+And if any category fails the check --- say invoices from one vendor in
+2022 turn out error-prone --- we do not accept them with a warning
+label. \textbf{We go back and check every single one.} Sampling does not
+replace full review. It tells us where full review is needed.
+
+\subsection{A.4 What black-and-white scanning costs
+you}\label{a.4-what-black-and-white-scanning-costs-you}
+
+This is worth understanding plainly, because it changes several things.
+
+When a page is scanned in colour, blue or black pen ink is visibly a
+different colour from printed black text, and finding handwriting is
+easy. In black and white, pen and print become the same, and handwriting
+has to be found by the \emph{shape} of the writing --- which works, but
+not as reliably.
+
+The same applies to stamps. A red ``PAID'' stamp is unmistakable in
+colour. In black and white it blends into whatever it was stamped over.
+
+What we do about it:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Read everything three times instead of twice}, as described
+  above.
+\item
+  \textbf{Where scans are grayscale rather than pure black-and-white},
+  process each page three different ways and treat each as another
+  independent reading. Costs only computer time.
+\item
+  \textbf{Look for stamps by shape} instead of colour, using a small
+  library of your recurring stamps.
+\item
+  \textbf{Assume handwriting might be on any page}, rather than trusting
+  that we found all of it.
+\item
+  \textbf{Lean much harder on the arithmetic check}, which is the
+  subject of A.5.
+\end{itemize}
+
+One thing worth checking: not all black-and-white scans are equal. Some
+keep grey shading; some are pure black-and-white with the grey thrown
+away. The second kind is meaningfully harder to work with. We will
+measure which you have in the first hour. If any pages are the harder
+kind and you still have the original paper or an earlier better scan,
+re-scanning just those pages is the cheapest accuracy improvement
+available anywhere in this project.
+
+\subsection{A.5 About the handwriting}\label{a.5-about-the-handwriting}
+
+You have said the handwriting can be ignored. We have accepted that,
+mostly --- but there are two places where it cannot be, and it is better
+to say so now than to discover it in month three.
+
+\textbf{First, your job numbers.} You need every dollar tied to an ACK
+or job number. On paperwork like this, those numbers are very often
+\emph{written on by hand} --- added at order entry or at receiving. If
+we throw away all handwriting and your job numbers are among it, we
+cannot meet your main requirement at all. So we do need to read
+handwritten job and ACK numbers, even if we read nothing else.
+
+\textbf{Second, corrections.} When someone crosses out ``40'' and writes
+``38 --- two damaged'', the printed 40 is now wrong. Ignoring the
+handwriting does not make the printed number right. It makes it wrong,
+and unflagged. The arithmetic check will catch most of these anyway ---
+the invoice will stop adding up --- so the work does not actually go
+away by ignoring it. Only our ability to resolve it quickly does.
+
+\textbf{What we are doing instead --- and this is what your instruction
+buys you:}
+
+The target integration will \emph{find} the handwriting and retain a
+crop, but not transcribe most of it. Release 1.0 already defines the
+canonical region/evidence contract and accepts independent HTR results;
+calibrated local detection, cropping, and CRM attachment remain
+implementation work. Once connected, a user can see a handwriting flag
+and its retained crop without anyone typing it out.
+
+The future targeted HTR integration reads handwriting in four
+situations: it looks like a job or ACK number; the invoice does not add
+up and the handwriting is sitting on a quantity or price; it appears to
+be a cheque number or payment mark; or it landed in the quality-check
+sample.
+
+That preserves nearly all of your cost saving --- the bulk of
+handwriting is delivery notes and initials that genuinely do not need
+transcribing --- while protecting the two things that would otherwise
+break. And because the images are stored, you can change your mind later
+and have them transcribed without re-processing anything.
+
+\subsection{A.6 Tying every dollar to a
+job}\label{a.6-tying-every-dollar-to-a-job}
+
+This is a bigger job than it sounds, and it gets its own phase.
+
+The problem: roughly half your documents will not have the job number
+written on them anywhere. A carrier's freight bill has a tracking number
+and a shipping reference, not your job number. So the job number has to
+be \textbf{worked out} by following the trail from one document to
+another.
+
+How we work it out, in order of preference:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  It is printed on the document. Best case.
+\item
+  It is handwritten on the document. We read it (see A.5).
+\item
+  The purchase order number is on it, and we can look up which job that
+  PO belongs to.
+\item
+  The document relates to a shipment we have already tied to a job ---
+  so it inherits the job number.
+\item
+  It relates to an invoice we have already tied to a job --- same idea.
+\item
+  The customer, date, and amount uniquely match one job in your records.
+\item
+  An email mentions it (only if we do the email phase).
+\item
+  Someone assigns it by hand, and we record who and when.
+\item
+  \textbf{It genuinely cannot be attributed} --- and we record that
+  explicitly, with a reason and a dollar amount.
+\end{enumerate}
+
+Steps 4 and 5 are what make this achievable. They are how a freight bill
+that mentions no job number still ends up correctly filed.
+
+\textbf{The most useful thing you can give us:} if your order-entry or
+quoting system can export a list of every ACK number with its date,
+customer, and amount, that list becomes the master reference and makes
+this entire phase far cheaper and far more reliable. This is the single
+highest-value item on the list of things we need from you.
+
+\textbf{What ``done'' looks like:} not ``97\% of dollars attributed.''
+It is that 100\% of dollars are either attributed \emph{or} explicitly
+listed as unattributable with a reason and an amount. Ninety-seven
+percent with the other three percent unexplained is not a passing result
+--- the missing three percent is exactly what someone will ask about.
+
+\subsection{A.7 Which city the sale came
+from}\label{a.7-which-city-the-sale-came-from}
+
+You want to know what city each sale came from. Before we build
+anything, we need to pin down what that means, because it has four
+possible meanings and they give different answers:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Which of your offices sold it} --- a branch or territory
+  performance question
+\item
+  \textbf{Where the goods shipped from} --- a warehouse question
+\item
+  \textbf{Where the customer is} --- a market question
+\item
+  \textbf{Where the goods went} --- a destination question
+\end{itemize}
+
+Most people asking this question mean the first one. It is also the
+hardest to find, because it is often not written on the document at all
+--- it has to be worked out from the letterhead, from the ACK number
+prefix if your numbering encodes location, or from which salesperson
+handled it.
+
+We will capture all four where the data supports it, so if you decide
+later that you meant a different one, nothing has to be redone. But tell
+us which one you mean now, because it shapes what we build.
+
+And every city figure will show how it was worked out. A city total that
+is 60\% guessed from ACK prefixes is a different quality of number than
+one that is written on the documents, and you should be able to see
+which you are looking at.
+
+\subsection{A.8 Making sure nothing is
+missing}\label{a.8-making-sure-nothing-is-missing}
+
+Accuracy is whether the numbers we captured are right.
+\textbf{Completeness} is whether we captured all of them --- harder,
+because a document that was never scanned leaves no trace.
+
+\textbf{Numbering gaps.} Invoices run in sequence. If we have 1001,
+1002, and 1004, then 1003 exists somewhere and we do not have it. We
+list every gap. We now also do this on your ACK numbers --- and since
+those are your own numbers, gaps in them are much stronger evidence than
+gaps in a supplier's.
+
+\textbf{Calendar gaps.} We count documents by supplier by month. If a
+supplier you use every month has nothing in March 2023, a batch of scans
+is probably missing.
+
+\textbf{Comparison to your books.} We compare our totals against your
+accounting system, period by period. If your books say \$2.4 million in
+2022 and our documents account for \$2.1 million, there is \$300,000 of
+paperwork we do not have. \textbf{We report that. We never quietly
+adjust the numbers to make them match.}
+
+\textbf{Loose ends.} Every invoice should end somewhere --- paid,
+credited, written off, or still open. Anything that just stops gets
+listed.
+
+\textbf{Unattributed dollars.} Per A.6.
+
+All of this goes into a report that travels with the data. Every chart
+you get shows what portion of the records it is based on. If a chart is
+built on 94\% of documents, the chart says so.
+
+\subsection{A.9 Cleaning up customer
+names}\label{a.9-cleaning-up-customer-names}
+
+Small-sounding, and it determines whether the CRM works.
+
+Over time the same customer may appear as ``ACME Corp'', ``Acme
+Corporation'', ``ACME CORP.'', and probably ``Acme Corp - Chicago''.
+These are one customer. If they arrive in your new CRM as four accounts,
+then every question you want to ask --- biggest customers, who stopped
+buying, which accounts are growing --- gives a wrong answer. You would
+see four mid-sized accounts instead of one large one.
+
+We merge these into one clean record per real business, keeping a log of
+every decision so it can be reviewed and undone.
+
+\subsection{A.10 The email option}\label{a.10-the-email-option}
+
+An email archive is an optional, separately authorized step. Deferring
+it costs nothing, and the design leaves room so nothing has to be
+rebuilt if it is later approved.
+
+\textbf{One caveat first:} email may cover only part of the document
+period. Any number that draws on it must state the overlap window ---
+otherwise a chart can show what looks like a business change when it is
+only an evidence-coverage boundary.
+
+\textbf{Why it is worth considering, in order:}
+
+\textbf{Attachments.} This is the big one. Emails often contain the
+original, clean, computer-generated PDF of an invoice that we only have
+as a degraded black-and-white scan. Where we find one, the attachment is
+\emph{better evidence than the scan} and use it as a separately retained
+source. For a degraded scan corpus, this alone may justify the phase.
+Comparing the clean version to the scanned version measures the
+scan-quality effect without overwriting either source.
+
+\textbf{Filling in missing job numbers.} For dollars we could not
+attribute from documents alone, an email is often the only remaining
+evidence.
+
+\textbf{Missing payment records.} Remittance notices and payment
+confirmations close out invoices that otherwise look unpaid.
+
+\textbf{Contact details for the CRM.} Names, titles, phone numbers,
+current email addresses --- things your paper documents barely contain
+and your CRM genuinely needs.
+
+\textbf{The story behind the numbers.} Quote, change order, dispute,
+settlement --- the documents record the outcome; the emails explain it.
+
+\textbf{One firm rule:} an email never overrides a document. If an email
+says an invoice was for \$5,500 and the invoice says \$5,507.50, that is
+a discrepancy for a person to resolve, not a correction to apply. The
+exception is an actual PDF attachment, which is a document, not an
+email.
+
+\textbf{Before we touch any of it}, we agree in writing which mailboxes,
+what date range, and what gets filtered out --- personal correspondence,
+HR matters, anything privileged. That agreement comes first, not after.
+
+\subsection{A.11 What you get at the
+end}\label{a.11-what-you-get-at-the-end}
+
+\textbf{Reliable numbers}, with a precise monetary statement --- the
+one-sided 95\% upper bound on overstatement is X dollars. Observed
+understatement, missing documents, and open exceptions are reported
+separately, along with results by scan-quality stratum so you can see
+what the scan quality cost.
+
+\textbf{A stated list of what is missing} --- numbering gaps, calendar
+gaps, and the difference between our totals and your accounting system.
+
+\textbf{Every dollar tied to a job or ACK number}, or explicitly listed
+as unattributable with a reason and an amount.
+
+\textbf{Job-level analysis} --- what each job actually made, what it
+cost, how long it took from order to payment, and which ones lost money.
+
+\textbf{Revenue by city}, showing how each figure was determined.
+
+\textbf{Business analysis}, including: which customers generate the most
+revenue and how concentrated you are; which customers have quietly
+stopped ordering; what you spend by carrier and route; where surcharges
+and extra fees are accumulating; which carriers deliver on time;
+duplicate invoices you may have paid twice; whether you are being
+charged your contracted rates; and how your business moves seasonally.
+
+\textbf{Clean data for your CRM}, in the correct loading order, with the
+rules your developers need to keep it clean.
+
+\textbf{Handwriting captured as images}, attached to the right
+documents, flagged and searchable --- even though most of it was never
+transcribed.
+
+\textbf{Complete traceability.} Every number, anywhere in the system,
+traces back to a specific page of a specific scanned document. If anyone
+questions a figure, you can produce the piece of paper it came from.
+
+\subsection{A.12 What we need from you to
+start}\label{a.12-what-we-need-from-you-to-start}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  \textbf{How many pages in total?} Determines the size and cost of the
+  quality checking.
+\item
+  \textbf{What do your ACK and job numbers look like?} Format, length,
+  prefixes, and whether the convention changed over the measured period.
+\item
+  \textbf{Can your order-entry system export a list of ACK numbers with
+  dates, customers, and amounts?} The most valuable single thing on this
+  list.
+\item
+  \textbf{Which meaning of ``city the sale came from'' do you want?} See
+  A.7.
+\item
+  \textbf{Do your job numbers get handwritten onto documents?}
+  Determines how much handwriting work is unavoidable.
+\item
+  \textbf{Access to the scan files}, for the one-hour quality check.
+\item
+  \textbf{Do you still have original paper, or better-quality earlier
+  scans?} Determines whether targeted re-scanning is an option.
+\item
+  \textbf{An export from your accounting system}, to reconcile against.
+\item
+  \textbf{A list of the questions you want answered}, in plain
+  sentences. Defines what ``finished'' means.
+\item
+  \textbf{Email scope}, only when and if you want the email phase.
+\end{enumerate}
+
+\subsection{A.13 What has already been
+built}\label{a.13-what-has-already-been-built}
+
+The checking machinery described above is not a proposal --- it exists
+and has been tested. The control toolkit implements intake, comparison
+between independent readings, arithmetic proof, customer-name
+resolution, job-number attribution, completeness checks, sampling,
+client review packaging, and a vendor-neutral post-review load and
+retrieval boundary.
+
+They were tested against a synthetic set of sixty invoices with
+deliberate faults planted in them --- a broken total, a handwritten
+correction, disagreeing readings, a malformed job number, duplicate
+customer names spelled four ways, and books inflated by 4\% against the
+paperwork. Every planted fault was caught.
+
+What remains client-specific is integration and authorization:
+additional independent reading services, calibrated handwriting and
+party-role detectors, scan-specific cleanup, a target CRM adapter, and a
+representative client-approved golden set. The repository now includes
+the evaluator for that golden set, exact template drift controls, and a
+proposal-only decision compiler with operator authorization; those
+controls do not supply the missing client evidence or apply production
+facts. The current reassembly and vision lanes remain review proposals.
+That order means every added component is measured against working
+controls before production use.
+
+\subsection{A.14 The one-paragraph
+version}\label{a.14-the-one-paragraph-version}
+
+We will preserve and compare independent readings of scanned documents,
+make every invoice prove itself by checking its own arithmetic,
+photograph and flag every piece of handwriting while only transcribing
+the parts that carry job numbers or affect the money, work out a job or
+ACK number for every single dollar and explicitly list the ones we
+cannot, determine which of your offices each sale came from and show how
+we determined it, hand-check a dollar-weighted sample and fully review
+any category that fails, tell you plainly what is missing rather than
+hiding it, merge duplicate customer names into single clean records, and
+hand you a dataset where every number traces back to a specific page ---
+with an honest, numeric statement of how accurate and how complete it
+is. Your email can be folded in later to fill gaps and, where it
+contains clean original PDFs of documents we only have as poor scans, to
+improve on the scans themselves.
+
+\end{document}

@@ -1,0 +1,53 @@
+name: render-docs
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: render-docs-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Install PDF utilities and Tectonic
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential cmake pkg-config poppler-utils ripgrep libfontconfig1-dev libfreetype6-dev libgraphite2-dev libharfbuzz-dev libicu-dev libpng-dev libssl-dev zlib1g-dev
+          cargo install tectonic --version 0.17.0 --locked
+          echo "$HOME/.cargo/bin" >> "$GITHUB_PATH"
+          export PATH="$HOME/.cargo/bin:$PATH"
+      - name: Render tracked LaTeX documents
+        run: |
+          rendered=0
+          for attempt in 1 2 3; do
+            : > render-docs.log
+            if bash scripts/render_docs.sh 2>render-docs.log; then
+              rendered=1
+              break
+            fi
+            cat render-docs.log
+            if [ "$attempt" -lt 3 ]; then
+              sleep "$((attempt * 20))"
+            fi
+          done
+          if [ "$rendered" -ne 1 ]; then
+            cat render-docs.log
+            exit 1
+          fi
+          ! rg "Overfull" render-docs.log
+          git diff --exit-code -- docs/*.tex
+          pdfinfo docs/TECHNICAL_DOCUMENTATION.pdf
+          pdfinfo docs/CLIENT_OVERVIEW.pdf
+          pdfinfo docs/CLIENT_OUTPUT_OVERVIEW.pdf
+          pdfinfo docs/CLIENT_PROCESS_PLAIN_LANGUAGE.pdf
+          pdfinfo docs/CLIENT_USER_GUIDE.pdf
+          pdfinfo docs/BUSINESS_DOCUMENT_INGESTION_ANALYTICS_PLAN.pdf

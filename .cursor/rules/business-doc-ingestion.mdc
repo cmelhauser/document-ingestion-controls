@@ -1,0 +1,95 @@
+---
+description: Operate the business-document ingestion control layer safely and audibly.
+alwaysApply: true
+---
+
+Read `SKILL.md`, `AGENTS.md`, and the relevant phase reference before work. Use
+`HANDOFF.md` for current state. Read `references/artifact-contracts.md` before
+changing an interface, workbook, output, or runbook.
+
+Preserve source pages and original values; corrections are append-only
+amendments. Emit every failure or uncertainty as an explicit exception. Require
+genuinely independent evidence for consensus and keep provider confidence
+non-decisional. Arithmetic, attribution, completeness, and final review are
+separate gates. LLM output, mappings, grouping, client workbook imports, and
+review reduction remain proposals until authorized changes are applied and the
+affected controls are rerun.
+
+Use repository scripts and new no-clobber output paths. Every environment
+setting is in `references/runtime-configuration.md`; every CLI is indexed in
+`references/command-line-reference.md`, fully enumerated in
+`references/cli-help-catalogue.md`, and defined exactly by its `--help`.
+Before client records, follow `docs/CLIENT_USER_GUIDE.md`. Before Google-backed
+work, run `scripts/reauthorize_google.py` and keep credentials external.
+
+Only approved, provenance-linked, review-clear facts enter canonical retrieval
+or target staging. Additional production OCR/HTR providers, golden-set accuracy,
+detector deployment, target CRM delivery, and public tenant-isolated retrieval
+remain client-authorized integrations.
+
+To operate a run against real documents rather than change the repository, use
+`skills/business-doc-operations/SKILL.md`. Its lane table maps every command to
+its phase and says whether the lane is optional or disabled by default, and it
+routes to task guides: `tasks/setup.md` for Phase 0 settings and file placement,
+`tasks/run-pipeline.md` for the ordered sequence through 4Q,
+`tasks/extraction.md` for Phase 3 reading, `tasks/cross-checking.md` for
+corroboration and independent verification, `tasks/handwriting.md` for Phase 3H,
+`tasks/business-controls.md` for Phases 3A/4/4Q, `tasks/evidence-graph.md` for
+the graph and relationship lanes, `tasks/client-review-lane.md` for turning any
+blocked control into a client-answerable pack, `tasks/review-reduction.md` for
+the proposal-only queue reduction, `tasks/client-review.md` for the workbook,
+`tasks/monitor.md` for progress and spend, `tasks/deliver.md` for Phases 5/6,
+`tasks/troubleshooting.md` for any refusal, `tasks/maintenance.md` for the
+repository gates, and `tasks/subagents.md` before delegating. Do not advance past
+a failed phase exit condition; say what is blocking instead.
+
+For approved Phase 6 facts, use `skills/mcp-api-operations/SKILL.md` for local
+or remote MCP and REST API setup, deployment acceptance, client connection,
+CRM queries/reports/exports, monitoring, rebuild, and shutdown. Never start or
+register a surface before its activation and deployment-authorization gates.
+
+For separately authorized new image intake, use `skills/record-intake/SKILL.md`
+and `references/visual-ingestion.md`. The optional journal retains sources and
+proposals only. Require real-byte transfer; never invent base64 or treat a
+pending proposal as published. The local source-only export utility can prepare
+images for normal profiling/intake; it never promotes proposal values or mutates
+canonical records. Preserve its originals, hash receipt and review exceptions.
+
+After any change under `scripts/`, run `python scripts/agent_surface_check.py`.
+It verifies that every command named in an instruction surface still exists and
+is indexed, so a rename cannot leave these instructions stale.
+
+Run the full gate in `AGENTS.md`. Regenerate, render, and visually inspect every
+changed tracked PDF. Read `BRANCHING.md` before branch operations.
+
+Approvals are keyed to template fingerprints derived from the emitted label set,
+so re-extraction orphans every prior approval: check fingerprint overlap before
+sending proposals for approval and before running any mapping-dependent control.
+Resolve a lane's model from its own lane setting, and treat the retained raw
+response as the authority over any configuration file. Supply table lanes with
+independent evidence or their conditional buddy check is unavailable rather than
+unnecessary. Never resume across a changed model or reasoning effort. Hand the
+gate every review-bearing artifact; a finding you do not pass in is absent from
+the queue, the grouping, and the client pack. Measure with the code's own
+helpers over the model's emitted output only, on matched page sets -- a retained
+record may echo the prompt, and a rate over a different population is not a
+comparison.
+
+**Reconcile from retained artifacts before re-reading anything.** Every provider
+response is kept under `RUN/providers/raw/`, and the independent non-LLM
+extractor keeps the *whole page* rather than the fields the schema named, so a
+value the pipeline dropped is usually still on disk with its layout. Grep the
+retained responses for the column heading, find a printed join key the records
+already carry, and re-extract only when that fails -- affected pages only,
+amendment recorded first. A recovered value is single-extractor evidence, never
+vendor agreement.
+
+**Agreement is not accuracy.** A correct transcription filed under the wrong
+field is what two vendors agree on, because both read the page correctly and
+both assumed the same thing about the column. A field the schema never defines
+is a field engines guess at, and a printed column with no field at all goes
+into whichever field looks closest. Check `FIELD_DEFINITIONS` coverage and the
+document's own arithmetic. Carry a value that fails such a check and label it;
+never repair a reading to make it agree, and never drop a row for failing one.
+
+Full checklist: `skills/business-doc-operations/tasks/lane-checklist.md`.

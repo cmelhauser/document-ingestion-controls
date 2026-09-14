@@ -1,0 +1,17 @@
+{
+  "adapter_type": "llm_adjudication",
+  "engine": "openai/fixture-model",
+  "credential_reference": "OPENAI_API_KEY",
+  "raw_response_retention_required": true,
+  "candidate_count": 1,
+  "policy": {
+    "decision_mode": "amendment_proposal_only",
+    "client_approval_permitted": false,
+    "minimum_confidence": 0.99,
+    "sampling_rate": 1.0,
+    "maximum_candidates": 500,
+    "max_pdf_bytes": 10000000,
+    "timeout_seconds": 120.0,
+    "max_retries": 2
+  }
+}

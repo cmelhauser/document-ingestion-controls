@@ -1,0 +1,4 @@
+interface:
+  display_name: "MCP and API Operations"
+  short_description: "Deploy CRM queries and optional proposal intake safely"
+  default_prompt: "Use $mcp-api-operations to deploy and accept approved-fact MCP/API access, routing any separately authorized visual intake to $record-intake without enabling canonical writes."

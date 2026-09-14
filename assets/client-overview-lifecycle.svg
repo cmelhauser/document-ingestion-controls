@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="360" viewBox="80 0 1640 369">
+  <defs><marker id="a" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto"><path d="M0,0 L12,6 L0,12 z" fill="#365f91"/></marker></defs>
+  <style>text{font-family:Arial,sans-serif;fill:#17253a}.box{fill:#eaf2fb;stroke:#365f91;stroke-width:3}.decision{fill:#fff5d6;stroke:#9b6b00;stroke-width:3}.arrow{fill:none;stroke:#365f91;stroke-width:4;marker-end:url(#a)}.small{font-size:26px;font-weight:600}.title{font-size:32px;font-weight:700}.label{font-size:23px;fill:#5b4210}</style>
+  <g transform="translate(100 0)">
+  <text x="800" y="42" text-anchor="middle" class="title">Client evidence, inference, and approval lifecycle</text>
+  <rect class="box" x="40" y="128" width="240" height="100" rx="14"/><text x="160" y="170" text-anchor="middle" class="small">Original PDFs</text><text x="160" y="202" text-anchor="middle" class="small">and references</text>
+  <line class="arrow" x1="280" y1="178" x2="355" y2="178"/>
+  <rect class="box" x="365" y="128" width="250" height="100" rx="14"/><text x="490" y="170" text-anchor="middle" class="small">Preserved page</text><text x="490" y="202" text-anchor="middle" class="small">evidence and rows</text>
+  <line class="arrow" x1="615" y1="178" x2="690" y2="178"/>
+  <rect class="box" x="700" y="128" width="265" height="100" rx="14"/><text x="832" y="170" text-anchor="middle" class="small">Checks and exact</text><text x="832" y="202" text-anchor="middle" class="small">approved mapping</text>
+  <line class="arrow" x1="965" y1="178" x2="1040" y2="178"/>
+  <polygon class="decision" points="1160,105 1275,178 1160,251 1045,178"/><text x="1160" y="171" text-anchor="middle" class="small">Client</text><text x="1160" y="202" text-anchor="middle" class="small">review</text>
+  <line class="arrow" x1="1275" y1="178" x2="1350" y2="178"/>
+  <rect class="box" x="1360" y="128" width="200" height="100" rx="14"/><text x="1460" y="170" text-anchor="middle" class="small">Approved</text><text x="1460" y="202" text-anchor="middle" class="small">handoff</text>
+  <path class="arrow" d="M1160 251 L1160 310 L832 310 L832 238"/><text x="995" y="345" text-anchor="middle" class="label">Needs decision: source-bound inference, cross-packet verification, exception, or amendment</text>
+  </g>
+</svg>

@@ -1,0 +1,124 @@
+{
+  "sample_metadata": {
+    "label": "SAMPLE - FICTIONAL - NOT CLIENT DATA",
+    "authoritative_schema": "references/canonical-deployment-retrieval.md"
+  },
+  "sample_notice": "Shape only; do not use as an operational load file.",
+  "batch_id": "00000000-0000-0000-0000-000000000001",
+  "registry_version": "sample-registry-v1",
+  "tables": {
+    "selling_location": [
+      {
+        "selling_location_key": "00000000-0000-0000-0000-000000000401",
+        "natural_key": "sample-boston-office",
+        "location_name": "SAMPLE Boston Office",
+        "city": "Boston",
+        "country_code": "US",
+        "review_status": "sampled_verified",
+        "batch_id": "00000000-0000-0000-0000-000000000001"
+      }
+    ],
+    "document": [
+      {
+        "document_id": "00000000-0000-0000-0000-000000000101",
+        "natural_key": "sample-invoice-1001",
+        "document_type": "commercial_invoice",
+        "source_file": "sample_source.pdf",
+        "source_page_range": "1",
+        "source_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "review_status": "sampled_verified",
+        "batch_id": "00000000-0000-0000-0000-000000000001"
+      }
+    ],
+    "acknowledgement": [
+      {
+        "ack_key": "00000000-0000-0000-0000-000000000402",
+        "ack_number": "SAMPLE-ACK-1001",
+        "selling_location_key": "00000000-0000-0000-0000-000000000401",
+        "expected_value": "110.00",
+        "currency_code": "USD",
+        "source_document_id": "00000000-0000-0000-0000-000000000101",
+        "review_status": "sampled_verified",
+        "batch_id": "00000000-0000-0000-0000-000000000001"
+      }
+    ],
+    "job": [
+      {
+        "job_key": "00000000-0000-0000-0000-000000000403",
+        "job_number": "SAMPLE-JOB-1001",
+        "ack_key": "00000000-0000-0000-0000-000000000402",
+        "selling_location_key": "00000000-0000-0000-0000-000000000401",
+        "expected_value": "110.00",
+        "currency_code": "USD",
+        "source_document_id": "00000000-0000-0000-0000-000000000101",
+        "review_status": "sampled_verified",
+        "batch_id": "00000000-0000-0000-0000-000000000001"
+      }
+    ],
+    "invoice_header": [
+      {
+        "invoice_key": "00000000-0000-0000-0000-000000000201",
+        "source_document_id": "00000000-0000-0000-0000-000000000101",
+        "invoice_number": "SAMPLE-1001",
+        "total_amount": "110.00",
+        "ack_number": "SAMPLE-ACK-1001",
+        "job_number": "SAMPLE-JOB-1001",
+        "attribution_method": "explicit_printed",
+        "selling_location_key": "00000000-0000-0000-0000-000000000401",
+        "review_status": "sampled_verified",
+        "batch_id": "00000000-0000-0000-0000-000000000001"
+      }
+    ],
+    "invoice_line": [
+      {
+        "invoice_line_key": "00000000-0000-0000-0000-000000000301",
+        "invoice_key": "00000000-0000-0000-0000-000000000201",
+        "line_number": 1,
+        "description": "SAMPLE fictional product",
+        "quantity": "2",
+        "ack_number": "SAMPLE-ACK-1001",
+        "job_number": "SAMPLE-JOB-1001",
+        "attribution_method": "explicit_printed",
+        "selling_location_key": "00000000-0000-0000-0000-000000000401",
+        "review_status": "sampled_verified",
+        "batch_id": "00000000-0000-0000-0000-000000000001"
+      }
+    ],
+    "attribution": [
+      {
+        "attribution_id": "00000000-0000-0000-0000-000000000404",
+        "target_table": "invoice_header",
+        "target_key": "00000000-0000-0000-0000-000000000201",
+        "amount": "110.00",
+        "currency_code": "USD",
+        "ack_number": "SAMPLE-ACK-1001",
+        "job_number": "SAMPLE-JOB-1001",
+        "attribution_rank": 1,
+        "attribution_method": "explicit_printed",
+        "attribution_confidence": "0.9900",
+        "evidence_chain": [
+          "00000000-0000-0000-0000-000000000101"
+        ],
+        "selling_location_key": "00000000-0000-0000-0000-000000000401",
+        "selling_location_method": "reference_table_via_ack",
+        "source_document_id": "00000000-0000-0000-0000-000000000101",
+        "review_status": "sampled_verified",
+        "batch_id": "00000000-0000-0000-0000-000000000001"
+      }
+    ],
+    "handwriting_region": [
+      {
+        "region_id": "00000000-0000-0000-0000-000000000405",
+        "source_region_id": "SAMPLE-REGION-1",
+        "document_id": "00000000-0000-0000-0000-000000000101",
+        "page_id": "sample-page-1",
+        "semantic_type": "nonfinancial_note",
+        "content_class": "free_text",
+        "crop_path": "sample_region.png",
+        "transcription_status": "captured_untranscribed",
+        "review_status": "sampled_verified",
+        "batch_id": "00000000-0000-0000-0000-000000000001"
+      }
+    ]
+  }
+}

@@ -1,0 +1,12 @@
+\begin{tikzpicture}[node distance=8mm and 14mm]
+  \node[bdi,text width=34mm] (E) {\textbf{Evidence}\\Source page, returned\\workbook, ledger or\\payment export\\\emph{retained unchanged}};
+  \node[bdi,text width=34mm,right=of E] (P) {\textbf{Proposal}\\Extracted value, match,\\grouping, AI-suggested link\\\emph{always reviewable}};
+  \node[bdiout,text width=34mm,right=of P] (A) {\textbf{Authorized fact}\\Applied as an append-only\\amendment\\\emph{original still retained}};
+  \node[bdigate,text width=40mm,below=12mm of P] (X) {\textbf{Open exception}\\Reason, value, and evidence\\kept visible};
+
+  \draw[bdiflow] (E)--node[bdilbl,above,align=center]{read, checked,\\cross-checked}(P);
+  \draw[bdiflow] (P)--node[bdilbl,above,align=center]{operator\\authorization}(A);
+  \draw[bdiflow] (P)--node[bdilbl,right,align=left]{unproved,\\conflicting, or\\unsupported}(X);
+  \draw[bdiback] (X.west) -- ++(-8mm,0) |- node[bdilbl,pos=0.25,left,align=right]{new evidence\\or client decision} (P.west);
+  \draw[bdiflow] (A.north) .. controls +(0,9mm) and +(0,9mm) .. node[bdilbl,above]{further amendment} (A.north east);
+\end{tikzpicture}

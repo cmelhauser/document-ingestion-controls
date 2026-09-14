@@ -1,0 +1,14 @@
+{
+  "sample_metadata": {
+    "label": "SAMPLE - FICTIONAL - NOT CLIENT DATA",
+    "purpose": "Illustrates a report-layout observation for strict allocation-policy proposal discovery.",
+    "authoritative_runbook": "references/allocation-policy.md"
+  },
+  "templates": [
+    {
+      "template_id": "SAMPLE-COMMISSION-REPORT-V1",
+      "source_labels": ["Product Amount", "Rate", "Allocation Share", "Commission", "Ship-to Credit"],
+      "evidence": [{"document_id": "SAMPLE-COMMISSION-001", "page_id": "SAMPLE-COMMISSION-001-PAGE-01"}]
+    }
+  ]
+}

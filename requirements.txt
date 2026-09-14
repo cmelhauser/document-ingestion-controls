@@ -1,0 +1,15 @@
+# Direct runtime dependencies, declared without version pins.
+#
+# The concrete, reproducible resolution lives in requirements.lock, which
+# pip-compile generates with hashes and which both gating CI jobs install with
+# --require-hashes. Pinning here as well would mean two places to update and a
+# stale floor whenever the lock moves.
+pikepdf
+pillow
+numpy
+XlsxWriter
+openai
+anthropic
+google-genai
+fastapi
+uvicorn

@@ -1,0 +1,24 @@
+\begin{tikzpicture}[x=1mm,y=1mm]
+  \node[bdi,text width=34mm] (I) at (0,0) {An item in the\\final package};
+  \node[bdigate,text width=32mm] (Q1) at (0,-20) {\textbf{Is it in the\\review queue?}};
+  \node[bdigate,text width=32mm] (Q2) at (0,-44) {\textbf{What is its\\stated reason?}};
+
+  \node[bdiout,text width=40mm] (R1) at (62,-20) {\textbf{Established}\\Traceable to a page,\\checks passed};
+  \node[bdi,text width=46mm] (R2) at (-58,-70) {\textbf{Needs your decision}\\Confirm, correct with a citation,\\mark not applicable, or supply\\the missing reference};
+  \node[bdi,text width=42mm] (R3) at (0,-92) {\textbf{Blocked on evidence}\\No authoritative ledger, payment,\\or reference export exists};
+  \node[bdi,text width=40mm] (R4) at (60,-70) {\textbf{Retained exception}\\Explicitly accepted, with\\its reason recorded};
+
+  \draw[bdiflow] (I)--(Q1);
+  \draw[bdiflow] (Q1)--node[bdilbl,above]{No}(R1);
+  \draw[bdiflow] (Q1)--node[bdilbl,right]{Yes}(Q2);
+  \draw[bdiflow] (Q2)--node[bdilbl,above left,align=center,text width=32mm]
+        {ambiguous, conflicting,\\or unproved}(R2);
+  \draw[bdiflow] (Q2)--node[bdilbl,right,align=left,text width=30mm]
+        {required evidence\\not supplied}(R3);
+  \draw[bdiflow] (Q2)--node[bdilbl,above right,align=center,text width=30mm]
+        {accepted by prior\\authorization}(R4);
+
+  \draw[bdiback] (R2.west) -- ++(-8,0) |- node[bdilbl,pos=0.22,left,align=right,text width=34mm]
+        {cited response $\rightarrow$ authorized\\amendment $\rightarrow$ rerun} (I.west);
+  \draw[bdiback] (R3.east) -- ++(10,0) |- node[bdilbl,pos=0.25,right]{supply the export} (I.east);
+\end{tikzpicture}

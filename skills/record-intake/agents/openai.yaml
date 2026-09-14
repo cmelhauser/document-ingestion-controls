@@ -1,0 +1,4 @@
+interface:
+  display_name: "Record Intake"
+  short_description: "Retain source images and review-only record proposals"
+  default_prompt: "Use $record-intake for separately authorized schema-guided image proposals or a receipt-verified source-only handoff, preserving originals and rejections without approving or publishing CRM records."

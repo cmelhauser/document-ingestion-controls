@@ -1,0 +1,174 @@
+{
+  "sample_metadata": {
+    "label": "SAMPLE - FICTIONAL - NOT CLIENT DATA",
+    "purpose": "Deterministic end-to-end MCP production acceptance fixture"
+  },
+  "batch_id": "mcp-production-acceptance",
+  "registry_version": "mcp-production-acceptance-v1",
+  "tables": {
+    "document": [
+      {
+        "document_id": "doc-1",
+        "source_file": "fictional_source.pdf",
+        "source_page_range": "1-2",
+        "source_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "batch_id": "mcp-production-acceptance",
+        "review_status": "exception_resolved"
+      }
+    ],
+    "party": [
+      {
+        "party_key": "vendor-1",
+        "natural_key": "fictional-vendor",
+        "canonical_name": "Fictional Vendor LLC",
+        "normalized_name": "fictional vendor llc",
+        "batch_id": "mcp-production-acceptance",
+        "review_status": "exception_resolved"
+      },
+      {
+        "party_key": "customer-1",
+        "natural_key": "fictional-customer",
+        "canonical_name": "Fictional Customer Inc",
+        "normalized_name": "fictional customer inc",
+        "batch_id": "mcp-production-acceptance",
+        "review_status": "exception_resolved"
+      }
+    ],
+    "party_role": [
+      {
+        "party_key": "vendor-1",
+        "role": "biller"
+      },
+      {
+        "party_key": "customer-1",
+        "role": "payer"
+      }
+    ],
+    "party_name_variant": [
+      {
+        "party_key": "customer-1",
+        "raw_name": "Fictional Customer Incorporated"
+      }
+    ],
+    "address": [
+      {
+        "address_key": "address-1",
+        "party_key": "customer-1",
+        "address_type": "billing",
+        "raw_address": "1 Main Street, Boston, MA 02108",
+        "line1": "1 Main Street",
+        "city": "Boston",
+        "state_province": "MA",
+        "postal_code": "02108",
+        "country_code": "US",
+        "source_document_id": "doc-1",
+        "batch_id": "mcp-production-acceptance",
+        "review_status": "exception_resolved"
+      }
+    ],
+    "contact": [
+      {
+        "contact_key": "contact-1",
+        "party_key": "customer-1",
+        "name": "Fictional Accounts Payable",
+        "email": "accounts@example.invalid",
+        "source_document_id": "doc-1",
+        "batch_id": "mcp-production-acceptance",
+        "review_status": "exception_resolved"
+      }
+    ],
+    "selling_location": [
+      {
+        "selling_location_key": "location-1",
+        "natural_key": "fictional-boston-office",
+        "location_name": "Fictional Boston Office",
+        "city": "Boston",
+        "state_province": "MA",
+        "territory_name": "Northeast",
+        "country_code": "US",
+        "batch_id": "mcp-production-acceptance",
+        "review_status": "exception_resolved"
+      }
+    ],
+    "invoice_header": [
+      {
+        "invoice_key": "invoice-1",
+        "invoice_number": "FICTIONAL-INV-1",
+        "invoice_date": "2026-01-15",
+        "due_date": "2026-02-14",
+        "biller_party_key": "vendor-1",
+        "payer_party_key": "customer-1",
+        "currency_code": "USD",
+        "total_amount": "125.00",
+        "amount_due": "25.00",
+        "ack_number": "FICTIONAL-ACK-1",
+        "job_number": "FICTIONAL-JOB-1",
+        "selling_location_key": "location-1",
+        "source_document_id": "doc-1",
+        "batch_id": "mcp-production-acceptance",
+        "review_status": "exception_resolved"
+      }
+    ],
+    "invoice_line": [
+      {
+        "invoice_line_key": "line-1",
+        "invoice_key": "invoice-1",
+        "line_number": 1,
+        "description": "Fictional consulting service",
+        "quantity": "1",
+        "unit_price": "125.00",
+        "extended_amount": "125.00",
+        "batch_id": "mcp-production-acceptance",
+        "review_status": "exception_resolved"
+      }
+    ],
+    "attribution": [
+      {
+        "attribution_id": "attribution-1",
+        "target_table": "invoice_header",
+        "target_key": "invoice-1",
+        "amount": "100.00",
+        "currency_code": "USD",
+        "reason_code": "approved_partial",
+        "ack_number": "FICTIONAL-ACK-1",
+        "job_number": "FICTIONAL-JOB-1",
+        "source_document_id": "doc-1",
+        "batch_id": "mcp-production-acceptance",
+        "review_status": "exception_resolved"
+      }
+    ],
+    "payment": [
+      {
+        "payment_key": "payment-1",
+        "natural_key": "FICTIONAL-PAY-1",
+        "payer_party_key": "customer-1",
+        "payee_party_key": "vendor-1",
+        "currency_code": "USD",
+        "total_paid": "100.00",
+        "source_document_id": "doc-1",
+        "batch_id": "mcp-production-acceptance",
+        "review_status": "exception_resolved"
+      }
+    ],
+    "shipment": [
+      {
+        "shipment_key": "shipment-1",
+        "natural_key": "FICTIONAL-BOL-1",
+        "ship_date": "2026-01-10",
+        "committed_date": "2026-01-12",
+        "delivery_date": "2026-01-13",
+        "source_document_id": "doc-1",
+        "batch_id": "mcp-production-acceptance",
+        "review_status": "exception_resolved"
+      },
+      {
+        "shipment_key": "shipment-2",
+        "natural_key": "FICTIONAL-BOL-2",
+        "ship_date": "2026-01-20",
+        "source_document_id": "doc-1",
+        "batch_id": "mcp-production-acceptance",
+        "review_status": "exception_resolved"
+      }
+    ]
+  }
+}

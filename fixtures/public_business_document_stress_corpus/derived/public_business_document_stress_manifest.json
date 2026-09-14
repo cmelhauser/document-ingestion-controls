@@ -1,0 +1,170 @@
+{
+  "fixture_name": "public_business_document_stress_corpus",
+  "purpose": "Phase 0.5 through Phase 2 public-PDF stress fixture",
+  "bundle": "derived/public_business_document_stress_bundle.pdf",
+  "bundle_sha256": "f2733c608ff2f29340571fdcb8d867cc24a424660e2d23f6be60ae94ffb62bdb",
+  "bundle_pages": 10,
+  "ordering": "ascending output_sort_key; deliberately non-grouped source pages",
+  "source_usage": "Downloaded public templates and controls for local pipeline testing only. Preserve URLs and SHA-256 values; do not redistribute or treat any source as licensed for broader reuse without an independent rights review.",
+  "coverage_limits": [
+    "Native-text document and provenance test; not an OCR accuracy benchmark.",
+    "Does not represent client data, handwriting, JBIG2, encrypted PDFs, or a real GL population.",
+    "The intentionally interleaved pages must remain unassigned for reassembly unless later evidence supports a grouping."
+  ],
+  "sources": {
+    "fedex_commercial_invoice": {
+      "filename": "01_fedex_commercial_invoice_template.pdf",
+      "url": "https://www.fedex.com/content/dam/fedex/us-united-states/services/CommercialInvoice.pdf",
+      "expected_type": "commercial_invoice",
+      "path": "originals/01_fedex_commercial_invoice_template.pdf",
+      "sha256": "5d29f328024b2e878e627bf68902f58512faff5f6946ba7fe812de6f02d2548c",
+      "bytes": 129563,
+      "pages": 1
+    },
+    "incodocs_commercial_invoice": {
+      "filename": "02_incodocs_commercial_invoice_template.pdf",
+      "url": "https://incodocs.com/templates/pdfs/Commercial%20Invoice.pdf",
+      "expected_type": "commercial_invoice",
+      "path": "originals/02_incodocs_commercial_invoice_template.pdf",
+      "sha256": "3d34a2a040e9b033df2ca2a121f028e9df8910f1ccc416ddd808b15ba4a1242e",
+      "bytes": 27232,
+      "pages": 1
+    },
+    "sample_commercial_invoice_air_waybill": {
+      "filename": "03_sample_commercial_invoice_air_waybill.pdf",
+      "url": "https://illusionbookstore.com/wp-content/uploads/2016/12/Sample-Commercial-Invoice-1.pdf",
+      "expected_type": "commercial_invoice",
+      "path": "originals/03_sample_commercial_invoice_air_waybill.pdf",
+      "sha256": "7c3ecc2b52629344277dec1d5daf15620abbc2047da93992f759100f25832242",
+      "bytes": 182929,
+      "pages": 3
+    },
+    "packing_list": {
+      "filename": "04_packing_list_template.pdf",
+      "url": "https://documentof.com/pdf-files/794/packing-list-template-international-export-shipments.pdf",
+      "expected_type": "packing_list",
+      "path": "originals/04_packing_list_template.pdf",
+      "sha256": "50e11da25b1f4150f01b098bbabb82a2070581c08aadc545e209ced119865ce5",
+      "bytes": 18171,
+      "pages": 1
+    },
+    "credit_memo": {
+      "filename": "05_credit_memo_sample.pdf",
+      "url": "https://documentof.com/pdf-files/622/credit-memo-sample-overcharge-correction.pdf",
+      "expected_type": "credit_memo",
+      "path": "originals/05_credit_memo_sample.pdf",
+      "sha256": "fbc14a6d2ad972f6b8857df3028dd51ac7879d0166db8a01b7bb4f428608582f",
+      "bytes": 20721,
+      "pages": 1
+    },
+    "bill_of_lading": {
+      "filename": "06_incodocs_bill_of_lading_template.pdf",
+      "url": "https://incodocs.com/templates/pdfs/Bill%20of%20Lading.pdf",
+      "expected_type": "bill_of_lading",
+      "path": "originals/06_incodocs_bill_of_lading_template.pdf",
+      "sha256": "a94acc3274beb153567bec1d858e596e82a7781999fe3a16672cf748e55ae11d",
+      "bytes": 26719,
+      "pages": 1
+    },
+    "neutral_native_text_control": {
+      "filename": "07_w3c_dummy_native_text_control.pdf",
+      "url": "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
+      "expected_type": null,
+      "path": "originals/07_w3c_dummy_native_text_control.pdf",
+      "sha256": "3df79d34abbca99308e79cb94461c1893582604d68329a41fd4bec1885e6adb4",
+      "bytes": 13264,
+      "pages": 1
+    },
+    "packair_packing_list": {
+      "filename": "08_packair_packing_list_template.pdf",
+      "url": "https://www.packair.com/wp-content/uploads/2017/04/PACKAIR-PACKING-LIST.pdf",
+      "expected_type": "packing_list",
+      "path": "originals/08_packair_packing_list_template.pdf",
+      "sha256": "bae901ca58372d7a363f82eb857466988dace76f81bccf74f0efb2527824331c",
+      "bytes": 80844,
+      "pages": 1
+    }
+  },
+  "expected_pages": [
+    {
+      "output_sort_key": "000001",
+      "source_id": "sample_commercial_invoice_air_waybill",
+      "source_file": "originals/03_sample_commercial_invoice_air_waybill.pdf",
+      "source_page_number": 2,
+      "expected_type": "commercial_invoice",
+      "purpose": "public_business_document_template"
+    },
+    {
+      "output_sort_key": "000002",
+      "source_id": "packing_list",
+      "source_file": "originals/04_packing_list_template.pdf",
+      "source_page_number": 1,
+      "expected_type": "packing_list",
+      "purpose": "public_business_document_template"
+    },
+    {
+      "output_sort_key": "000003",
+      "source_id": "fedex_commercial_invoice",
+      "source_file": "originals/01_fedex_commercial_invoice_template.pdf",
+      "source_page_number": 1,
+      "expected_type": "commercial_invoice",
+      "purpose": "public_business_document_template"
+    },
+    {
+      "output_sort_key": "000004",
+      "source_id": "bill_of_lading",
+      "source_file": "originals/06_incodocs_bill_of_lading_template.pdf",
+      "source_page_number": 1,
+      "expected_type": "bill_of_lading",
+      "purpose": "public_business_document_template"
+    },
+    {
+      "output_sort_key": "000005",
+      "source_id": "sample_commercial_invoice_air_waybill",
+      "source_file": "originals/03_sample_commercial_invoice_air_waybill.pdf",
+      "source_page_number": 1,
+      "expected_type": "commercial_invoice",
+      "purpose": "public_business_document_template"
+    },
+    {
+      "output_sort_key": "000006",
+      "source_id": "credit_memo",
+      "source_file": "originals/05_credit_memo_sample.pdf",
+      "source_page_number": 1,
+      "expected_type": "credit_memo",
+      "purpose": "public_business_document_template"
+    },
+    {
+      "output_sort_key": "000007",
+      "source_id": "incodocs_commercial_invoice",
+      "source_file": "originals/02_incodocs_commercial_invoice_template.pdf",
+      "source_page_number": 1,
+      "expected_type": "commercial_invoice",
+      "purpose": "public_business_document_template"
+    },
+    {
+      "output_sort_key": "000008",
+      "source_id": "packair_packing_list",
+      "source_file": "originals/08_packair_packing_list_template.pdf",
+      "source_page_number": 1,
+      "expected_type": "packing_list",
+      "purpose": "public_business_document_template"
+    },
+    {
+      "output_sort_key": "000009",
+      "source_id": "neutral_native_text_control",
+      "source_file": "originals/07_w3c_dummy_native_text_control.pdf",
+      "source_page_number": 1,
+      "expected_type": null,
+      "purpose": "native_text_control"
+    },
+    {
+      "output_sort_key": "000010",
+      "source_id": "sample_commercial_invoice_air_waybill",
+      "source_file": "originals/03_sample_commercial_invoice_air_waybill.pdf",
+      "source_page_number": 3,
+      "expected_type": "commercial_invoice",
+      "purpose": "public_business_document_template"
+    }
+  ]
+}

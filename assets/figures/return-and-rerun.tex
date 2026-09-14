@@ -1,0 +1,22 @@
+\begin{tikzpicture}[x=1mm,y=1mm]
+  \node[bdi,text width=60mm] (S1) at (0,0)    {\textbf{1. Preserve the delivery}\\New empty output directory;\\\texttt{issued/} and \texttt{returned/} kept apart};
+  \node[bdi,text width=60mm] (S2) at (0,-20)  {\textbf{2. Preserve every response first}\\\texttt{preserve-responses}\\$\rightarrow$ \texttt{client\_responses\_preserved.json}};
+  \node[bdi,text width=60mm] (S3) at (0,-40)  {\textbf{3. Import and validate}\\\texttt{import-decisions}\\$\rightarrow$ \texttt{client\_decisions.json}};
+  \node[bdigate,text width=42mm] (V) at (0,-60) {\textbf{Import complete, hashes\\and fixed cells match?}};
+  \node[bdigate,text width=46mm] (STOP) at (-72,-60) {\textbf{Stop.} Do not proceed.\\Repair lineage, then compile\\a new plan};
+  \node[bdi,text width=66mm] (S4) at (0,-82)  {\textbf{4. Read the three artifacts}\\\texttt{compiled\_change\_plan.json} $\cdot$\\\texttt{client\_responses\_preserved.json} $\cdot$\\\texttt{final\_reconciliation\_manifest.json}};
+  \node[bdi,text width=60mm] (S5) at (0,-104) {\textbf{5. Authorize the change plan}\\Explicit choice per patch;\\unapproved patches stay deferred};
+  \node[bdi,text width=66mm] (S6) at (0,-124) {\textbf{6. Provide completeness inputs}\\\texttt{attributed.json} $\cdot$ \texttt{gl.csv} $\cdot$ \texttt{payments.json},\\or record why one is unavailable};
+  \node[bdi,text width=66mm] (S7) at (0,-146) {\textbf{7. Rerun in a new directory}\\mapping $\rightarrow$ consensus $\rightarrow$ arithmetic $\rightarrow$\\validation $\rightarrow$ completeness $\rightarrow$ final review};
+  \node[bdigate,text width=40mm] (S8) at (0,-168) {\textbf{8. Final gate}\\manifest clear?};
+  \node[bdiout,text width=52mm] (OK) at (-58,-190) {Canonical export, load plan,\\or no-send staging package};
+  \node[bdi,text width=58mm] (NO) at (52,-190) {Remains \texttt{blocked\_pending\_}\\\texttt{client\_review}. Never send data\\from this run.};
+
+  \foreach \a/\b in {S1/S2,S2/S3,S3/V,S4/S5,S5/S6,S6/S7,S7/S8}{\draw[bdiflow] (\a)--(\b);}
+  \draw[bdiflow] (V)--node[bdilbl,above]{no}(STOP);
+  \draw[bdiflow] (V)--node[bdilbl,right]{yes}(S4);
+  \draw[bdiflow] (S8)--node[bdilbl,above left]{clear}(OK);
+  \draw[bdiflow] (S8)--node[bdilbl,above right]{not clear}(NO);
+  \draw[bdiback] (NO.east) -- ++(10,0)
+        |- node[bdilbl,pos=0.25,right]{remaining open items} (S1.east);
+\end{tikzpicture}

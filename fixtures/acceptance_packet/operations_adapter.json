@@ -1,0 +1,6 @@
+{
+  "engine": "acceptance-adapter-v1",
+  "records": [
+    {"document_id": "acceptance-1"}
+  ]
+}

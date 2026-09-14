@@ -1,0 +1,24 @@
+{
+  "sample_metadata": {
+    "label": "SAMPLE - FICTIONAL - NOT CLIENT DATA",
+    "purpose": "Illustrates the only client-editable allocation-policy decision return shape.",
+    "authoritative_runbook": "references/allocation-policy.md"
+  },
+  "review_metadata": {
+    "label": "CLIENT DECISION RETURN FILE - EDIT ONLY decisions",
+    "instructions": "Fictional example only. Approve/defer and choose scope/effective dates; do not edit source evidence or the registry."
+  },
+  "decisions": [
+    {
+      "template_fingerprint": "SAMPLE-TEMPLATE-FINGERPRINT",
+      "template_id": "SAMPLE-COMMISSION-REPORT-V1",
+      "decision": "approve",
+      "scope": {
+        "dimensions": {"brand_name": "Sample Brand", "dealer_name": "Sample Dealer"},
+        "effective_from": "2026-01-01"
+      },
+      "policy_override": {"effective_rate_threshold": 0.025},
+      "client_comment": "Fictional decision only. Keep explicit ship-to allocations outside sales credit."
+    }
+  ]
+}

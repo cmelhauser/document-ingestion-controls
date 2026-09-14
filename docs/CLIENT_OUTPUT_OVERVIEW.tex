@@ -1,0 +1,907 @@
+% source-sha256: f668831a53e944be583111b9e6d49298e80bbc03ce4b11e64ad863c5cef40397
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+\documentclass[
+]{article}
+\usepackage{xcolor}
+\usepackage[letterpaper,margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math} % this also loads fontspec
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+\usepackage{lmodern}
+\ifPDFTeX\else
+  % xetex/luatex font selection
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{longtable,booktabs,array}
+\usepackage{caption}
+\captionsetup[table]{skip=6pt}
+\newcounter{none} % for unnumbered tables
+\usepackage{calc} % for calculating minipage widths
+% Correct order of tables after \paragraph or \subparagraph
+\usepackage{etoolbox}
+\makeatletter
+\patchcmd\longtable{\par}{\if@noskipsec\mbox{}\fi\par}{}{}
+\makeatother
+% Allow footnotes in longtable head/foot
+\IfFileExists{footnotehyper.sty}{\usepackage{footnotehyper}}{\usepackage{footnote}}
+\makesavenoteenv{longtable}
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+% Release-document layout safeguards injected by scripts/generate_docs.sh.
+\usepackage{fvextra}
+\fvset{breaklines=true,breakanywhere=true,fontsize=\small}
+\RecustomVerbatimEnvironment{verbatim}{Verbatim}{breaklines=true,breakanywhere=true,fontsize=\small}
+\setlength{\emergencystretch}{3em}
+\AtBeginDocument{\sloppy}
+% Workflow-figure support: mermaid blocks in the canonical Markdown are mapped
+% to hand-authored TikZ figures by scripts/pandoc_bounded_tables.lua.
+\usepackage{tikz}
+\usetikzlibrary{shapes.geometric,arrows.meta,positioning,fit,backgrounds,calc}
+\definecolor{bdiStep}{HTML}{EAF2FB}
+\definecolor{bdiEdge}{HTML}{365F91}
+\definecolor{bdiText}{HTML}{17253A}
+\definecolor{bdiGate}{HTML}{FFF5D6}
+\definecolor{bdiGateEdge}{HTML}{9B6B00}
+\definecolor{bdiOpt}{HTML}{F0EAF7}
+\definecolor{bdiOptEdge}{HTML}{5B3E86}
+\definecolor{bdiOut}{HTML}{E6F4EA}
+\definecolor{bdiOutEdge}{HTML}{1E6B3A}
+\tikzset{
+  bdi/.style={draw=bdiEdge,line width=1pt,fill=bdiStep,text=bdiText,rounded corners=3pt,
+              align=center,inner sep=4pt,font=\scriptsize\sffamily},
+  bdigate/.style={bdi,draw=bdiGateEdge,fill=bdiGate},
+  bdiopt/.style={bdi,draw=bdiOptEdge,fill=bdiOpt,dashed},
+  bdiout/.style={bdi,draw=bdiOutEdge,fill=bdiOut},
+  bdiflow/.style={-{Stealth[length=2mm]},draw=bdiEdge,line width=0.9pt},
+  bdiback/.style={bdiflow,dashed},
+  bdilbl/.style={font=\tiny\sffamily,text=bdiText,inner sep=1.5pt,fill=white},
+}
+\usepackage{bookmark}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\urlstyle{same}
+% fallback for those not using the hyperref driver hyperxmp:
+\makeatletter
+\@ifundefined{xmpquote}{\newcommand{\xmpquote}[1]{#1}}{}
+\makeatother
+\hypersetup{
+  pdftitle={Business Document Ingestion},
+  pdfauthor={Christopher Melhauser and theonlymuffinbot},
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+
+\title{Business Document Ingestion}
+\usepackage{etoolbox}
+\makeatletter
+\providecommand{\subtitle}[1]{% add subtitle to \maketitle
+  \apptocmd{\@title}{\par {\large #1 \par}}{}{}
+}
+\makeatother
+\subtitle{Client Output, Reporting, and CRM Access Overview}
+\author{Christopher Melhauser and theonlymuffinbot}
+\date{September 3, 2026}
+
+\begin{document}
+\maketitle
+
+\section{Client Output, Reporting, and CRM Access
+Overview}\label{client-output-reporting-and-crm-access-overview}
+
+\subsection{Read this first}\label{read-this-first}
+
+This guide explains what a completed document-processing engagement can
+give you, what each output is for, and how approved data can later be
+searched, reported on, exported, or prepared for a CRM. It is written
+for business users; you do not need to know the internal processing
+steps to use the results.
+
+This edition also covers the optional visual-intake pilot and
+source-only handoff implemented in this checkout. It does not claim a
+deployed client service or a completed merge. The stable release remains
+1.0.0; current repository and verification state is recorded separately
+in \texttt{HANDOFF.md}.
+
+The important distinction is simple:
+
+{\def\LTcaptype{none} % do not increment counter
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.3333}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.3333}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.3333}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+If the final review is\ldots{}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+You receive\ldots{}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+What it means
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+\textbf{Open or blocked} & A review package and an exception register &
+Questions still need an answer. The data is useful for review, but it is
+not released as approved operational facts. \\
+\textbf{Clear} & An approved data package, reporting/retrieval snapshot,
+and optional CRM-ready files & Every included fact is provenance-linked,
+review-clear, and tied to the exact source snapshot. \\
+\end{longtable}
+}
+
+The system does not hide an unresolved item to make a spreadsheet look
+clean. It records the question, reason, source, and next step. A
+completed pipeline is therefore more than a collection of extracted
+rows: it is a traceable answer to what was found, what was proven, and
+what still needs a decision.
+
+\subsection{The end product at a
+glance}\label{the-end-product-at-a-glance}
+
+A client delivery is organized into five practical layers. Depending on
+the engagement and final gate, some layers may be delivered as blocked
+findings rather than approved data. That distinction is visible in the
+package.
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  \textbf{Source and evidence layer.} Original documents, page
+  references, hashes, and citations that let a user trace an important
+  value back to its source.
+\item
+  \textbf{Review and control layer.} The review queue, validation,
+  arithmetic, attribution, completeness, and exception results. This
+  explains what was checked and what was not proven.
+\item
+  \textbf{Approved data layer.} A canonical JSON export containing only
+  review-clear, provenance-linked facts, plus an exclusion artifact for
+  every withheld record or field.
+\item
+  \textbf{Reporting and retrieval layer.} A read-only, immutable data
+  snapshot that supports governed search, record lookup, account/contact
+  cards, analysis, standard reports, and bounded exports.
+\item
+  \textbf{CRM handoff layer.} Checksummed no-send staging files and
+  optional common CRM-import files. These prepare a controlled load;
+  they do not upload, overwrite, or authorize a live CRM change.
+\end{enumerate}
+
+The package is versioned by the source-export hash and supporting
+checksums. If an authorized correction changes a fact, a new snapshot is
+built. The old snapshot remains available for audit; it is never edited
+in place.
+
+\subsection{What the files look like}\label{what-the-files-look-like}
+
+The exact folder names may be tailored to the engagement, but the
+contents have the following roles.
+
+{\def\LTcaptype{none} % do not increment counter
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.3333}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.3333}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.3333}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Output
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Typical form
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+What you use it for
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+Final review package & JSON, CSV, XLSX, and HTML & Review open
+questions, filter by priority or document, and return controlled
+decisions. \\
+Control results & JSON and human-readable summaries & Understand
+arithmetic, validation, attribution, completeness, sampling, and
+final-gate results. \\
+Exception register & JSON and reviewer views & See every withheld
+record, missing input, failed check, or unresolved value with its
+reason. \\
+Canonical export & Versioned JSON plus exclusion artifact & The
+authoritative machine-readable approved-fact handoff. It is the source
+for downstream loading and retrieval. \\
+Load plan & Versioned, checksummed JSON & See the dependency order,
+record counts, keys, and integrity checks required before loading
+another system. \\
+Retrieval snapshot & Immutable SQLite database & The local, read-only
+source used by the MCP and REST API. It contains approved facts only. \\
+CRM staging package & Ordered CSV files, API envelope, and manifest &
+Give a target-system team a full, reconciled, no-send handoff across all
+canonical tables. \\
+Common CRM import package & Twelve ordered CSV files, mapping template,
+source catalog, and write plan & Start target-CRM mapping and sandbox
+testing using familiar business objects. \\
+Optional source-intake package & Private original images, proposal
+history, exceptions, manifest, and a derived PDF when complete & Hand
+new source pages to the processing team. This is an evidence archive,
+not an approved CRM import or a report. \\
+\end{longtable}
+}
+
+\subsubsection{The Excel files}\label{the-excel-files}
+
+Excel is used as a convenient review or handoff view, not as a place
+where facts silently change.
+
+\begin{itemize}
+\tightlist
+\item
+  The \textbf{final review workbook} is for answering open questions.
+  Its issued copy and returned copy are preserved separately. Returned
+  decisions are proposals until an operator reviews the exact impact and
+  reruns affected controls.
+\item
+  The \textbf{schema and CRM capability workbook} is an orientation aid.
+  It explains tables, fields, API/MCP capabilities, sample report
+  shapes, and import-file structure. It does not contain hidden
+  authority to load a CRM or change an approved fact.
+\item
+  The \textbf{CRM import mapping template} is where a target-system
+  owner completes vendor- and tenant-specific object and field mapping.
+  Its included suggestions are starting points, not approved target
+  mappings.
+\end{itemize}
+
+\subsection{What ``approved data''
+means}\label{what-approved-data-means}
+
+An approved row is not simply a row that an AI model read. Before it
+reaches the canonical export or the retrieval snapshot, the system
+requires applicable controls to be satisfied separately:
+
+\begin{itemize}
+\tightlist
+\item
+  source and page provenance are retained;
+\item
+  the record has a review-clear status;
+\item
+  applicable arithmetic is proved or explicitly not applicable;
+\item
+  the exhaustive final review queue has no open item for that record;
+  and
+\item
+  every relevant attribution, completeness, and approval condition is
+  recorded.
+\end{itemize}
+
+If a source, ledger export, payment export, mapping decision, or review
+answer is unavailable, the package says so. It does not manufacture a
+substitute fact. This is why a delivery can be valuable even when it is
+not ready for a CRM load: it makes the outstanding business decisions
+visible and bounded.
+
+\subsection{What an MCP is}\label{what-an-mcp-is}
+
+\textbf{MCP} stands for \textbf{Model Context Protocol}. In plain
+language, it is a controlled connection that lets an AI assistant use
+approved business tools. Instead of pasting spreadsheets into a chat,
+the assistant can ask the approved retrieval snapshot specific, bounded
+questions and show you the result.
+
+Think of it as a librarian with a fixed catalog:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  You ask your assistant a business question in normal language.
+\item
+  The assistant selects an approved tool, such as search, exact lookup,
+  sales analysis, or a standard report.
+\item
+  The tool reads one immutable, approved-fact snapshot.
+\item
+  The result includes source-export identity, checksums, and relevant
+  source document IDs so it can be checked.
+\end{enumerate}
+
+The approved-data MCP does \textbf{not} let the assistant run arbitrary
+SQL, browse raw AI responses, invent records, bypass the review gate, or
+write to a CRM. Tool results do become part of the conversation context,
+so the client must approve the selected AI provider's privacy,
+retention, residency, and user-access settings before connecting real
+data.
+
+\subsection{How you can connect}\label{how-you-can-connect}
+
+Choose the connection that fits how your team will work. The same
+approved snapshot and semantic rules are used by every option; the
+transport changes, not the facts or calculations.
+
+{\def\LTcaptype{none} % do not increment counter
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.2500}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.2500}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.2500}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.2500}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Your need
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Connection
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Suitable clients
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+What is required
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+A quick, private desktop pilot & \textbf{Local stdio MCP} & Claude Code,
+Claude Desktop, and compatible local desktop clients & The completed
+run's local immutable snapshot and a private local registration. This is
+the recommended first connection. \\
+A controlled internal application or BI tool & \textbf{TLS/bearer REST
+API} & An approved internal application or BI consumer & Explicit
+enablement, TLS, dedicated rotated bearer secret, network controls,
+monitoring, and client acceptance. This is an API, not an MCP
+connector. \\
+Web, iOS, or organization workspace use & \textbf{Remote Streamable HTTP
+MCP} at a public \texttt{/\allowbreak{}mcp} URL & Claude
+web/desktop/mobile after connector setup; selected ChatGPT workspace/API
+surfaces & Public HTTPS, OAuth/OIDC authorization, exact
+tenant/role/scope rules, approved workspace registration, monitoring,
+and live acceptance. \\
+\end{longtable}
+}
+
+\subsubsection{Local desktop connection: the simplest first
+step}\label{local-desktop-connection-the-simplest-first-step}
+
+After the engagement reaches the approved-data stage, the operator
+registers a private local MCP configuration that points to the exact
+local snapshot. In Claude Code, this is normally a local stdio
+registration; Claude Desktop and other compatible desktop clients use
+the same launcher through their local MCP configuration. The database
+stays on the workstation, and the server is read-only.
+
+This is the right starting point when one approved team is working from
+the machine holding the completed snapshot. It does not make the service
+public or available on a phone.
+
+\subsubsection{Remote connection: needed for mobile and
+web}\label{remote-connection-needed-for-mobile-and-web}
+
+Claude mobile, claude.ai, and selected ChatGPT web, desktop, or mobile
+experiences require a separately deployed remote MCP service. The
+repository already supplies the remote approved-data server, but a real
+client deployment still needs:
+
+\begin{itemize}
+\tightlist
+\item
+  one public HTTPS URL ending exactly in \texttt{/\allowbreak{}mcp};
+\item
+  a trusted TLS certificate and reverse proxy;
+\item
+  a real OAuth/OIDC authorization service with token introspection;
+\item
+  a specific tenant claim, approved roles, and
+  \texttt{crm:read}/\texttt{crm:export} scopes;
+\item
+  approved logging, alerting, retention, backup, export cleanup, and
+  incident response procedures; and
+\item
+  connector registration and representative acceptance tests in the
+  selected Claude and/or ChatGPT workspace.
+\end{itemize}
+
+Mobile users normally use an already configured connector; they do not
+create the deployment from the mobile app. Product-plan and workspace
+availability can change, so the chosen provider surface is tested during
+the deployment acceptance rather than assumed from protocol
+compatibility.
+
+\subsection{What you can ask for}\label{what-you-can-ask-for}
+
+The system is designed for normal business questions. The assistant
+chooses a bounded tool and returns a small, checkable result; it does
+not send an entire large report into a chat conversation.
+
+\subsubsection{Find a record when you do not know its
+key}\label{find-a-record-when-you-do-not-know-its-key}
+
+Use search for a company name, invoice number, address fragment,
+acknowledgement number, job, project, or other source-visible phrase.
+
+Examples:
+
+\begin{itemize}
+\tightlist
+\item
+  ``Find documents and records related to Acme Industrial.''
+\item
+  ``Search for invoice INV-1042 and show the approved source citation.''
+\item
+  ``Find the address containing 125 Harbor Drive.''
+\item
+  ``Which records mention ACK-7781 or job 44-19?''
+\end{itemize}
+
+The MCP uses \texttt{search\_\allowbreak{}crm\_\allowbreak{}records} for
+this cross-table discovery. Once the right row is known,
+\texttt{get\_\allowbreak{}crm\_\allowbreak{}record} retrieves the exact
+canonical record by table and key.
+
+\subsubsection{Pull an account, address, or contact
+card}\label{pull-an-account-address-or-contact-card}
+
+\texttt{get\_\allowbreak{}account\_\allowbreak{}card} is the preferred
+way to ask for a business-ready view of a company or party. It joins
+approved party names and roles with addresses, contacts, invoice/payment
+activity, related source documents, and summary figures.
+
+Examples:
+
+\begin{itemize}
+\tightlist
+\item
+  ``Show the contact card for Acme Industrial, including addresses and
+  contacts.''
+\item
+  ``Give me the approved address and invoice history for customer
+  CUST-104.''
+\item
+  ``Which source documents support this vendor's contact information?''
+\end{itemize}
+
+Money is separated by currency in account cards. The service will not
+add US dollars, Canadian dollars, euros, or other currencies into one
+misleading total.
+
+\subsubsection{Slice and aggregate sales
+safely}\label{slice-and-aggregate-sales-safely}
+
+\texttt{analyze\_\allowbreak{}sales} is the governed analysis tool. It
+can group up to three business dimensions, including company/customer,
+vendor, region, selling location, month, quarter, year, currency,
+acknowledgement number, and job number. It can also filter by date,
+those same dimensions, and invoice-value bounds.
+
+Examples:
+
+\begin{itemize}
+\tightlist
+\item
+  ``Show sales by company and region for Q2, separated by currency.''
+\item
+  ``Compare sales by selling location for this year.''
+\item
+  ``Break down customer sales for job J-204 by month.''
+\item
+  ``Which acknowledgement numbers contributed to Midwest region sales?''
+\end{itemize}
+
+Currency is always treated as a grouping dimension, even if it is not
+mentioned in the question. That prevents unlike currencies from being
+added together.
+
+\subsubsection{Query one approved table}\label{query-one-approved-table}
+
+\texttt{query\_\allowbreak{}crm\_\allowbreak{}records} is for a focused,
+bounded slice of one table. It supports approved filters, selected
+fields, stable sorting, and pagination. It does not execute formulas,
+code, or arbitrary SQL.
+
+Examples:
+
+\begin{itemize}
+\tightlist
+\item
+  ``List approved invoices for Acme Industrial with invoice number,
+  date, amount due, and source document ID.''
+\item
+  ``Show the next 50 approved shipment records, using the available
+  schema fields.''
+\item
+  ``Find addresses whose city starts with `New', then show the account
+  cards for those parties.''
+\end{itemize}
+
+The last example needs more than one tool call: the one-table query does
+not perform arbitrary joins from contacts to addresses. The assistant
+must discover available fields and keys before choosing filters, not
+invent columns.
+
+For a larger reconciliation,
+\texttt{export\_\allowbreak{}crm\_\allowbreak{}table} returns
+checksummed pages rather than an unbounded conversation response.
+
+\subsection{Standard reports available out of the
+box}\label{standard-reports-available-out-of-the-box}
+
+The retrieval layer supplies seven deterministic reports over approved
+facts. Each report is bound to the snapshot hash and includes source
+document IDs for its supporting data.
+
+{\def\LTcaptype{none} % do not increment counter
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 2\tabcolsep) * \real{0.5000}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 2\tabcolsep) * \real{0.5000}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Report
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Typical use
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+\texttt{account\_\allowbreak{}directory} & List approved
+accounts/parties with key contact and address information. \\
+\texttt{invoice\_\allowbreak{}register} & Review invoice-level amounts,
+dates, parties, and source citations. \\
+\texttt{receivables\_\allowbreak{}aging} & Review the current approved
+balance snapshot by aging bucket as of a required date. It is not a
+reconstructed historical ledger. \\
+\texttt{sales\_\allowbreak{}by\_\allowbreak{}customer} & Compare
+approved sales by customer, with currencies kept separate. \\
+\texttt{sales\_\allowbreak{}by\_\allowbreak{}selling\_\allowbreak{}location}
+& Compare approved sales by sales office, branch, or selling
+location. \\
+\texttt{attribution\_\allowbreak{}coverage} & See which approved invoice
+values have a supported attribution and which do not. \\
+\texttt{shipment\_\allowbreak{}performance} & Review approved shipment
+activity and related operational measures available in the snapshot. \\
+\end{longtable}
+}
+
+You can ask an assistant for these in ordinary language: ``Run the
+invoice register for April,'' ``show sales by customer,'' or ``run
+receivables aging as of June 30.'' The assistant maps the request to the
+report and must preserve its parameters and snapshot identity in the
+result.
+
+\subsection{Downloads and large
+exports}\label{downloads-and-large-exports}
+
+Chat is useful for concise answers, not for sending thousands of rows
+into a model conversation. The remote MCP therefore supports controlled
+CSV and XLSX export jobs.
+
+An authorized user can request one approved table or one standard report
+in CSV or XLSX form. The server creates a bounded, short-lived download
+with:
+
+\begin{itemize}
+\tightlist
+\item
+  the snapshot and source-export hash used at the start;
+\item
+  the requester identity in hashed form;
+\item
+  the exact table/report and filters requested;
+\item
+  row, column, and file checksums; and
+\item
+  an expiry time and owner-bound status lookup.
+\end{itemize}
+
+Spreadsheet-formula-like text is neutralized in exports. A different
+user cannot inspect another user's job, a changed file fails
+verification, and an expired link is refused. These exports create a
+read-only report artifact; they never update canonical data or write to
+a CRM.
+
+\subsection{CRM inputs: what is ready and what still needs a
+decision}\label{crm-inputs-what-is-ready-and-what-still-needs-a-decision}
+
+\subsubsection{Adding photographs and proposed records
+first}\label{adding-photographs-and-proposed-records-first}
+
+The optional intake pilot can retain original PNG/JPEG page images and
+let the connected, vision-capable assistant read them using the
+pipeline's published field dictionary. It can preserve an invoice
+reading or contact-card observation without changing the approved
+business database. Unknown document families and unfamiliar labels stay
+explicit, not forced into made-up fields.
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  Agree which images and AI provider may receive the data; the operator
+  enables intake separately from approved reporting.
+\item
+  A compatible application uploads the actual original bytes to a named
+  session. Keep its receipt outside the chat. A chat attachment alone
+  does not prove the service received it.
+\item
+  The assistant discovers the schema, reads every retained image, and
+  proposes source-visible fields with original readings, page references
+  and uncertainty.
+\item
+  The service checks the structure and returns \textbf{pending review}
+  or \textbf{rejected}, retaining the original and every finding.
+  Neither status is verification of the reading or permission to publish
+  it.
+\item
+  Corrections append another proposal. An uncertain network retry uses
+  the same request key; changed content uses a new one. A later proposal
+  never erases an earlier failure or changes an approved record.
+\end{enumerate}
+
+For example: ``Read this session's retained invoice images. Propose the
+invoice number, visible line items and amounts. Keep unreadable fields
+and unfamiliar labels explicit, and show me the review receipt.'' For a
+contact card, request source-visible observations, not an immediate
+customer update.
+
+The pilot accepts 1 to 20 pages per session: PNG/JPEG only, at most
+10,000,000 original image bytes and 25,000,000 pixels per page. PDF,
+HEIC, WebP, animations and image URLs are not direct upload types.
+Preserve unsupported originals separately. Deployment request limits may
+be smaller than the image limit. No mobile capture app, attachment
+relay, session search, shared reviewer screen, or automatic record
+publication is bundled. Actual upload and image reading must be tested
+in the selected client; a working report connector proves neither.
+
+\subsubsection{The source-only handoff}\label{the-source-only-handoff}
+
+A local operator can export the session into a new private source
+package. It retains every upload attempt, proposal version and rejection
+with checksums. A complete usable image set also gets a session-named
+PDF and an original-to-page map. The operator verifies the package
+against a separately retained receipt, visually checks the PDF, and
+starts the normal profiling/intake commands.
+
+The PDF never replaces the originals. Display conversion keeps page
+order and encoded orientation and shows transparency on white. It is not
+a rescan, OCR result, or proof of original physical resolution. Missing
+pages or conversion failures keep the archive blocked; a failed partial
+PDF is never used. This is a controlled source archive, not
+automatically a client-approved delivery.
+
+Independent extraction, business controls, authorization and final
+review still stand between these sources and a new approved snapshot.
+The assistant's proposal is not automatically converted into a pipeline
+vote and cannot change account cards, sales totals, reports or
+CRM-import files. Full setup, fields, limits and recovery are in
+\href{../references/visual-ingestion.md}{Visual Intake}.
+
+\subsubsection{Approved-data CRM
+preparation}\label{approved-data-crm-preparation}
+
+The pipeline can prepare CRM-ready inputs without sending anything to a
+CRM. This separation gives the target-system owner a chance to validate
+mappings, permissions, duplicate behavior, automations, and rollback
+before production.
+
+\subsubsection{Full canonical staging
+package}\label{full-canonical-staging-package}
+
+The no-send staging package preserves all \textbf{28 canonical tables}
+in dependency order. It includes ordered CSVs, a versioned API-operation
+envelope, source and load-plan checksums, row counts, idempotency keys,
+formula-safe display cells, and authoritative compact canonical JSON for
+every row. It is designed for a receiver or integration team that needs
+complete reconciliation across the full data model.
+
+\subsubsection{Common CRM import
+package}\label{common-crm-import-package}
+
+For teams that work with familiar CRM objects, the optional common
+package creates twelve ordered CSV files:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  accounts
+\item
+  account roles
+\item
+  addresses
+\item
+  contacts
+\item
+  products
+\item
+  sales locations
+\item
+  shipments
+\item
+  sales transactions
+\item
+  sales transaction lines
+\item
+  transaction charges
+\item
+  payments
+\item
+  payment applications
+\end{enumerate}
+
+It also includes a field-mapping template, a vendor-source catalog, a
+write-readiness plan, exact row and package checksums, and complete
+coverage accounting for all 28 canonical tables. A field not represented
+by the common profile is explicitly marked as outside the profile rather
+than silently dropped.
+
+\subsubsection{What must happen before a live CRM
+write}\label{what-must-happen-before-a-live-crm-write}
+
+No live Salesforce, HubSpot, Dynamics/Dataverse, Zoho, or other CRM
+writer is enabled by this package. A target-specific implementation
+starts only after the client selects the vendor and tenant, supplies
+current object/property metadata, approves mapping and credentials, and
+proves the adapter in a sandbox.
+
+The production-write acceptance must show stable external keys,
+idempotent reruns, parent-before-child loading, explicit rejected-row
+handling, count and financial reconciliation, relationship checks,
+before-images/created IDs for rollback, and separate authorization for
+the exact package hashes. Read-only MCP/API access does not grant
+\texttt{crm:write} authority.
+
+\subsection{A practical first-use
+path}\label{a-practical-first-use-path}
+
+For most teams, the safest and quickest sequence is:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  Review the final package and resolve or explicitly retain any open
+  items.
+\item
+  Confirm the exact approved snapshot and its source-export checksum.
+\item
+  Start with a private local desktop MCP connection for representative
+  questions and reports.
+\item
+  Validate account cards, invoice search, a sales slice, one standard
+  report, and an exported CSV/XLSX against the delivered package.
+\item
+  If mobile, web, or multi-user access is needed, deploy the remote
+  \texttt{/\allowbreak{}mcp} service with OAuth and complete
+  workspace-specific acceptance.
+\item
+  If CRM loading is needed, complete target mapping and sandbox testing
+  from the no-send package before authorizing a target-specific adapter.
+\end{enumerate}
+
+This order keeps a simple reporting pilot separate from a public
+deployment or a live CRM change. It also gives business users an early
+way to test whether the approved data answers their questions before the
+organization commits to a larger integration.
+
+\subsection{Questions this guide helps
+answer}\label{questions-this-guide-helps-answer}
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Can I find an address or contact quickly?} Yes, use search and
+  the account card over the approved snapshot.
+\item
+  \textbf{Can I see sales by company, region, office, customer, job, or
+  time period?} Yes, use governed sales analysis or the relevant
+  standard report; currency is kept separate.
+\item
+  \textbf{Can I pull any approved record?} Yes, search when the key is
+  unknown, then retrieve the exact canonical record by table and key.
+\item
+  \textbf{Can I download a report?} Yes, a remote deployment can create
+  bounded, owner-bound CSV/XLSX jobs with checksums and expiry.
+\item
+  \textbf{Can an assistant change my CRM?} No.~Approved records remain
+  read-only. Optional intake writes proposals to a separate journal, not
+  canonical or target-CRM records. CRM inputs remain no-send until
+  separate adapter implementation, authorization and acceptance.
+\item
+  \textbf{Can I submit a photo for a new record?} The optional pilot
+  supports original PNG/JPEG upload and source-cited proposals through a
+  compatible application. It stops at review, not publication.
+\item
+  \textbf{Can I ask for any possible analysis?} Shipped filters, account
+  cards, sales dimensions and seven reports work within their limits.
+  Custom joins, saved reports, forecasting and broader metrics need
+  additional implementation and appropriate approved source data.
+\item
+  \textbf{Can the system tell me what it cannot prove?} Yes. Unresolved
+  source, arithmetic, attribution, completeness, mapping, and review
+  findings remain explicit rather than being hidden.
+\end{itemize}
+
+\subsection{Before connecting real
+data}\label{before-connecting-real-data}
+
+Use the following checklist with the engagement owner:
+
+\begin{itemize}
+\tightlist
+\item[$\square$]
+  The final review and applicable business gates are complete for the
+  exact snapshot being served.
+\item[$\square$]
+  The team has chosen local desktop, internal REST, or remote MCP
+  access.
+\item[$\square$]
+  The selected AI provider's privacy, retention, residency, and
+  user-access terms are approved for the data returned in conversations.
+\item[$\square$]
+  Remote use has an approved domain, TLS, OAuth/OIDC, tenant/role/scope
+  policy, monitoring, retention, and incident process.
+\item[$\square$]
+  The exact Claude and/or ChatGPT workspace connection has been tested
+  with representative questions.
+\item[$\square$]
+  Any CRM load has a completed tenant mapping, sandbox evidence,
+  reconciliation plan, rollback plan, and separate production
+  authorization.
+\item[$\square$]
+  Optional intake has separately demonstrated byte upload, image
+  reading, ownership checks, rejection/retry receipts, source export and
+  pending-review wording; none is inferred from successful approved-data
+  queries.
+\end{itemize}
+
+\subsection{Where to go next}\label{where-to-go-next}
+
+\begin{itemize}
+\tightlist
+\item
+  For the detailed output contract and approved retrieval rules, see
+  \href{../references/canonical-deployment-retrieval.md}{Canonical
+  Deployment, CRM Load, and Retrieval}.
+\item
+  For activation, connection, deployment, and acceptance steps, see
+  \href{../references/mcp-production-integration.md}{MCP Production
+  Integration}.
+\item
+  For the target-system import and write-readiness boundary, see
+  \href{../references/crm-write-readiness.md}{CRM Write Readiness}.
+\item
+  For unimplemented capabilities, see the
+  \href{../references/business-data-platform-roadmap.md}{vendor-neutral
+  roadmap}.
+\item
+  For the broader evidence and review workflow, see the
+  \href{CLIENT_OVERVIEW.md}{Client Overview} and
+  \href{CLIENT_USER_GUIDE.md}{Client User Guide}.
+\end{itemize}
+
+The guiding rule is unchanged across every output: use the approved
+snapshot for business answers, keep its citations and checksums with
+important results, and treat a later correction as a new, controlled
+version rather than an edit to history.
+
+\end{document}

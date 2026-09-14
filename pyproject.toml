@@ -1,0 +1,46 @@
+[project]
+name = "business-doc-ingestion"
+version = "1.0.0"
+description = "Auditable control layer for business document ingestion"
+requires-python = ">=3.12"
+license = { text = "Unlicense" }
+authors = [
+  { name = "Christopher Melhauser", email = "christopher.melhauser@gmail.com" },
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+pythonpath = ["scripts"]
+
+[tool.coverage.run]
+branch = true
+source = ["scripts"]
+
+[tool.coverage.report]
+show_missing = true
+fail_under = 100
+exclude_also = [
+  "if __name__ == .__main__.:",
+]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+extend-exclude = [".venv", "mutants"]
+
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F", "I", "B", "UP", "S"]
+
+[tool.ruff.lint.per-file-ignores]
+# `assert` is the point of a test, and tests construct deliberately hostile
+# fixtures (temp paths, throwaway tokens) that the security rules flag by design.
+"tests/*" = ["S101", "S105", "S106", "S108", "S311", "S324", "S603", "S607"]
+
+[tool.mutmut]
+# Scoped deliberately. mutmut runs the suite once per mutant, so mutating every
+# control module would exceed any sane CI budget. These are small, pure, and
+# decision-dense: the protection taxonomy that every review-reduction path
+# depends on, and the configuration resolver that decides provider independence.
+paths_to_mutate = ["scripts/review_protection.py", "scripts/runtime_config.py"]
+tests_dir = ["tests/"]

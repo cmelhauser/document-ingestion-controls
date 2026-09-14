@@ -1,0 +1,6 @@
+{
+  "acks": [
+    {"ack_number": "ACK-1001", "date": "2026-01-15", "customer": "Example Customer", "amount": 110, "selling_location": "Boston"},
+    {"ack_number": "ACK-1002", "date": "2026-02-15", "customer": "Example Customer", "amount": 88, "selling_location": "Boston"}
+  ]
+}

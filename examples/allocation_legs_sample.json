@@ -1,0 +1,24 @@
+{
+  "sample_metadata": {
+    "label": "SAMPLE - FICTIONAL - NOT CLIENT DATA",
+    "purpose": "Illustrates evidence-bearing allocation legs before policy application.",
+    "authoritative_runbook": "references/allocation-policy.md"
+  },
+  "allocation_legs": [
+    {
+      "allocation_id": "SAMPLE-LEG-001",
+      "document_id": "SAMPLE-COMMISSION-001",
+      "page_id": "SAMPLE-COMMISSION-001-PAGE-01",
+      "template_fingerprint": "replace-with-output-from-policy-discovery",
+      "brand_name": "Sample Brand",
+      "dealer_name": "Sample Dealer",
+      "product_sku": "SAMPLE-SKU-100",
+      "effective_date": "2026-08-01",
+      "commissionable_amount": {"value": "4496.00", "source": "printed"},
+      "commission_amount": {"value": "89.92", "source": "printed"},
+      "stated_commission_rate": {"value": "10%", "source": "printed"},
+      "allocation_share": {"value": "20%", "source": "printed"},
+      "allocation_descriptor": {"value": "ship-to credit only", "source": "printed"}
+    }
+  ]
+}

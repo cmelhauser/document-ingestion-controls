@@ -1,0 +1,6 @@
+{
+  "entries": [
+    {"period": "2026-01", "vendor": "Example Freight LLC", "amount": 110},
+    {"period": "2026-02", "vendor": "Example Freight LLC", "amount": 88}
+  ]
+}

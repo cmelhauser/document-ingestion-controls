@@ -1,0 +1,54 @@
+{
+  "fixture_name": "real_world_calibration",
+  "purpose": "Opt-in external integration calibration; never client evidence",
+  "acquisition_date": null,
+  "sources": {
+    "nara_rfk_release_packet": {
+      "url": "https://www.archives.gov/files/research/rfk/releases/2025/0418/166-12c-1_serial_1_section_3_56-la-156_la_report_6.9.68-part_2_of_6.pdf",
+      "local_file": "originals/nara_rfk_release_packet.pdf",
+      "expected_pages": 50,
+      "expected_scan_characteristics": ["image_only", "bilevel", "branch_B"],
+      "manual_review_targets": ["typed invoice", "handwritten total", "payment stamp"],
+      "redistribution_status": "external_public_record; review before redistribution",
+      "sha256": null
+    },
+    "darien_finance_packet": {
+      "url": "https://darienvillagewi.gov/vertical/sites/%7B555B48AD-D1F6-4E05-9690-9270063B57FB%7D/uploads/08.09.23_Finance_Packet.pdf",
+      "local_file": "originals/darien_finance_packet.pdf",
+      "expected_pages": 41,
+      "expected_scan_characteristics": ["image_only", "mixed_colour_gray_bilevel", "branch_A_and_B"],
+      "manual_review_targets": ["invoice", "date stamp", "page separator", "multi-document packet"],
+      "redistribution_status": "external_public_record; review before redistribution",
+      "sha256": null
+    },
+    "ti_multipage_commercial_invoice": {
+      "url": "https://e2e.ti.com/cfs-file/__key/communityserver-discussions-components-files/151/Proforma_5F00_5527088322.pdf",
+      "local_file": "originals/ti_multipage_commercial_invoice.pdf",
+      "expected_pages": 2,
+      "expected_scan_characteristics": ["image_only", "bilevel", "native_text", "page_markers", "branch_B"],
+      "expected_reassembly": {"document_type": "commercial_invoice", "invoice_number": "5527088322", "page_markers": ["PAGE 1 OF 2", "PAGE 2 OF 2"], "source_page_range": "1-2"},
+      "manual_review_targets": ["contiguous invoice grouping", "page marker", "invoice-number continuity"],
+      "redistribution_status": "external_public_document; review before redistribution",
+      "sha256": null
+    },
+    "sroie_receipt_subset": {
+      "source_repository": "https://github.com/zzzDavid/ICDAR-2019-SROIE",
+      "source_license_note": "The repository declares MIT; review underlying dataset rights separately.",
+      "selected_ids": ["001", "002", "003", "016", "017", "189"],
+      "local_files": "originals/sroie/{id}.jpg, ground_truth/sroie/{id}.csv, ground_truth/sroie/{id}.json, derived/sroie/{id}.pdf",
+      "expected_pages": 6,
+      "expected_scan_characteristics": ["receipt_images", "OCR_ground_truth"],
+      "redistribution_status": "external_evaluation_source; review before redistribution",
+      "sha256": null
+    },
+    "pdfium_jbig2_fixture": {
+      "url": "https://pdfium.googlesource.com/pdfium_tests/+/230bf55fb5c96c3946500a437b54e4400411262e/third_party/jbig2/bitmap-symbol-textcomposite.pdf?format=TEXT",
+      "local_file": "originals/pdfium_jbig2_textcomposite.pdf",
+      "expected_pages": 1,
+      "expected_scan_characteristics": ["JBIG2Decode", "branch_B", "jbig2_suspect"],
+      "manual_review_targets": ["PDF parser resilience", "numeric escalation"],
+      "redistribution_status": "upstream test fixture; retain attribution and licence",
+      "sha256": null
+    }
+  }
+}

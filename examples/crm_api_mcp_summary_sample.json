@@ -1,0 +1,151 @@
+{
+  "sample_metadata": {
+    "label": "SAMPLE - FICTIONAL - NOT CLIENT DATA",
+    "authoritative_schema": "references/canonical-deployment-retrieval.md"
+  },
+  "export_boundary": {
+    "canonical_source": "canonical_export.json",
+    "ordered_plan": "canonical_load_plan.json",
+    "offline_package": "crm_staging_run/",
+    "manifest": "staging_manifest.json",
+    "api_envelope": "api_load_envelope.json",
+    "mode": "no-send, target-neutral, idempotent upsert staging",
+    "controls": [
+      "review-clear facts only",
+      "source-provenance validation",
+      "declared schema headers even for empty tables",
+      "per-table row counts and SHA-256 checksums",
+      "stable idempotency keys and load order",
+      "formula-safe display columns plus authoritative per-row JSON and SHA-256 controls",
+      "atomic package publication after full self-verification",
+      "exact load-step/file/receiver-operation topology verification",
+      "URL-safe batch endpoint templates, halt-on-rejection, rollback, and exact reconciliation contract"
+    ]
+  },
+  "common_crm_import": {
+    "command": "python scripts/crm_import_package.py canonical_export.json canonical_load_plan.json --out crm_import_run/",
+    "manifest": "crm_import_manifest.json",
+    "mode": "no-send common-object files; live_write_permitted=false",
+    "files": [
+      {"order": 1, "object": "accounts", "canonical_source": "party", "relationship_key": "external_id"},
+      {"order": 2, "object": "account_roles", "canonical_source": "party_role", "relationship_key": "account_external_id"},
+      {"order": 3, "object": "addresses", "canonical_source": "address", "relationship_key": "account_external_id"},
+      {"order": 4, "object": "contacts", "canonical_source": "contact", "relationship_key": "account_external_id"},
+      {"order": 5, "object": "products", "canonical_source": "item", "relationship_key": "external_id"},
+      {"order": 6, "object": "sales_locations", "canonical_source": "selling_location", "relationship_key": "external_id"},
+      {"order": 7, "object": "shipments", "canonical_source": "shipment", "relationship_key": "external_id"},
+      {"order": 8, "object": "sales_transactions", "canonical_source": "invoice_header", "relationship_key": "external_id"},
+      {"order": 9, "object": "sales_transaction_lines", "canonical_source": "invoice_line", "relationship_key": "transaction_external_id"},
+      {"order": 10, "object": "transaction_charges", "canonical_source": "invoice_accessorial", "relationship_key": "transaction_external_id"},
+      {"order": 11, "object": "payments", "canonical_source": "payment", "relationship_key": "external_id"},
+      {"order": 12, "object": "payment_applications", "canonical_source": "payment_application", "relationship_key": "payment_external_id + transaction_external_id"}
+    ],
+    "gates": [
+      "export actual tenant metadata and complete the field mapping",
+      "approve external/alternate keys, required fields, relationships, owners, currencies, and enumerations",
+      "prove idempotency, reject retention, automation behavior, and rollback in a sandbox",
+      "obtain separate production-write authorization for the exact package hashes",
+      "reconcile attempted = created + updated + unchanged + rejected for every object",
+      "perform no hard delete and retain the target job/record IDs and before-images"
+    ],
+    "vendor_profiles": [
+      {"vendor": "Salesforce", "status": "proposal only; validate against tenant metadata", "source": "https://help.salesforce.com/s/articleView?id=sf.essentials_import_checklist.htm&language=en_US&type=5"},
+      {"vendor": "HubSpot", "status": "proposal only; validate against tenant metadata", "source": "https://knowledge.hubspot.com/import-and-export/set-up-your-import-file"},
+      {"vendor": "Microsoft Dynamics 365 / Dataverse", "status": "proposal only; validate against tenant metadata", "source": "https://learn.microsoft.com/en-us/dynamics365/guidance/implementation-guide/data-management-product-specific-ce"},
+      {"vendor": "Zoho CRM", "status": "proposal only; validate against tenant metadata", "source": "https://help.zoho.com/portal/en/kb/crm/faqs/data-administration/import/articles/faqs-import"}
+    ]
+  },
+  "canonical_tables": [
+    {"step": 1, "table": "currency", "idempotency_keys": ["currency_code"], "purpose": "ISO currency vocabulary"},
+    {"step": 2, "table": "unit_of_measure", "idempotency_keys": ["uom_code"], "purpose": "Unit vocabulary"},
+    {"step": 3, "table": "country", "idempotency_keys": ["country_code"], "purpose": "ISO country vocabulary"},
+    {"step": 4, "table": "charge_code", "idempotency_keys": ["charge_code"], "purpose": "Freight and accessorial charge vocabulary"},
+    {"step": 5, "table": "document_type", "idempotency_keys": ["document_type"], "purpose": "Document-family vocabulary"},
+    {"step": 6, "table": "selling_location", "idempotency_keys": ["selling_location_key"], "purpose": "Approved originating office master"},
+    {"step": 7, "table": "document", "idempotency_keys": ["document_id"], "purpose": "Immutable source and review provenance"},
+    {"step": 8, "table": "party", "idempotency_keys": ["party_key"], "purpose": "Deduplicated account/customer/vendor master"},
+    {"step": 9, "table": "party_name_variant", "idempotency_keys": ["party_key", "raw_name"], "purpose": "Reversible source-name history"},
+    {"step": 10, "table": "address", "idempotency_keys": ["address_key"], "purpose": "Raw and CRM-ready address components"},
+    {"step": 11, "table": "contact", "idempotency_keys": ["contact_key"], "purpose": "Approved party contacts"},
+    {"step": 12, "table": "party_role", "idempotency_keys": ["party_key", "role"], "purpose": "Effective account roles"},
+    {"step": 13, "table": "carrier", "idempotency_keys": ["carrier_key"], "purpose": "Carrier master"},
+    {"step": 14, "table": "item", "idempotency_keys": ["item_key"], "purpose": "Item/service master"},
+    {"step": 15, "table": "lane", "idempotency_keys": ["lane_key"], "purpose": "Origin/destination lane master"},
+    {"step": 16, "table": "acknowledgement", "idempotency_keys": ["ack_key"], "purpose": "Approved ACK reference master"},
+    {"step": 17, "table": "job", "idempotency_keys": ["job_key"], "purpose": "Approved job/project reference master"},
+    {"step": 18, "table": "shipment", "idempotency_keys": ["shipment_key"], "purpose": "Shipment and delivery facts"},
+    {"step": 19, "table": "invoice_header", "idempotency_keys": ["invoice_key"], "purpose": "Invoice header and balance facts"},
+    {"step": 20, "table": "invoice_line", "idempotency_keys": ["invoice_line_key"], "purpose": "Invoice line facts"},
+    {"step": 21, "table": "invoice_accessorial", "idempotency_keys": ["accessorial_key"], "purpose": "Itemized accessorial charges"},
+    {"step": 22, "table": "payment", "idempotency_keys": ["payment_key"], "purpose": "Payment facts"},
+    {"step": 23, "table": "payment_application", "idempotency_keys": ["application_key"], "purpose": "Many-to-many payment application facts"},
+    {"step": 24, "table": "attribution", "idempotency_keys": ["attribution_id"], "purpose": "ACK/job/location attribution evidence"},
+    {"step": 25, "table": "handwriting_region", "idempotency_keys": ["region_id"], "purpose": "Source-linked handwriting regions"},
+    {"step": 26, "table": "amendment", "idempotency_keys": ["amendment_id"], "purpose": "Append-only approved corrections"},
+    {"step": 27, "table": "exception_event", "idempotency_keys": ["exception_id"], "purpose": "Resolved and open operational event history"},
+    {"step": 28, "table": "financial_event", "idempotency_keys": ["event_id"], "purpose": "Ledger-shaped approved event stream"}
+  ],
+  "visual_intake": [
+    ["Boundary", "Optional proposal pilot: pending_review or rejected, never published", "references/visual-ingestion.md"],
+    ["Activation", "--ingestion-dir on MCP servers; approved non-empty snapshot and separate source-flow authorization remain required", "references/mcp-production-integration.md"],
+    ["Local / remote tools", "12 / 14 default; 19 / up to 21 with intake; remote discovery is scope-filtered", "scripts/ingestion_tools.py"],
+    ["Schema discovery", "get_ingestion_schema: extraction vocabulary and full proposal JSON Schema", "ingestion:read"],
+    ["Create session", "create_ingestion_session: expected_pages and client-generated idempotency_key", "ingestion:submit"],
+    ["Upload original", "upload_ingestion_page: application transfers actual PNG/JPEG bytes, never model-invented base64", "ingestion:submit"],
+    ["Read page", "get_ingestion_page: MCP ImageContent; JSON API returns base64 in data", "ingestion:read"],
+    ["Submit proposal", "submit_record_proposal: source-set hash, cited observations, unknown labels and issues", "ingestion:submit"],
+    ["Read status", "get_ingestion_status: pages, attempts, source-set hash and proposal receipts", "ingestion:read"],
+    ["Read proposal", "get_record_proposal: exact original proposal and validation findings", "ingestion:read"],
+    ["Application API", "POST /api/ingestion/{operation} on remote OAuth server; plain argument JSON. TLS/bearer GET API unchanged", "references/visual-ingestion.md"],
+    ["Limits", "1-20 pages/session; PNG/JPEG only; 10,000,000 original bytes and 25,000,000 pixels/page; 1,000,000 JSON bytes/proposal", "get_ingestion_schema"],
+    ["Envelope limit", "Remote default 1,000,000 request bytes; --max-request-bytes at least 14,000,000 for maximum image; align proxy/client limits", "scripts/retrieval_remote_mcp.py --help"],
+    ["Correction / retry", "Same key and input replays receipt; changed proposal appends under new key. Replacing retained source requires new session", "skills/record-intake/SKILL.md"],
+    ["Source-only export", "Local visual_ingestion_export.py export / verify retains all originals, proposals and rejections; pins separately retained receipt", "references/visual-ingestion.md"],
+    ["Prepared source", "Complete usable pages get session-named image PDF and page map for normal profiling/intake; blocked or partial PDF cannot advance", "visual_intake_source_package_v1"],
+    ["Publication", "No proposal promotion, independent-vote conversion, approval, canonical update or live CRM write; business gates still apply", "references/artifact-contracts.md"],
+    ["Client support", "Actual byte transfer and vision need exact-client acceptance. No bundled capture app, attachment relay or shared review UI", "references/visual-ingestion.md"],
+    ["Future work", "Governed record create/update, safe general joins, custom metrics and saved reports remain roadmap work", "references/business-data-platform-roadmap.md"]
+  ],
+  "api_mcp_capabilities": [
+    {"function": "Document search", "api": "GET /v1/documents?query=...&limit=...", "mcp": "search_business_documents", "result": "Approved document facts with source citations"},
+    {"function": "Document lookup", "api": "GET /v1/documents/{document_id}", "mcp": "get_business_document", "result": "One immutable approved document with citation"},
+    {"function": "Capability discovery", "api": "GET /v1/capabilities", "mcp": "get_crm_capabilities", "result": "Routes, tools, reports, and read-only policy"},
+    {"function": "CRM export summary", "api": "GET /v1/crm/summary", "mcp": "get_crm_export_summary", "result": "Batch, registry, source/load hashes, verified table manifests, counts, and reconciliation flags"},
+    {"function": "CRM schema", "api": "GET /v1/crm/schema?table=...", "mcp": "get_crm_schema", "result": "Declared/extension columns, keys, and available counts"},
+    {"function": "Cross-table CRM search", "api": "GET /v1/crm/search?query=...&table=...", "mcp": "search_crm_records", "result": "Fast full-text matches across any approved canonical table"},
+    {"function": "Exact CRM record", "api": "GET /v1/crm/record/{table}?key=...", "mcp": "get_crm_record", "result": "Any canonical row by its single or composite idempotency key"},
+    {"function": "Flexible CRM query", "api": "GET /v1/crm/query/{table}?filter.FIELD__OP=...&select=...&sort=...", "mcp": "query_crm_records", "result": "Bounded filters, projection, sorting, and pagination"},
+    {"function": "CRM table export", "api": "GET /v1/crm/export/{table}?limit=...&offset=...", "mcp": "export_crm_table", "result": "Checksummed, filtered, paginated approved rows"},
+    {"function": "Account/contact card", "api": "GET /v1/crm/accounts/{party_key}", "mcp": "get_account_card", "result": "Party, roles, names, addresses, contacts, activity, currency-separated totals, and source documents"},
+    {"function": "Sales slice and dice", "api": "GET /v1/crm/analysis/sales?group_by=company&group_by=region", "mcp": "analyze_sales", "result": "Currency-partitioned sales by company, vendor, region, location, period, ACK, or job"},
+    {"function": "Standard reports", "api": "GET /v1/crm/reports/{report_name}?...", "mcp": "run_crm_report", "result": "Deterministic source-linked report rows and checksum"},
+    {"function": "Downloadable CSV/XLSX export", "api": "Remote MCP only", "mcp": "create_crm_export", "result": "Bounded table or standard-report artifact with snapshot lineage, row/file checksums, expiry, and a short-lived signed URL"},
+    {"function": "Export-job status", "api": "Remote MCP only", "mcp": "get_crm_export_job", "result": "Owner-bound completed-job metadata, row count, expiry, and checksums"}
+  ],
+  "client_access": [
+    {"client": "Claude Code", "transport": "Local stdio MCP", "configuration": "mcp/retrieval.mcp.json.example or claude mcp add-json", "availability": "Implemented after approved-snapshot activation gates", "security": "Local workstation process and filesystem permissions"},
+    {"client": "Claude Desktop", "transport": "Local stdio MCP", "configuration": "Desktop extension or local MCP configuration", "availability": "Implemented after approved-snapshot activation gates", "security": "Local workstation process and filesystem permissions"},
+    {"client": "Claude iOS / claude.ai", "transport": "Remote Streamable HTTP MCP at /mcp", "configuration": "Add the deployed custom connector URL", "availability": "Implemented server; requires client-approved HTTPS hosting and OAuth registration", "security": "OAuth introspection, exact audience/tenant/role/scope checks, rate limit, audit log"},
+    {"client": "ChatGPT selected surfaces", "transport": "Remote Streamable HTTP MCP at /mcp", "configuration": "Register the endpoint and complete OAuth where the selected product permits", "availability": "Implemented server; exact plan/workspace/mobile support needs live acceptance and is not proved by API compatibility", "security": "OAuth introspection, exact audience/tenant/role/scope checks, rate limit, audit log"},
+    {"client": "Custom or local API consumer", "transport": "TLS bearer REST GET API", "configuration": "retrieval_https.py with explicit enablement", "availability": "Implemented; not an MCP endpoint", "security": "TLS, bearer token, request bounds, no write routes"}
+  ],
+  "query_examples": [
+    {"client_question": "Find every approved record mentioning a company, invoice, ACK, job, address, or contact", "recommended_function": "search_crm_records", "example": "{\"query\":\"Customer Inc ACK-1001\",\"tables\":[\"party\",\"invoice_header\",\"contact\"]}", "why": "Indexed cross-table discovery before a narrower lookup"},
+    {"client_question": "Pull the complete address/contact card for one company", "recommended_function": "get_account_card", "example": "{\"party_key\":\"approved-party-key\"}", "why": "Returns the party, roles, name history, addresses, contacts, invoices, payments, currency-separated totals, and source documents together"},
+    {"client_question": "Pull one exact contact, invoice, payment, shipment, or amendment", "recommended_function": "get_crm_record", "example": "{\"table\":\"contact\",\"key\":\"approved-contact-key\"}", "why": "Uses the table's idempotency key and returns a checksummed record"},
+    {"client_question": "List all billing addresses in Massachusetts", "recommended_function": "query_crm_records", "example": "{\"table\":\"address\",\"filters\":{\"state_province\":\"MA\",\"address_type\":\"billing\"},\"select\":[\"party_key\",\"line1\",\"city\",\"postal_code\"]}", "why": "Governed field filters, projection, sorting, and pagination"},
+    {"client_question": "Show sales by company and region by quarter", "recommended_function": "analyze_sales", "example": "{\"group_by\":[\"company\",\"region\",\"quarter\"],\"filters\":{\"start_date\":\"2026-01-01\",\"end_date\":\"2026-12-31\"}}", "why": "Reusable semantic dimensions with mandatory currency partitions and auditable totals without inventing SQL"},
+    {"client_question": "Show open receivables as of month end", "recommended_function": "run_crm_report", "example": "{\"report\":\"receivables_aging\",\"parameters\":{\"as_of\":\"2026-03-31\"}}", "why": "Current approved balances bucketed against the explicit as-of date; later invoices are excluded, but this is not a historical balance reconstruction"},
+    {"client_question": "Export a full canonical table to another approved system", "recommended_function": "export_crm_table", "example": "{\"table\":\"invoice_header\",\"limit\":200,\"offset\":0}", "why": "Stable pagination, source-export binding, keys, and per-page SHA-256"},
+    {"client_question": "Download an Excel account directory or sales report", "recommended_function": "create_crm_export", "example": "{\"report\":\"account_directory\",\"format\":\"xlsx\"}", "why": "Creates a bounded immutable workbook with snapshot lineage, row and file checksums, formula-safe cells, expiry, and a short-lived signed URL"}
+  ],
+  "standard_reports": [
+    {"report": "account_directory", "purpose": "Accounts, roles, address/contact counts, and source links", "parameters": "none", "api_example": "GET /v1/crm/reports/account_directory", "mcp_example": "{\"report\":\"account_directory\"}"},
+    {"report": "invoice_register", "purpose": "Invoices, parties, amounts, references, and citations", "parameters": "start_date, end_date (optional)", "api_example": "GET /v1/crm/reports/invoice_register?start_date=2026-01-01&end_date=2026-03-31", "mcp_example": "{\"report\":\"invoice_register\",\"parameters\":{\"start_date\":\"2026-01-01\",\"end_date\":\"2026-03-31\"}}"},
+    {"report": "receivables_aging", "purpose": "Current approved balances aged through 90+ days; future-dated invoices excluded; not a historical balance reconstruction", "parameters": "as_of (required)", "api_example": "GET /v1/crm/reports/receivables_aging?as_of=2026-03-31", "mcp_example": "{\"report\":\"receivables_aging\",\"parameters\":{\"as_of\":\"2026-03-31\"}}"},
+    {"report": "sales_by_customer", "purpose": "Currency-partitioned invoice value and balance by approved customer", "parameters": "start_date, end_date (optional)", "api_example": "GET /v1/crm/reports/sales_by_customer?start_date=2026-01-01&end_date=2026-12-31", "mcp_example": "{\"report\":\"sales_by_customer\",\"parameters\":{\"start_date\":\"2026-01-01\",\"end_date\":\"2026-12-31\"}}"},
+    {"report": "sales_by_selling_location", "purpose": "Currency-partitioned invoice value and balance by originating office", "parameters": "start_date, end_date (optional)", "api_example": "GET /v1/crm/reports/sales_by_selling_location?start_date=2026-01-01&end_date=2026-12-31", "mcp_example": "{\"report\":\"sales_by_selling_location\",\"parameters\":{\"start_date\":\"2026-01-01\",\"end_date\":\"2026-12-31\"}}"},
+    {"report": "attribution_coverage", "purpose": "Invoice-only attributed versus unattributed value, partitioned by currency", "parameters": "none", "api_example": "GET /v1/crm/reports/attribution_coverage", "mcp_example": "{\"report\":\"attribution_coverage\"}"},
+    {"report": "shipment_performance", "purpose": "On-time, late, and not-measurable delivery status", "parameters": "start_date, end_date (optional)", "api_example": "GET /v1/crm/reports/shipment_performance?start_date=2026-01-01&end_date=2026-12-31", "mcp_example": "{\"report\":\"shipment_performance\",\"parameters\":{\"start_date\":\"2026-01-01\",\"end_date\":\"2026-12-31\"}}"}
+  ]
+}

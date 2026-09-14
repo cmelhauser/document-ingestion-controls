@@ -1,0 +1,24 @@
+\begin{tikzpicture}[node distance=4mm and 10mm]
+  \node[bdi,text width=54mm] (S1) {\textbf{1. Keep the source safe}\\Copy, fingerprint, and organize every page};
+  \node[bdi,text width=54mm,below=of S1] (S2) {\textbf{2. Prepare readable page views}\\Grayscale master plus enhanced copies};
+  \node[bdi,text width=54mm,below=of S2] (S3) {\textbf{3. Read and classify}\\Document types, fields, parties, totals, rows};
+  \node[bdi,text width=54mm,below=of S3] (S4) {\textbf{4. Check structure and arithmetic}\\Page order, duplicates, formats, totals};
+  \node[bdi,text width=54mm,below=of S4] (S5) {\textbf{5. Link to the business process}\\Parties, ACK, job, project, PO, order, claim};
+  \node[bdi,text width=54mm,below=of S5] (S6) {\textbf{6. Check what is complete}\\Ledger, payment, remittance, aging};
+  \node[bdigate,text width=54mm,below=of S6] (S7) {\textbf{8. Build the review package}\\Document, page, reason, and priority};
+  \node[bdi,text width=54mm,below=of S7] (S8) {\textbf{9. Preserve responses, authorize changes}};
+  \node[bdiout,text width=54mm,below=of S8] (S9) {\textbf{10. Rerun controls and deliver}};
+
+  \foreach \a/\b in {S1/S2,S2/S3,S3/S4,S4/S5,S5/S6,S6/S7,S7/S8,S8/S9}{\draw[bdiflow] (\a)--(\b);}
+  \draw[bdiback] (S8.west) -- ++(-8mm,0) |- node[bdilbl,pos=0.25,left,align=right]{targeted rerun of\\affected stages} (S3.west);
+
+  \node[bdiopt,text width=44mm,right=16mm of S3] (O1) {\textbf{7. Optional AI layer}\\Packet of retained source evidence\\+ preserved comments};
+  \node[bdiopt,text width=44mm,below=of O1] (O2) {Primary LLM proposes,\\citing document and quote};
+  \node[bdiopt,text width=44mm,below=of O2] (O3) {Secondary LLM labels: confirmed /\\close\_needs\_review / conflict /\\unsupported};
+  \node[bdiopt,text width=44mm,below=of O3] (O4) {Evidence graph overlay\\$\rightarrow$ bounded cross-packet review};
+  \draw[bdiflow,draw=bdiOptEdge] (O1)--(O2);
+  \draw[bdiflow,draw=bdiOptEdge] (O2)--(O3);
+  \draw[bdiflow,draw=bdiOptEdge] (O3)--(O4);
+  \draw[bdiback,draw=bdiOptEdge] (S4.east)--(O1.west);
+  \draw[bdiback,draw=bdiOptEdge] (O4.south) |- node[bdilbl,pos=0.75,above]{never clears a control} (S7.east);
+\end{tikzpicture}

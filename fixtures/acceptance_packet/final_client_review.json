@@ -1,0 +1,26 @@
+{
+  "summary": {
+    "schema_version": "1.0",
+    "generated_at": "2026-08-13T00:00:00+00:00",
+    "source_artifacts": [
+      "fixtures/acceptance_packet/final_client_review.json"
+    ],
+    "client_review_items": 1,
+    "gate_status": "blocked_pending_client_review",
+    "findings": [
+      "Contained acceptance fixture for review-export contract validation."
+    ]
+  },
+  "items": [
+    {
+      "priority": "high",
+      "document_id": "acceptance-1",
+      "page_id": "page-1",
+      "region_id": "",
+      "field": "total_amount",
+      "reason": "example_review",
+      "review_source": "acceptance",
+      "disposition": "client_review_required"
+    }
+  ]
+}

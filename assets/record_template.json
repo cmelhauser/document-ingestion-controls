@@ -1,0 +1,135 @@
+{
+  "_comment": "Reference shape for an extracted document record. Consumed by scripts/consensus.py, arithmetic_check.py, entity_resolve.py, sampling.py, and completeness.py. Every field is a {value, confidence, source} object rather than a bare scalar -- a bare scalar loses the printed/handwritten distinction that determines which value wins under the precedence rule. See references/extraction-schema.md.",
+
+  "document_id": "550e8400-e29b-41d4-a716-446655440000",
+  "engine": "textract_analyze_expense",
+  "engine_version": "2024-11",
+  "document_type": "commercial_invoice",
+
+  "source_file": "/scans/batch_2022_Q3.pdf",
+  "source_page_range": "412-413",
+  "run_timestamp": "2026-08-12T10:22:04Z",
+
+  "branch": "B",
+  "has_handwriting": true,
+  "jbig2_suspect": false,
+  "scan_dpi": 300,
+
+  "header": {
+    "invoice_number":    { "value": "INV-2231",    "confidence": 0.987, "source": "printed" },
+    "invoice_date":      { "value": "2022-08-14",  "confidence": 0.961, "source": "printed" },
+    "due_date":          { "value": "2022-09-13",  "confidence": 0.955, "source": "printed" },
+    "payment_terms":     { "value": "NET 30",      "confidence": 0.942, "source": "printed" },
+    "po_number":         { "value": "PO-88120",    "confidence": 0.913, "source": "printed" },
+
+    "seller_name":       { "value": "ACME Corporation",       "confidence": 0.978, "source": "printed" },
+    "seller_address":    { "value": "1400 Industrial Pkwy, Chicago IL 60632", "confidence": 0.902, "source": "printed" },
+    "seller_tax_id":     { "value": "36-4188220",  "confidence": 0.889, "source": "printed" },
+
+    "buyer_name":        { "value": "Harbor Freight Logistics LLC", "confidence": 0.971, "source": "printed" },
+    "buyer_address":     { "value": "22 Dockside Rd, Miami FL 33132", "confidence": 0.918, "source": "printed" },
+
+    "ship_to_name":      { "value": "Harbor Freight Logistics LLC", "confidence": 0.964, "source": "printed" },
+    "ship_to_address":   { "value": "22 Dockside Rd, Miami FL 33132", "confidence": 0.911, "source": "printed" },
+
+    "currency":          { "value": "USD",     "confidence": 0.999, "source": "printed" },
+    "subtotal":          { "value": 4750.00,   "confidence": 0.994, "source": "printed" },
+    "tax_amount":        { "value": 332.50,    "confidence": 0.991, "source": "printed" },
+    "freight_amount":    { "value": 285.00,    "confidence": 0.987, "source": "printed" },
+    "accessorial_total": { "value": 140.00,    "confidence": 0.972, "source": "printed" },
+    "discount_amount":   { "value": 0.00,      "confidence": 0.999, "source": "printed" },
+    "total_amount":      { "value": 5507.50,   "confidence": 0.996, "source": "printed" },
+    "credits_applied":   { "value": 0.00,      "confidence": 0.999, "source": "system"  },
+    "amount_due":        { "value": 5507.50,   "confidence": 0.996, "source": "printed" },
+    "payment_status":    { "value": "",        "confidence": null,  "source": "system"  }
+  },
+
+  "lines": [
+    {
+      "line_number": 1,
+      "item_code":       { "value": "WDG-4400",  "confidence": 0.951, "source": "printed" },
+      "description":     { "value": "Widget assembly, 4400 series", "confidence": 0.933, "source": "printed" },
+      "quantity":        { "value": 40,          "confidence": 0.968, "source": "printed" },
+      "uom":             { "value": "EA",        "confidence": 0.981, "source": "printed" },
+      "unit_price":      { "value": 62.50,       "confidence": 0.989, "source": "printed" },
+      "extended_amount": { "value": 2500.00,     "confidence": 0.992, "source": "printed" },
+      "discount":        { "value": 0.00,        "confidence": 0.999, "source": "printed" },
+      "gl_code":         { "value": "5100-020",  "confidence": 0.874, "source": "handwritten" }
+    },
+    {
+      "line_number": 2,
+      "item_code":       { "value": "BRK-120",   "confidence": 0.944, "source": "printed" },
+      "description":     { "value": "Mounting bracket, galvanized", "confidence": 0.928, "source": "printed" },
+      "quantity":        { "value": 90,          "confidence": 0.957, "source": "printed" },
+      "uom":             { "value": "EA",        "confidence": 0.981, "source": "printed" },
+      "unit_price":      { "value": 25.00,       "confidence": 0.986, "source": "printed" },
+      "extended_amount": { "value": 2250.00,     "confidence": 0.990, "source": "printed" },
+      "discount":        { "value": 0.00,        "confidence": 0.999, "source": "printed" }
+    }
+  ],
+
+  "accessorials": [
+    {
+      "charge_code":       { "value": "DET",     "confidence": 0.912, "source": "printed" },
+      "charge_description":{ "value": "Detention, 2 hrs", "confidence": 0.897, "source": "printed" },
+      "charge_amount":     { "value": 90.00,     "confidence": 0.964, "source": "printed" }
+    },
+    {
+      "charge_code":       { "value": "LFT",     "confidence": 0.905, "source": "printed" },
+      "charge_description":{ "value": "Liftgate service", "confidence": 0.891, "source": "printed" },
+      "charge_amount":     { "value": 50.00,     "confidence": 0.959, "source": "printed" }
+    }
+  ],
+
+  "_amendments_comment": "Handwritten corrections. The printed value is NEVER overwritten -- it stays in the lines array above and is repeated here as original_value. The canonical layer exposes amended_value as current. If the handwriting was misread, this is a correction rather than an unrecoverable loss. Note that arithmetic_check.py re-proves the document against the AMENDED figure, which is why the example below deliberately does not reconcile: line 2 shipped short, so the printed total is now wrong and the document will fail self-proof until the corrected total is confirmed. That failure is the intended behaviour, not a bug -- it is how an undetected override gets caught on a Branch B page.",
+
+  "amendments": [
+    {
+      "target_line": 2,
+      "target_column": "quantity",
+      "original_value": 90,
+      "amended_value": 88,
+      "amendment_source": "handwritten",
+      "annotation_type": "quantity_correction",
+      "effective_time": "2022-08-16T00:00:00Z",
+      "evidence_region": "p413:x=412,y=880,w=96,h=38",
+      "recognition_agreement": "3of3",
+      "note": "Margin annotation: '88 - 2 damaged'",
+      "reviewed_by": null,
+      "reviewed_at": null
+    }
+  ],
+
+  "handwriting_regions": [
+    {
+      "page": 413,
+      "bbox": [412, 880, 96, 38],
+      "detector": "stroke_morphology",
+      "detector_confidence": 0.81,
+      "annotation_type": "quantity_correction",
+      "recognized_text": "88 - 2 damaged",
+      "engine_readings": {
+        "azure_prebuilt_read": "88 - 2 damaged",
+        "google_document_ai": "88 - 2 damaged",
+        "vlm_full_page": "88 - 2 damaged"
+      },
+      "agreement": "3of3",
+      "accepted": true
+    },
+    {
+      "page": 413,
+      "bbox": [96, 1180, 210, 44],
+      "detector": "layout_delta",
+      "detector_confidence": 0.74,
+      "annotation_type": "signature",
+      "recognized_text": null,
+      "signed": true,
+      "approver_identity": null,
+      "note": "Signature is never transcribed into a text field. Reading cursive as a name produces confident nonsense that then contaminates entity resolution."
+    }
+  ],
+
+  "review_status": "open_exception",
+  "consensus_flag": "consensus_2of2",
+  "arithmetic_status": "failed"
+}

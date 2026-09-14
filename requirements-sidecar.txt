@@ -1,0 +1,3 @@
+# Minimal runtime dependencies for the internal retrieval sidecar container.
+fastapi
+uvicorn

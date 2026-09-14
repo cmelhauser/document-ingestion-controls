@@ -1,0 +1,21 @@
+interface:
+  display_name: "Business Document Ingestion"
+  short_description: "Evidence-safe document intake, review, and CRM access"
+  default_prompt: "Use $business-doc-ingestion to operate or extend this repository. Preserve source evidence, use a new no-clobber run path, follow references/artifact-contracts.md and the phase references, keep LLM and client-return outputs proposal-only, and require independent consensus plus arithmetic, completeness, and final review before approved-fact staging. Read references/runtime-configuration.md for every environment control and references/command-line-reference.md for every CLI. Run the full quality and release gates, and do not claim client-specific provider accuracy, target CRM delivery, or public deployment without accepted evidence."
+  operating_skill: "skills/business-doc-operations/SKILL.md"
+  operating_prompt: "To run the pipeline against real documents rather than change repository code, follow skills/business-doc-operations/SKILL.md, whose lane table lists every command with its phase and whether it is optional or disabled by default, and the task guide it routes to: tasks/setup.md for run settings and file placement, tasks/run-pipeline.md for the ordered command sequence, tasks/extraction.md for the reading lanes, tasks/cross-checking.md for corroboration and independent verification, tasks/handwriting.md for Phase 3H, tasks/business-controls.md for attribution, allocation, completeness and sampling, tasks/evidence-graph.md for the graph and the relationship lanes, tasks/review-reduction.md for the proposal-only queue reduction, tasks/client-review.md for issuing and re-ingesting the workbook, tasks/monitor.md for progress and spend, tasks/deliver.md for the canonical export, CRM staging, generated documents and the clean client folder, tasks/troubleshooting.md for any refusal, tasks/maintenance.md for the repository gates, and tasks/subagents.md before delegating. Run python scripts/COMMAND.py --help for exact options; every argument carries help text. Build the client hand-off only with scripts/client_delivery_package.py; never assemble one by copying files."
+
+maintenance:
+  # ChatGPT equivalent of the Claude Code PostToolUse hook. Run this after any
+  # change under scripts/: it fails when an operating instruction names a script
+  # that no longer exists or is missing from the command-line reference.
+  after_code_change: "python scripts/agent_surface_check.py"
+  full_gate: "PYTHON_BIN=.venv/bin/python bash scripts/quality_gate.sh"
+
+# Repository routing metadata; it does not register a connector or grant access.
+capability_routes:
+  approved_crm: "skills/mcp-api-operations/SKILL.md"
+  visual_proposals: "skills/record-intake/SKILL.md"
+  source_handoff: "references/visual-ingestion.md"
+  future_work: "references/business-data-platform-roadmap.md"
+  boundary: "Intake writes only to a separate proposal journal. Source export never approves readings; canonical/target-CRM mutation and native capture remain unimplemented."

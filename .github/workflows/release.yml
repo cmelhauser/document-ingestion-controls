@@ -1,0 +1,76 @@
+name: release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ github.ref_name }}
+  cancel-in-progress: false
+
+jobs:
+  verify-and-publish:
+    name: Verify and publish stable release
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    defaults:
+      run:
+        shell: bash
+    env:
+      PIP_DISABLE_PIP_VERSION_CHECK: "1"
+      PIP_NO_INPUT: "1"
+      PYTHONDONTWRITEBYTECODE: "1"
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: |
+            requirements.txt
+            requirements-dev.txt
+            requirements.lock
+      - name: Verify tag points at origin/main
+        run: |
+          git fetch origin main --tags --force
+          test "$(git rev-list -n 1 "$GITHUB_REF_NAME")" = "$(git rev-parse origin/main)"
+      - name: Install release dependencies
+        run: |
+          sudo apt-get update -o Acquire::Retries=3
+          sudo apt-get install -y --no-install-recommends build-essential cmake pkg-config pandoc poppler-utils ripgrep libfontconfig1-dev libfreetype6-dev libgraphite2-dev libharfbuzz-dev libicu-dev libpng-dev libssl-dev zlib1g-dev
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements-dev.txt
+          python -m pip check
+      - name: Verify release package and strict quality gate
+        run: |
+          python scripts/release_check.py --tag "$GITHUB_REF_NAME"
+          PYTHON_BIN="$(command -v python)" bash scripts/quality_gate.sh
+      - name: Run acceptance controls
+        run: |
+          PYTHON_BIN="$(command -v python)" bash scripts/run_acceptance_packet.sh /tmp/acceptance
+          PYTHON_BIN="$(command -v python)" bash scripts/run_operations_acceptance.sh /tmp/operations
+          PYTHON_BIN="$(command -v python)" bash scripts/run_mcp_production_acceptance.sh /tmp/mcp-production
+          PYTHON_BIN="$(command -v python)" fixtures/public_business_document_stress_corpus/run_validation.sh /tmp/public-corpus
+      - name: Verify generated documentation is current
+        run: |
+          bash scripts/generate_docs.sh
+          bash scripts/render_docs.sh
+          git diff --exit-code -- docs/*.tex docs/*.pdf
+      - name: Create immutable GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1; then
+            echo "Release already exists for $GITHUB_REF_NAME; leaving it unchanged."
+          else
+            gh release create "$GITHUB_REF_NAME" \
+              --title "Business Document Ingestion $GITHUB_REF_NAME" \
+              --generate-notes
+          fi

@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="360" viewBox="80 0 1600 360">
+  <defs><marker id="a" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto"><path d="M0,0 L12,6 L0,12 z" fill="#365f91"/></marker></defs>
+  <style>text{font-family:Arial,sans-serif;fill:#17253a}.box{fill:#eaf2fb;stroke:#365f91;stroke-width:3}.decision{fill:#fff5d6;stroke:#9b6b00;stroke-width:3}.arrow{fill:none;stroke:#365f91;stroke-width:4;marker-end:url(#a)}.small{font-size:26px;font-weight:600}.title{font-size:32px;font-weight:700}.label{font-size:23px;fill:#5b4210}</style>
+  <g transform="translate(100 0)">
+  <text x="800" y="42" text-anchor="middle" class="title">Client decision, inference, and amendment lifecycle</text>
+  <rect class="box" x="45" y="128" width="230" height="100" rx="14"/><text x="160" y="170" text-anchor="middle" class="small">Receive original</text><text x="160" y="202" text-anchor="middle" class="small">PDFs</text>
+  <line class="arrow" x1="275" y1="178" x2="350" y2="178"/>
+  <rect class="box" x="360" y="128" width="245" height="100" rx="14"/><text x="482" y="170" text-anchor="middle" class="small">Retain page</text><text x="482" y="202" text-anchor="middle" class="small">evidence</text>
+  <line class="arrow" x1="605" y1="178" x2="680" y2="178"/>
+  <rect class="box" x="690" y="128" width="245" height="100" rx="14"/><text x="812" y="170" text-anchor="middle" class="small">Read rows and</text><text x="812" y="202" text-anchor="middle" class="small">run checks</text>
+  <line class="arrow" x1="935" y1="178" x2="1015" y2="178"/>
+  <polygon class="decision" points="1130,105 1245,178 1130,251 1015,178"/><text x="1130" y="170" text-anchor="middle" class="small">Material</text><text x="1130" y="202" text-anchor="middle" class="small">uncertainty?</text>
+  <line class="arrow" x1="1245" y1="178" x2="1320" y2="178"/>
+  <rect class="box" x="1330" y="128" width="225" height="100" rx="14"/><text x="1442" y="170" text-anchor="middle" class="small">Approved output</text><text x="1442" y="202" text-anchor="middle" class="small">and handoff</text>
+  <path class="arrow" d="M1130 251 L1130 310 L812 310 L812 238"/><text x="968" y="345" text-anchor="middle" class="label">Yes: source-bound inference, cross-packet verification, or client confirmation; evidence remains</text>
+  </g>
+</svg>

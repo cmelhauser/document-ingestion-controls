@@ -1,0 +1,24 @@
+{
+  "sample_metadata": {
+    "label": "SAMPLE - FICTIONAL - NOT CLIENT DATA",
+    "purpose": "Illustrates an explicit client decision used to create a new versioned source-alias registry snapshot.",
+    "not_for": ["client decisions", "production mapping", "entity approval"],
+    "authoritative_runbook": "references/semantic-schema-discovery.md"
+  },
+  "decisions": [
+    {
+      "proposal_id": "llm:sampletemplate:ack number",
+      "decision": "approve",
+      "reviewed_by": "SAMPLE-CLIENT-REVIEWER",
+      "reviewed_at": "2026-08-13T00:00:00Z",
+      "comment": "Fictional example only; approval applies only to the exact source-template fingerprint."
+    },
+    {
+      "proposal_id": "llm:sampletemplate:order ref",
+      "decision": "defer",
+      "reviewed_by": "SAMPLE-CLIENT-REVIEWER",
+      "reviewed_at": "2026-08-13T00:00:00Z",
+      "comment": "Fictional example of a review-required ambiguity."
+    }
+  ]
+}

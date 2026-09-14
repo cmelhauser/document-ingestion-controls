@@ -1,0 +1,38 @@
+[
+  {
+    "engine": "engine_b",
+    "document_id": "ACCEPT-001",
+    "document_type": "commercial_invoice",
+    "branch": "native_text",
+    "header": {
+      "seller_name": {"value": "Example Freight LLC", "confidence": 0.98},
+      "seller_address": {"value": "1 Harbor Way, Boston MA 02110", "confidence": 0.98},
+      "buyer_name": {"value": "Example Customer", "confidence": 0.98},
+      "invoice_number": {"value": "INV-1001", "confidence": 0.99},
+      "invoice_date": {"value": "2026-01-15", "confidence": 0.99},
+      "ack_number": {"value": "ACK-1001", "confidence": 0.99},
+      "subtotal": {"value": "100.00", "confidence": 0.99},
+      "tax_amount": {"value": "10.00", "confidence": 0.99},
+      "total_amount": {"value": "110.00", "confidence": 0.99}
+    },
+    "lines": [{"line_number": 1, "quantity": "2", "unit_price": "50.00", "extended_amount": "100.00"}]
+  },
+  {
+    "engine": "engine_b",
+    "document_id": "ACCEPT-002",
+    "document_type": "commercial_invoice",
+    "branch": "native_text",
+    "header": {
+      "seller_name": {"value": "Example Freight LLC", "confidence": 0.98},
+      "seller_address": {"value": "1 Harbor Way, Boston MA 02110", "confidence": 0.98},
+      "buyer_name": {"value": "Example Customer", "confidence": 0.98},
+      "invoice_number": {"value": "INV-1002", "confidence": 0.99},
+      "invoice_date": {"value": "2026-02-15", "confidence": 0.99},
+      "ack_number": {"value": "ACK-1002", "confidence": 0.99},
+      "subtotal": {"value": "80.00", "confidence": 0.99},
+      "tax_amount": {"value": "8.00", "confidence": 0.99},
+      "total_amount": {"value": "88.00", "confidence": 0.99}
+    },
+    "lines": [{"line_number": 1, "quantity": "4", "unit_price": "20.00", "extended_amount": "80.00"}]
+  }
+]

@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ingestion Review</title>
+  <style>
+    body { font-family: sans-serif; margin: 2rem; line-height: 1.4; }
+    .masthead { display: flex; flex-wrap: wrap; gap: 1.5rem; align-items: center; margin-bottom: 1.5rem; }
+    .logo-card { border: 1px solid #ccc; border-radius: 12px; padding: 1rem; min-width: 240px; max-width: 320px; background: #fafafa; }
+    .logo-frame { min-height: 120px; display: flex; align-items: center; justify-content: center; border: 1px dashed #bbb; border-radius: 8px; background: white; padding: 1rem; }
+    .logo-frame img { max-width: 100%; max-height: 120px; border: 0; }
+    .logo-help { font-size: 0.95rem; color: #555; }
+    section { border: 1px solid #ccc; border-radius: 8px; padding: 1rem; margin: 1rem 0; }
+    label { display: block; margin: 0.5rem 0; }
+    input, textarea, select, button { font: inherit; width: 100%; box-sizing: border-box; margin-top: 0.25rem; }
+    button { width: auto; padding: 0.5rem 0.75rem; margin-right: 0.5rem; }
+    .row { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; }
+    pre { background: #f6f8fa; padding: 1rem; overflow: auto; white-space: pre-wrap; }
+    img { max-width: 100%; border: 1px solid #ccc; }
+    .inline { display: flex; gap: 0.5rem; align-items: end; }
+  </style>
+</head>
+<body>
+  <div class="masthead">
+    <div>
+      <h1>Visual Intake Upload and Review</h1>
+      <p>
+        This page is a thin client over the authenticated intake JSON API. Paste a bearer token with
+        the required intake scopes, then create sessions, upload original page bytes, review retained
+        proposals, and compare proposal versions. Nothing here approves, applies, or publishes facts.
+      </p>
+    </div>
+    <aside class="logo-card">
+      <h2>Client Logo</h2>
+      <div class="logo-frame">
+        <img id="clientLogo" alt="Client logo preview">
+      </div>
+      <p class="logo-help">
+        Use this slot for client branding on the review page. Upload a local logo file below for
+        preview without committing client artwork to the repository.
+      </p>
+      <label>
+        Logo file
+        <input id="logoFile" type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml">
+      </label>
+    </aside>
+  </div>
+
+  <section>
+    <h2>API Access</h2>
+    <label>
+      Bearer token
+      <input id="token" type="password" autocomplete="off" placeholder="Paste OAuth bearer token">
+    </label>
+    <div class="inline">
+      <button id="listSessions">List sessions</button>
+      <button id="loadSummary">Load review summary</button>
+      <button id="loadPage">Load page image</button>
+    </div>
+  </section>
+
+  <section>
+    <h2>Create Session</h2>
+    <div class="row">
+      <label>
+        Idempotency key
+        <input id="createKey" value="session-demo-001">
+      </label>
+      <label>
+        Expected pages
+        <input id="expectedPages" type="number" min="1" max="20" value="1">
+      </label>
+    </div>
+    <button id="createSession">Create session</button>
+  </section>
+
+  <section>
+    <h2>Current Session</h2>
+    <div class="row">
+      <label>
+        Session ID
+        <input id="sessionId" placeholder="Session ID">
+      </label>
+      <label>
+        Page number
+        <input id="pageNumber" type="number" min="1" max="20" value="1">
+      </label>
+    </div>
+  </section>
+
+  <section>
+    <h2>Upload Page</h2>
+    <div class="row">
+      <label>
+        Upload idempotency key
+        <input id="uploadKey" value="page-demo-001">
+      </label>
+      <label>
+        Image file
+        <input id="fileInput" type="file" accept="image/png,image/jpeg">
+      </label>
+    </div>
+    <button id="uploadPage">Upload page</button>
+  </section>
+
+  <section>
+    <h2>Grant Reviewer</h2>
+    <div class="row">
+      <label>
+        Grant idempotency key
+        <input id="grantKey" value="grant-demo-001">
+      </label>
+      <label>
+        Reviewer subject
+        <input id="reviewerSubject" placeholder="reviewer-subject">
+      </label>
+    </div>
+    <button id="grantReviewer">Grant reviewer access</button>
+  </section>
+
+  <section>
+    <h2>Submit Proposal</h2>
+    <label>
+      Proposal idempotency key
+      <input id="proposalKey" value="proposal-demo-001">
+    </label>
+    <label>
+      Proposal JSON
+      <textarea id="proposalJson" rows="14" placeholder='{"schema_version":"visual_ingestion_v1","source_set_sha256":"...","client":{"name":"...","model":"..."},"records":[],"page_exceptions":[]}'></textarea>
+    </label>
+    <button id="submitProposal">Submit proposal</button>
+  </section>
+
+  <section>
+    <h2>Retained Page Preview</h2>
+    <img id="pageImage" alt="Selected retained page preview">
+  </section>
+
+  <section>
+    <h2>Result</h2>
+    <pre id="result">No request made yet.</pre>
+  </section>
+
+  <script src="/ingestion/review.js"></script>
+</body>
+</html>
