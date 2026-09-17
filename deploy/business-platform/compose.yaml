@@ -1,0 +1,23 @@
+services:
+  business-platform:
+    build:
+      context: ../..
+      dockerfile: deploy/business-platform/Dockerfile
+    command: ["/config/client-platform.yaml", "--enable"]
+    read_only: true
+    restart: unless-stopped
+    ports: ["127.0.0.1:9443:9443"]
+    tmpfs: ["/tmp:rw,noexec,nosuid,size=64m"]
+    volumes:
+      - ${CLIENT_CONFIG:?set CLIENT_CONFIG}:/config/client-platform.yaml:ro
+      - ${CLIENT_SNAPSHOT:?set CLIENT_SNAPSHOT}:/data/business_retrieval.sqlite:ro
+      - ${CLIENT_TLS_CERT:?set CLIENT_TLS_CERT}:/tls/server.crt:ro
+      - ${CLIENT_TLS_KEY:?set CLIENT_TLS_KEY}:/tls/server.key:ro
+      - ${CLIENT_STATE:?set CLIENT_STATE}:/state:rw
+    environment:
+      BUSINESS_PLATFORM_TLS_PRIVATE_KEY_FILE: /tls/server.key
+      BUSINESS_PLATFORM_INTROSPECTION_SECRET: ${BUSINESS_PLATFORM_INTROSPECTION_SECRET:?required}
+      BUSINESS_PLATFORM_AUTHORIZATION_SECRET: ${BUSINESS_PLATFORM_AUTHORIZATION_SECRET:?required}
+      BUSINESS_PLATFORM_TARGET_TOKEN: ${BUSINESS_PLATFORM_TARGET_TOKEN:-}
+    cap_drop: ["ALL"]
+    security_opt: ["no-new-privileges:true"]

@@ -154,7 +154,7 @@ substitute for checking the current tenant.
   explicit relationship mapping. See the official
   [Zoho CRM import FAQ](https://help.zoho.com/portal/en/kb/crm/faqs/data-administration/import/articles/faqs-import).
 
-## What remains intentionally unimplemented
+## Governed generic adapter now implemented
 
 No live Salesforce, HubSpot, Dynamics/Dataverse, Zoho, or other CRM adapter is
 included. A generic live writer would be unsafe because tenant schemas,
@@ -164,3 +164,22 @@ implement one adapter against this package and contract in the destination
 system/repository, with target-specific acceptance tests and separate
 credentials. Read-only API/MCP access remains independent and does not grant
 `crm:write` authority.
+
+The optional client-YAML platform implements a target-neutral no-send file
+adapter and HTTPS JSON adapter. Read
+[Business Data Platform](business-data-platform.md) and use the
+[`record-maintenance` skill](../skills/record-maintenance/SKILL.md). MCP
+exposes only schema, proposal, preview, and owner-scoped lifecycle status. The
+remote API separately exposes operator-only authorization, application, and
+reconciliation routes under `records:authorize` and `records:apply`; equivalent
+CLI commands remain available. They create a signed expiring authorization,
+apply POST/PATCH through the configured adapter, and independently reconcile
+every expected field. No path hard-deletes or edits the immutable canonical
+snapshot.
+
+Vendor-specific bulk APIs, required-field metadata, duplicate rules,
+automations, entity merge, and rollback still require the selected client's
+sandbox acceptance and configuration. A successful target write becomes
+queryable only after affected controls produce a new approved canonical export
+and replacement snapshot. Read-only access and `records:propose` never grant
+authorization or live target credentials.

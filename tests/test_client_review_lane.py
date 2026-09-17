@@ -1358,6 +1358,294 @@ def test_a_re_read_governs_the_findings_on_its_own_pages(tmp_path, capsys, monke
         queue.governed_pages([("consensus_exceptions.json", str(unnamed))], [str(base)])
 
 
+def test_a_vote_settles_the_findings_on_the_fields_it_accepted(tmp_path, capsys, monkeypatch):
+    """A field the record already accepted by a vendor vote is not asked again."""
+    from client_review import queue
+
+    base = exceptions_file(
+        tmp_path, "consensus_reread_exceptions.json", [consensus_item(1), consensus_item(2)]
+    )
+    # Another control's finding on the same field is a different question.
+    other = exceptions_file(
+        tmp_path, "validation_exceptions.json", [consensus_item(1, "implausible_identifier_format")]
+    )
+    vote = tmp_path / "vote_reread.json"
+    vote.write_text(
+        json.dumps(
+            {
+                "summary": {"artifact_type": "multi_engine_vote_v1"},
+                "resolutions": [
+                    {
+                        "document_id": "doc-001",
+                        "field": "lines[1].description",
+                        "resolved_value": "Chair",
+                        "resolved_by": "vendor_agreement",
+                        "agreeing_vendors": 2,
+                    }
+                ],
+            }
+        )
+    )
+    out = tmp_path / "queue.json"
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "final_review_queue.py",
+            str(base),
+            str(other),
+            "--out",
+            str(out),
+            "--settled-by-vote",
+            str(vote),
+            "consensus_reread_exceptions.json",
+        ],
+    )
+    queue.main()
+
+    written = json.loads(out.read_text())
+    assert sorted((item["document_id"], item["reason"]) for item in written["items"]) == [
+        ("doc-001", "implausible_identifier_format"),
+        ("doc-002", "partial_disagreement"),
+    ]
+    assert written["summary"]["settled_by_vote_items"] == 1
+    assert written["summary"]["settled_by_vote"] == [
+        [str(vote), "consensus_reread_exceptions.json"]
+    ]
+    settled = written["reconciled"][0]
+    assert (settled["disposition"], settled["settled_by"], settled["resolved_value"]) == (
+        "settled_by_vendor_vote",
+        "vote_reread.json",
+        "Chair",
+    )
+    assert "Retained as settled by a vendor vote: 1" in capsys.readouterr().out
+
+    # Rule 9: a settlement naming no input, or a file that is not a vote,
+    # settles nothing and must not read as though it had.
+    with pytest.raises(ValueError, match="not an input"):
+        queue.vote_settlements([(str(vote), "absent.json")], [str(base)])
+    for shape in ({"summary": {"artifact_type": "something_else"}}, ["not", "a", "vote"]):
+        wrong = tmp_path / "wrong.json"
+        wrong.write_text(json.dumps(shape))
+        with pytest.raises(ValueError, match="not a vote artifact"):
+            queue.vote_settlements([(str(wrong), base.name)], [str(base)])
+
+
+def test_a_pack_asks_nothing_the_final_queue_retains(tmp_path, capsys):
+    """The pack lane reconciles the same three ways the final queue does.
+
+    It builds the queue by its own path and took only ``--resolved-by``, so a
+    pack from the final queue's inputs asked every finding the queue retains as
+    superseded by a re-read or settled by a vendor vote: 522 and 532 on the
+    commission run, where with both options it asks exactly the queue's items.
+    """
+    base = exceptions_file(
+        tmp_path, "consensus_exceptions.json", [consensus_item(i) for i in (1, 2, 3)]
+    )
+    reread = exceptions_file(
+        tmp_path,
+        "consensus_reread_exceptions.json",
+        [consensus_item(1, "no_majority"), consensus_item(4)],
+    )
+    manifest = tmp_path / "ingestion_manifest_reread.json"
+    manifest.write_text(json.dumps({"pages": [{"page_id": "doc-001", "document_id": "doc-001"}]}))
+    vote = tmp_path / "vote_reread.json"
+    vote.write_text(
+        json.dumps(
+            {
+                "summary": {"artifact_type": "multi_engine_vote_v1"},
+                "resolutions": [
+                    {
+                        "document_id": "doc-004",
+                        "field": "lines[4].description",
+                        "resolved_value": "Chair",
+                        "resolved_by": "vendor_agreement",
+                        "agreeing_vendors": 2,
+                    }
+                ],
+            }
+        )
+    )
+    out = tmp_path / "pack"
+    argv = [
+        "build",
+        str(base),
+        str(reread),
+        "--out-dir",
+        str(out),
+        "--force",
+        "--supersede",
+        base.name,
+        str(manifest),
+        "--settled-by-vote",
+        str(vote),
+        reread.name,
+    ]
+    assert cli.main(argv) == 0
+    printed = capsys.readouterr().out
+    assert "retained as superseded by a re-read: 1" in printed
+    assert "retained as settled by a vendor vote: 1" in printed
+    assert "already resolved" not in printed
+
+    pack = json.loads((out / "review_pack.json").read_text())
+    assert sorted((item["document_id"], item["reason"]) for item in pack["queue_items"]) == [
+        ("doc-001", "no_majority"),
+        ("doc-002", "partial_disagreement"),
+        ("doc-003", "partial_disagreement"),
+    ]
+    retained = {entry["review_item_id"]: entry for entry in pack["reconciled"]}
+    assert sorted((entry["document_id"], entry["disposition"]) for entry in retained.values()) == [
+        ("doc-001", "superseded_by_re_read"),
+        ("doc-004", "settled_by_vendor_vote"),
+    ]
+    # No group, and so no question, is built over a retained finding.
+    grouped = {item_id for group in pack["groups"] for item_id in group["source_item_ids"]}
+    assert grouped and not grouped & set(retained)
+    summary = pack["summary"]
+    assert (
+        summary["reconciled_items"],
+        summary["superseded_items"],
+        summary["settled_by_vote_items"],
+    ) == (0, 1, 1)
+    assert summary["superseded_by"] == [[base.name, str(manifest)]]
+    assert summary["settled_by_vote"] == [[str(vote), reread.name]]
+
+
+def test_a_pack_refuses_what_the_final_queue_refuses(tmp_path, monkeypatch):
+    """A reconciliation that matches no input is refused before a pack is written."""
+    base = exceptions_file(tmp_path, "consensus_exceptions.json", [consensus_item(1)])
+    manifest = tmp_path / "ingestion_manifest_reread.json"
+    manifest.write_text(json.dumps({"pages": [{"page_id": "doc-001"}]}))
+    not_a_vote = exceptions_file(tmp_path, "validation_exceptions.json", [])
+    with pytest.raises(ValueError, match="not an input"):
+        lane.build_pack([base], tmp_path / "a", supersede=[(Path("absent.json"), manifest)])
+    with pytest.raises(ValueError, match="not an input"):
+        lane.build_pack([base], tmp_path / "b", settled_by_vote=[(not_a_vote, Path("absent.json"))])
+    with pytest.raises(ValueError, match="not a vote artifact"):
+        lane.build_pack([base], tmp_path / "c", settled_by_vote=[(not_a_vote, Path(base.name))])
+    # A pack whose every finding is retained has nothing to ask, and says so
+    # rather than reporting a pack built from nothing.
+    with pytest.raises(ValueError, match="all 1 findings .* retained as reconciled"):
+        lane.build_pack([base], tmp_path / "d", supersede=[(Path(base.name), manifest)])
+    # The command reports a refusal rather than writing a pack.
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "client_review_lane.py",
+            "build",
+            str(base),
+            "--out-dir",
+            str(tmp_path / "e"),
+            "--supersede",
+            "absent.json",
+            str(manifest),
+        ],
+    )
+    with pytest.raises(SystemExit, match="Client review lane failed: .*not an input"):
+        cli.main()
+    assert not any((tmp_path / name).exists() for name in "abcde")
+
+
+def dispositions_file(tmp_path: Path, entries: list, **overrides) -> Path:
+    """Write an operator disposition artifact, overriding any top-level field."""
+    path = tmp_path / "dispositions.json"
+    path.write_text(
+        json.dumps(
+            {
+                "artifact_type": "operator_item_dispositions_v1",
+                "authorization_status": "operator_authorized",
+                "authorization_id": "run-authorization-amendment-63",
+                "dispositions": entries,
+                **overrides,
+            }
+        )
+    )
+    return path
+
+
+def test_an_operator_disposition_retains_the_items_it_names(tmp_path, capsys, monkeypatch):
+    """An authorized disposition is retained with its rule, never deleted -- in both paths."""
+    from client_review import queue
+
+    base = exceptions_file(
+        tmp_path, "consensus_exceptions.json", [consensus_item(1), consensus_item(2)]
+    )
+    items, _, _ = queue.consolidate([base])
+    target = next(item for item in items if item["document_id"] == "doc-001")
+    disposed = dispositions_file(
+        tmp_path,
+        [
+            {
+                "review_item_id": target["review_item_id"],
+                "rule": "a provider's own review flag is provenance",
+                "evidence": "Amendment 63, rule 2",
+            },
+            {"review_item_id": "review-item-0000000000000000", "rule": "matches no item"},
+        ],
+    )
+    out = tmp_path / "queue.json"
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        ["final_review_queue.py", str(base), "--out", str(out), "--dispositions", str(disposed)],
+    )
+    queue.main()
+
+    written = json.loads(out.read_text())
+    assert [item["document_id"] for item in written["items"]] == ["doc-002"]
+    retained = written["reconciled"][0]
+    assert (
+        retained["disposition"],
+        retained["disposition_rule"],
+        retained["disposition_authorization_id"],
+        retained["disposed_by"],
+        retained["disposition_evidence"],
+    ) == (
+        "dispositioned_by_operator",
+        "a provider's own review flag is provenance",
+        "run-authorization-amendment-63",
+        "dispositions.json",
+        "Amendment 63, rule 2",
+    )
+    summary = written["summary"]
+    assert (summary["dispositioned_items"], summary["dispositions_matching_no_item"]) == (1, 1)
+    assert summary["disposition_artifacts"] == ["dispositions.json"]
+    printed = capsys.readouterr().out
+    assert "Retained as dispositioned by an operator: 1" in printed
+    assert "Dispositions matching no queue item: 1" in printed
+
+    # The review pack retains the same item, as the queue does.
+    argv = ["build", str(base), "--out-dir", str(tmp_path / "pack"), "--force"]
+    assert cli.main([*argv, "--dispositions", str(disposed)]) == 0
+    assert "retained as dispositioned by an operator: 1" in capsys.readouterr().out
+    pack = json.loads((tmp_path / "pack" / "review_pack.json").read_text())
+    assert [item["document_id"] for item in pack["queue_items"]] == ["doc-002"]
+    assert pack["summary"]["disposition_artifacts"] == ["dispositions.json"]
+
+
+def test_a_disposition_that_is_not_authorized_disposes_of_nothing(tmp_path):
+    """No model output and no client note can dispose of a finding by itself."""
+    from client_review import queue
+
+    entry = {"review_item_id": "review-item-1", "rule": "a rule"}
+    for overrides, message in (
+        ({"artifact_type": "something_else"}, "not an operator disposition artifact"),
+        ({"authorization_status": "proposed"}, "operator-authorized"),
+        ({"authorization_id": ""}, "operator-authorized"),
+        ({"dispositions": []}, "names no item"),
+        ({"dispositions": [{"review_item_id": "review-item-1"}]}, "a review_item_id and a rule"),
+        ({"dispositions": ["not an object"]}, "a review_item_id and a rule"),
+    ):
+        path = dispositions_file(tmp_path, [entry], **overrides)
+        with pytest.raises(ValueError, match=message):
+            queue.operator_dispositions([path])
+    not_an_object = tmp_path / "list.json"
+    not_an_object.write_text("[]")
+    with pytest.raises(ValueError, match="not an operator disposition artifact"):
+        queue.operator_dispositions([not_an_object])
+
+
 def test_a_question_the_pack_has_no_wording_for_is_named_not_hidden():
     """A generically-phrased question still gets asked, and says that it is.
 

@@ -453,6 +453,34 @@ def test_cli_catalogue_reports_missing_indexes_and_unusable_help(tmp_path, monke
         agent_surface_check.help_output(tmp_path, "alpha.py")
 
 
+def test_a_stalled_help_launch_is_tried_again_before_it_is_reported(tmp_path, monkeypatch):
+    """A launch stall is not stale documentation; a help that always hangs still fails."""
+    limits = []
+
+    def stalls_once(command, **kwargs):
+        limits.append(kwargs["timeout"])
+        if len(limits) == 1:
+            raise agent_surface_check.subprocess.TimeoutExpired(command, kwargs["timeout"])
+        return types.SimpleNamespace(returncode=0, stderr="", stdout="usage: alpha.py\n")
+
+    monkeypatch.setattr(agent_surface_check.subprocess, "run", stalls_once)
+    assert agent_surface_check.help_output(tmp_path, "alpha.py") == "usage: alpha.py"
+    assert limits == [5, 15]
+
+    limits.clear()
+
+    def always_hangs(command, **kwargs):
+        limits.append(kwargs["timeout"])
+        raise agent_surface_check.subprocess.TimeoutExpired(command, kwargs["timeout"])
+
+    monkeypatch.setattr(agent_surface_check.subprocess, "run", always_hangs)
+    with pytest.raises(
+        ValueError, match=r"alpha\.py help timed out on all 3 attempts \(5s, 15s, 30s\)"
+    ):
+        agent_surface_check.help_output(tmp_path, "alpha.py")
+    assert limits == [5, 15, 30]
+
+
 def test_cli_catalogue_normalizes_parser_specific_usage_wrapping(tmp_path, monkeypatch):
     python_312 = (
         "usage: alpha.py --registry REGISTRY --out OUT --records-out\n"

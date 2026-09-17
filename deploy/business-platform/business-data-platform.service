@@ -1,0 +1,21 @@
+[Unit]
+Description=Client-configured Business Data MCP/API Platform
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=business-platform
+Group=business-platform
+WorkingDirectory=/opt/business-doc-ingestion
+EnvironmentFile=/etc/business-platform/secrets.env
+ExecStart=/opt/business-doc-ingestion/.venv/bin/python scripts/business_platform_server.py /etc/business-platform/client-platform.yaml --enable
+Restart=on-failure
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/business-platform /var/log/business-platform
+
+[Install]
+WantedBy=multi-user.target

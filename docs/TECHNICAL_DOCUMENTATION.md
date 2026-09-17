@@ -1225,6 +1225,34 @@ python scripts/retrieval_store.py build \
 
 ### Activate approved-fact MCP access for a completed production run
 
+The baseline local/remote MCP remains backward-compatible and read-only. An
+optional unified layer is now configured by one secret-free
+`business_data_platform_v1` YAML. It adds typed multidimensional analytics,
+saved reports, checksummed analytical CSV/XLSX jobs, the image intake/review
+portal, and owner-scoped create/amend proposals. Its detailed field-by-field
+contract, query language, examples, target adapter, trust boundary, and
+Docker/Compose/Kubernetes/systemd deployment choices are in
+[`references/business-data-platform.md`](../references/business-data-platform.md).
+
+Validate the exact YAML and approved snapshot with:
+
+```bash
+python scripts/business_platform_deploy.py /SECURE/client-platform.yaml \
+  --out /NEW/deployment-plan.json
+python scripts/business_platform_server.py /SECURE/client-platform.yaml --enable
+```
+
+Secrets never appear in YAML; it holds only the environment-variable names for
+OAuth introspection, TLS private-key path, authorization signing, and optional
+target bearer credentials. MCP can discover the writable schema and retain
+proposals, but cannot authorize or apply them. The remote API provides three
+separately scoped operator endpoints for signed authorization, file/HTTPS
+target application, and independent field reconciliation; the
+`business_record_changes.py` CLI is the equivalent local operator surface.
+They are not MCP tools and remain unavailable to the connected model. Even a
+reconciled target change is absent from analytics/retrieval until affected
+controls produce a new approved canonical export and replacement snapshot.
+
 MCP activation is a Phase 6 operation. It must not be used as an alternate view
 of unfinished extraction, provider responses, review proposals, or an empty
 canonical directory. Before registration, require selected-lane coverage,

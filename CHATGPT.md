@@ -97,17 +97,22 @@ For separately authorized new page-image intake, use
 MCP/API journal retains sources and candidate records only. Transfer real image
 bytes through the client/application; do not invent base64 or assume a chat
 attachment reached the server. No intake tool approves, applies or publishes a
-record. No native capture app or attachment relay is bundled. Client-specific
-acceptance must prove actual upload and vision support separately from queries.
+record. The remote platform includes a same-origin image upload/review portal,
+but no native chat attachment relay; client acceptance must prove actual upload
+and vision support separately from queries.
 
 For a trusted local operator handoff, follow `visual_ingestion_export.py`
 through the intake guide: export into a new contained run, retain the receipt
 separately, verify its pinned manifest hash, and use only the declared complete
 source PDF for normal profiling/intake. Preserve originals, all proposal
 versions and rejections, the page map, and final-review exceptions. This is not
-an extraction/consensus handoff. See the
-[`roadmap`](references/business-data-platform-roadmap.md) before discussing
-record updates, publication, saved reports, or other unimplemented extensions.
+an extraction/consensus handoff. For typed analytics, saved analytical exports,
+or governed create/amend delivery, read
+[`references/business-data-platform.md`](references/business-data-platform.md)
+and use [`skills/record-maintenance/SKILL.md`](skills/record-maintenance/SKILL.md).
+Models may propose only; authorization, apply, reconciliation, and replacement
+approved snapshots remain separate operator/client-controlled steps. The remote
+operator API is separately scoped and is not a ChatGPT MCP tool.
 
 Every command-line argument carries help text, so `python scripts/COMMAND.py
 --help` is a complete answer to what an option does. Recurring option wording

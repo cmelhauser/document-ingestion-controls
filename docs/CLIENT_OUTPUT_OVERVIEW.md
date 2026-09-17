@@ -329,8 +329,9 @@ The pilot accepts 1 to 20 pages per session: PNG/JPEG only, at most 10,000,000
 original image bytes and 25,000,000 pixels per page. PDF, HEIC, WebP, animations
 and image URLs are not direct upload types. Preserve unsupported originals
 separately. Deployment request limits may be smaller than the image limit.
-No mobile capture app, attachment relay, session search, shared reviewer screen,
-or automatic record publication is bundled. Actual upload and image reading
+The remote platform includes a same-origin mobile-friendly upload/review page
+and owner-scoped session/proposal history. No native chat attachment relay,
+shared reviewer role, or automatic record publication is implied. Actual upload and image reading
 must be tested in the selected client; a working report connector proves neither.
 
 ### The source-only handoff
@@ -392,18 +393,25 @@ accounting for all 28 canonical tables. A field not represented by the common
 profile is explicitly marked as outside the profile rather than silently
 dropped.
 
-### What must happen before a live CRM write
+### Governed record delivery
 
-No live Salesforce, HubSpot, Dynamics/Dataverse, Zoho, or other CRM writer is
-enabled by this package. A target-specific implementation starts only after the
-client selects the vendor and tenant, supplies current object/property metadata,
-approves mapping and credentials, and proves the adapter in a sandbox.
+The client-configured platform includes a vendor-neutral no-send file adapter
+and HTTPS JSON adapter for create/amend delivery. The assistant can discover the
+allowed schema, propose a change, preview before/after values, and read its
+status. It cannot authorize or apply. A separate operator signs a time-limited
+approval, applies through the configured adapter, and reconciles every expected
+target field through the local operator CLI or the separately scoped remote API
+(`records:authorize` and `records:apply`). Those API routes are not MCP tools,
+so the assistant cannot self-approve. Hard delete is not available.
 
 The production-write acceptance must show stable external keys, idempotent
 reruns, parent-before-child loading, explicit rejected-row handling, count and
 financial reconciliation, relationship checks, before-images/created IDs for
 rollback, and separate authorization for the exact package hashes. Read-only
-MCP/API access does not grant `crm:write` authority.
+The client must still configure current target metadata and prove the adapter in
+a sandbox. A successful target write does not change reports until a new
+approved snapshot passes the normal controls. Read/proposal MCP/API scopes do
+not grant operator write authority.
 
 ## A practical first-use path
 
@@ -417,8 +425,9 @@ For most teams, the safest and quickest sequence is:
    and an exported CSV/XLSX against the delivered package.
 5. If mobile, web, or multi-user access is needed, deploy the remote `/mcp`
    service with OAuth and complete workspace-specific acceptance.
-6. If CRM loading is needed, complete target mapping and sandbox testing from
-   the no-send package before authorizing a target-specific adapter.
+6. If CRM loading is needed, configure the generic adapter, complete target
+   mapping and sandbox testing from the no-send package, then separately
+   authorize/apply/reconcile each change.
 
 This order keeps a simple reporting pilot separate from a public deployment or
 a live CRM change. It also gives business users an early way to test whether the
@@ -436,17 +445,19 @@ larger integration.
   retrieve the exact canonical record by table and key.
 - **Can I download a report?** Yes, a remote deployment can create bounded,
   owner-bound CSV/XLSX jobs with checksums and expiry.
-- **Can an assistant change my CRM?** No. Approved records remain read-only.
-  Optional intake writes proposals to a separate journal, not canonical or
-  target-CRM records. CRM inputs remain no-send until separate adapter
-  implementation, authorization and acceptance.
+- **Can an assistant change my CRM?** It can create an owner-scoped proposal and
+  preview only. A separate authorized operator must sign, apply, and reconcile
+  it through the client-configured adapter using a local CLI or separately
+  scoped remote API; reports remain on the old approved snapshot until a new
+  one passes all controls.
 - **Can I submit a photo for a new record?** The optional pilot supports original
   PNG/JPEG upload and source-cited proposals through a compatible application.
   It stops at review, not publication.
-- **Can I ask for any possible analysis?** Shipped filters, account cards, sales
-  dimensions and seven reports work within their limits. Custom joins, saved
-  reports, forecasting and broader metrics need additional implementation and
-  appropriate approved source data.
+- **Can I ask for flexible analysis?** Yes. Client-configured datasets expose
+  allowlisted joins, dimensions, metrics, fiscal/date grouping, typed filters,
+  having, totals, sorting, pagination, saved reports, and analytical CSV/XLSX
+  downloads. Forecasts and metrics unsupported by actual approved source data
+  remain unavailable rather than invented.
 - **Can the system tell me what it cannot prove?** Yes. Unresolved source,
   arithmetic, attribution, completeness, mapping, and review findings remain
   explicit rather than being hidden.
@@ -478,7 +489,9 @@ Use the following checklist with the engagement owner:
   [MCP Production Integration](../references/mcp-production-integration.md).
 - For the target-system import and write-readiness boundary, see
   [CRM Write Readiness](../references/crm-write-readiness.md).
-- For unimplemented capabilities, see the
+- For configuration, analytics, governed delivery, and deployment templates,
+  see the [Business Data Platform](../references/business-data-platform.md).
+- For the delivery history and remaining client-specific scale work, see the
   [vendor-neutral roadmap](../references/business-data-platform-roadmap.md).
 - For the broader evidence and review workflow, see the
   [Client Overview](CLIENT_OVERVIEW.md) and [Client User Guide](CLIENT_USER_GUIDE.md).

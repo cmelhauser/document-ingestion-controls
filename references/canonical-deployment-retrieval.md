@@ -4,6 +4,13 @@ This runbook provides the vendor-neutral operational boundary after the
 canonical export has been created. It is deliberately independent of a specific
 CRM, cloud vendor, vector database, or ChatGPT workspace.
 
+The optional typed analytics and governed target-change layer is configured
+above this immutable snapshot and does not alter its admission contract. Read
+[Business Data Platform](business-data-platform.md) for client YAML, semantic
+datasets, analytical exports, proposal journals, and target adapters. A
+reconciled target change requires a newly approved canonical export and a new
+snapshot before it appears here.
+
 ## Canonical export contract
 
 `scripts/canonical_export.py` produces the export from retained run artifacts —
@@ -49,7 +56,8 @@ python scripts/canonical_deploy.py --out canonical_deployment_plan.json --execut
 # Build the export itself from the run's retained artifacts.
 python scripts/canonical_export.py --manifest ingestion_manifest.json \
   --consensus consensus.json --arithmetic arithmetic.json \
-  --final-review final_queue.json --batch-id "$BATCH_ID" \
+  --final-review final_queue.json --classifications classification_consensus.json \
+  --batch-id "$BATCH_ID" \
   --out canonical_export.json --exceptions canonical_export_exceptions.json
 
 # Verify ordered, idempotent CRM load steps before selecting a CRM adapter.
@@ -189,7 +197,9 @@ source exporter prepares an auditable image PDF for normal profiling/intake;
 it does not convert model readings to consensus input, write an approved row,
 or update a served snapshot. The source package and common CRM import package
 are different artifacts with different eligibility rules. Governed business
-record writes and expanded analytics remain in the
+record delivery and expanded analytics are implemented as the separate
+client-configured [Business Data Platform](business-data-platform.md); its
+delivery history and remaining client-specific acceptance work are in the
 [roadmap](business-data-platform-roadmap.md).
 
 ### Query and reporting model

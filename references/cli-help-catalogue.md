@@ -1992,8 +1992,8 @@ options:
 
 ```text
 usage: multi_engine_vote.py [-h] --out OUT --exceptions EXCEPTIONS [--records-out RECORDS_OUT]
-       [--minimum-vendors MINIMUM_VENDORS] [--tiebreak-with ARTIFACT] [--quiet] records handoffs
-       [handoffs ...]
+       [--minimum-vendors MINIMUM_VENDORS] [--tiebreak-with ARTIFACT] [--pages MANIFEST] [--quiet]
+       records handoffs [handoffs ...]
 
 Settle an open field by counting every reading the run already retained.
 `consensus.py` compares exactly two lanes. A run that read its corpus with
@@ -2045,6 +2045,11 @@ options:
                         tie_broken_by_independent_extractor, never vendor
                         agreement: presence proves the string is printed on
                         the page, not that it belongs in that cell.
+  --pages MANIFEST      Repeatable ingestion manifest of a subset read. Only
+                        the documents on its pages are voted on and counted;
+                        every other document passes to --records-out
+                        unchanged. Use it when the handoffs read only those
+                        pages.
   --quiet               Suppress the console summary only. Retained artifacts,
                         findings, and exit status are unchanged.
 ```
@@ -2721,7 +2726,7 @@ options:
 ```text
 usage: attribution.py [-h] [--reference REFERENCE] [--out OUT] [--register REGISTER] [--key-field
        FIELD] [--ack-pattern ACK_PATTERN] [--job-pattern JOB_PATTERN] [--dispositions DISPOSITIONS]
-       [--quiet] input
+       [--credit-by-line AUTHORIZATION] [--quiet] input
 
 Resolve ACK/job attribution for every dollar.
 
@@ -2749,6 +2754,13 @@ options:
   --dispositions DISPOSITIONS
                         JSON map of document_id -> reason code for known non-
                         job dollars
+  --credit-by-line AUTHORIZATION
+                        Apply the operator-authorized crediting rule, naming
+                        its authorization. A document no rank attributes,
+                        whose every line carrying money prints a key, is
+                        registered credited_by_line with each line's key and
+                        amount -- an answer, not a failure. A document with a
+                        money line printing no key stays unresolved.
   --quiet               Suppress the console summary only. Retained artifacts,
                         findings, and exit status are unchanged.
 ```
@@ -3948,7 +3960,8 @@ options:
 
 ```text
 usage: client_review_lane.py build [-h] --out-dir OUT_DIR [--consensus CONSENSUS] [--classifications
-       CLASSIFICATIONS] [--resolved-by RESOLVED_BY] [--prefill-from PREFILL_FROM] [--scan-profile
+       CLASSIFICATIONS] [--resolved-by RESOLVED_BY] [--supersede ARTIFACT MANIFEST] [--settled-by-
+       vote VOTE ARTIFACT] [--dispositions ARTIFACT] [--prefill-from PREFILL_FROM] [--scan-profile
        SCAN_PROFILE] [--manifest MANIFEST] [--max-questions MAX_QUESTIONS] [--render-dpi RENDER_DPI]
        [--max-image-bytes MAX_IMAGE_BYTES] [--force] [--quiet] artifacts [artifacts ...]
 
@@ -3975,6 +3988,24 @@ options:
                         for a document that control already accepted, naming
                         the same type, is retained as reconciled instead of
                         being asked again.
+  --supersede ARTIFACT MANIFEST
+                        Repeatable, as final_review_queue.py takes it.
+                        Findings in the input named ARTIFACT (by file name) on
+                        the pages a subset re-read's MANIFEST lists are
+                        retained as superseded rather than asked, because the
+                        record carries the re-read's readings.
+  --settled-by-vote VOTE ARTIFACT
+                        Repeatable, as final_review_queue.py takes it.
+                        Findings in the input named ARTIFACT (by file name) on
+                        a field the multi_engine_vote.py artifact VOTE settled
+                        are retained as settled_by_vendor_vote rather than
+                        asked.
+  --dispositions ARTIFACT
+                        Repeatable, as final_review_queue.py takes it. An
+                        operator-authorized operator_item_dispositions_v1
+                        artifact; each item it names by review_item_id is
+                        retained as dispositioned_by_operator rather than
+                        asked.
   --prefill-from PREFILL_FROM
                         A prior round's client answer artifact. Matching
                         questions are pre-filled with what the client already
@@ -4052,7 +4083,8 @@ options:
 
 ```text
 usage: final_review_queue.py [-h] --out OUT [--resolved-by ARTIFACT] [--supersede ARTIFACT MANIFEST]
-       [--quiet] artifacts [artifacts ...]
+       [--settled-by-vote VOTE ARTIFACT] [--dispositions ARTIFACT] [--quiet] artifacts [artifacts
+       ...]
 
 Consolidate unresolved pipeline findings for final client review.
 
@@ -4074,6 +4106,22 @@ options:
                         lists are retained as superseded rather than queued,
                         because the record carries the re-read's readings.
                         Supply the re-read's own findings as inputs.
+  --settled-by-vote VOTE ARTIFACT
+                        Repeatable. Findings in the input named ARTIFACT (by
+                        file name) on a field the multi_engine_vote.py
+                        artifact VOTE settled are retained as
+                        settled_by_vendor_vote rather than queued, because the
+                        record carries the agreed value. Name the artifact
+                        holding the open fields the vote was run on.
+  --dispositions ARTIFACT
+                        Repeatable. An operator-authorized
+                        operator_item_dispositions_v1 artifact naming queue
+                        items by review_item_id, each with the rule and
+                        evidence that dispose of it. A named item is retained
+                        as dispositioned_by_operator rather than queued. An
+                        artifact that is not operator-authorized, or names no
+                        item, is refused; a disposition that matches no item
+                        is counted.
   --quiet               Suppress the console summary only. Retained artifacts,
                         findings, and exit status are unchanged.
 ```
@@ -5853,8 +5901,8 @@ options:
 
 ```text
 usage: canonical_export.py [-h] --manifest MANIFEST --consensus CONSENSUS [--arithmetic ARITHMETIC]
-       [--final-review FINAL_REVIEW] --batch-id BATCH_ID [--registry-version REGISTRY_VERSION] --out
-       OUT --exceptions EXCEPTIONS [--quiet]
+       [--final-review FINAL_REVIEW] --batch-id BATCH_ID [--registry-version REGISTRY_VERSION]
+       [--classifications ARTIFACT] --out OUT --exceptions EXCEPTIONS [--quiet]
 
 Build the canonical export envelope from retained run artifacts.
 
@@ -5870,6 +5918,11 @@ options:
   --batch-id BATCH_ID   load batch identifier
   --registry-version REGISTRY_VERSION
                         approved mapping registry version
+  --classifications ARTIFACT
+                        Repeatable classification_consensus_v1 artifact. A
+                        document the extraction consensus left 'unknown' takes
+                        the type classification accepted; a type extraction
+                        established is kept.
   --out OUT             new canonical export JSON
   --exceptions EXCEPTIONS
                         retained exclusion JSON
@@ -6020,19 +6073,22 @@ options:
 ## `retrieval_mcp.py`
 
 ```text
-usage: retrieval_mcp.py [-h] [--ingestion-dir INGESTION_DIR] [--ingestion-tenant INGESTION_TENANT]
-       database
+usage: retrieval_mcp.py [-h] [--ingestion-dir INGESTION_DIR] [--client-config CLIENT_CONFIG]
+       [--ingestion-tenant INGESTION_TENANT] database
 
 Serve a read-only canonical retrieval MCP endpoint over stdio.
 
 positional arguments:
-  database              Path to the approved-fact retrieval SQLite database.
+  database              Immutable approved-fact SQLite snapshot to serve.
 
 options:
   -h, --help            show this help message and exit
   --ingestion-dir INGESTION_DIR
                         Opt in to a separate private visual-intake journal
                         directory; never the approved snapshot directory.
+  --client-config CLIENT_CONFIG
+                        Opt in to configured governed analytics and record-
+                        change proposals using this client YAML.
   --ingestion-tenant INGESTION_TENANT
                         Tenant bound permanently to the optional local intake
                         journal (default: local).
@@ -6153,6 +6209,156 @@ options:
                         10 MB base64 page plus envelope; align proxy and
                         client limits.
   --enable              Explicitly enable the remote listener.
+```
+
+## `business_platform_deploy.py`
+
+```text
+usage: business_platform_deploy.py [-h] --out OUT config
+
+Create a no-secret deployment and acceptance plan from client YAML.
+
+positional arguments:
+  config      Validated client-specific platform YAML.
+
+options:
+  -h, --help  show this help message and exit
+  --out OUT   New deployment-plan JSON path; existing files are refused.
+```
+
+## `business_platform_server.py`
+
+```text
+usage: business_platform_server.py [-h] [--enable] config
+
+Launch the OAuth MCP/API platform from one validated client YAML.
+
+positional arguments:
+  config      Client platform YAML path; credentials remain in named
+              environment variables.
+
+options:
+  -h, --help  show this help message and exit
+  --enable    Explicitly enable the network listener after deployment
+              authorization.
+```
+
+## `business_record_changes.py`
+
+```text
+usage: business_record_changes.py [-h] --config CONFIG
+       {schema,propose,preview,authorize,apply,reconcile} ...
+
+Propose, preview, authorize, or apply governed business-record changes.
+
+positional arguments:
+  {schema,propose,preview,authorize,apply,reconcile}
+    schema              Print the configured writable object schema.
+    propose             Retain a proposal in the append-only change journal.
+    preview             Preview a proposal against the immutable snapshot.
+    authorize           Create a signed operator authorization for the current
+                        immutable preview.
+    apply               Apply an authorized preview through the configured
+                        target adapter.
+    reconcile           Read the target independently and compare every
+                        expected field.
+
+options:
+  -h, --help            show this help message and exit
+  --config CONFIG       Validated client-specific platform YAML file without
+                        embedded secrets.
+```
+
+## `business_record_changes.py schema`
+
+```text
+usage: business_record_changes.py schema [-h]
+
+options:
+  -h, --help  show this help message and exit
+```
+
+## `business_record_changes.py propose`
+
+```text
+usage: business_record_changes.py propose [-h] --owner OWNER --request-key REQUEST_KEY --request
+       REQUEST
+
+options:
+  -h, --help            show this help message and exit
+  --owner OWNER         Proposal owner.
+  --request-key REQUEST_KEY
+                        Proposal request key.
+  --request REQUEST     Proposal request.
+```
+
+## `business_record_changes.py preview`
+
+```text
+usage: business_record_changes.py preview [-h] --owner OWNER --change-id CHANGE_ID
+
+options:
+  -h, --help            show this help message and exit
+  --owner OWNER         Exact proposal owner.
+  --change-id CHANGE_ID
+                        Retained proposal identifier.
+```
+
+## `business_record_changes.py authorize`
+
+```text
+usage: business_record_changes.py authorize [-h] --owner OWNER --change-id CHANGE_ID --approver
+       APPROVER --expires-at EXPIRES_AT --request-key REQUEST_KEY --out OUT
+
+options:
+  -h, --help            show this help message and exit
+  --owner OWNER         Authorization owner.
+  --change-id CHANGE_ID
+                        Authorization change id.
+  --approver APPROVER   Authorization approver.
+  --expires-at EXPIRES_AT
+                        Authorization expires at.
+  --request-key REQUEST_KEY
+                        Authorization request key.
+  --out OUT             Authorization out.
+```
+
+## `business_record_changes.py apply`
+
+```text
+usage: business_record_changes.py apply [-h] --owner OWNER --change-id CHANGE_ID --authorization
+       AUTHORIZATION --request-key REQUEST_KEY --out OUT [--execute]
+
+options:
+  -h, --help            show this help message and exit
+  --owner OWNER         Application owner.
+  --change-id CHANGE_ID
+                        Application change id.
+  --authorization AUTHORIZATION
+                        Application authorization.
+  --request-key REQUEST_KEY
+                        Application request key.
+  --out OUT             Application out.
+  --execute             Permit the configured live HTTP adapter; file adapters
+                        remain no-send artifacts.
+```
+
+## `business_record_changes.py reconcile`
+
+```text
+usage: business_record_changes.py reconcile [-h] --owner OWNER --change-id CHANGE_ID --application
+       APPLICATION --request-key REQUEST_KEY --out OUT
+
+options:
+  -h, --help            show this help message and exit
+  --owner OWNER         Reconciliation owner.
+  --change-id CHANGE_ID
+                        Reconciliation change id.
+  --application APPLICATION
+                        Reconciliation application.
+  --request-key REQUEST_KEY
+                        Reconciliation request key.
+  --out OUT             Reconciliation out.
 ```
 
 ## `retrieval_sidecar.py`

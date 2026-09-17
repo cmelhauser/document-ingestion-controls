@@ -12,6 +12,7 @@ python scripts/canonical_export.py \
   --consensus RUN/controls/consensus.json \
   --arithmetic RUN/controls/arithmetic.json \
   --final-review RUN/review/final_queue.json \
+  --classifications RUN/controls/classification_consensus.json \
   --batch-id "$(uuidgen | tr 'A-Z' 'a-z')" \
   --out RUN/canonical/export.json \
   --exceptions RUN/canonical/export_exceptions.json
@@ -30,6 +31,13 @@ no open item in the final-review queue. Everything it withholds is named in
 reads as *nothing is approved yet*, never as *nothing was found*. It also
 withholds any agreed field that no canonical column accepts, rather than
 inventing one — those are a mapping question for the client.
+
+Pass the classification consensus the final-review queue resolved against. The
+extraction consensus writes `unknown` wherever its lanes could not agree a
+document type, and without `--classifications` every such document is exported
+as `unknown` even though the classification lane accepted its type. On the
+commission run that was all 76 admitted documents. A type the extraction
+consensus did establish is kept.
 
 **Expect an empty export before the review is worked.** That is the control
 operating, not a failure. `canonical_load.py` and `csv_api_staging.py` will both

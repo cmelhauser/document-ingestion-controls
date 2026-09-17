@@ -88,7 +88,7 @@
   "visual_intake": [
     ["Boundary", "Optional proposal pilot: pending_review or rejected, never published", "references/visual-ingestion.md"],
     ["Activation", "--ingestion-dir on MCP servers; approved non-empty snapshot and separate source-flow authorization remain required", "references/mcp-production-integration.md"],
-    ["Local / remote tools", "12 / 14 default; 19 / up to 21 with intake; remote discovery is scope-filtered", "scripts/ingestion_tools.py"],
+    ["Local / remote tools", "12 / 14 default; 21 / up to 23 with intake; unified client platform supports 29 local / up to 32 remote", "scripts/ingestion_tools.py"],
     ["Schema discovery", "get_ingestion_schema: extraction vocabulary and full proposal JSON Schema", "ingestion:read"],
     ["Create session", "create_ingestion_session: expected_pages and client-generated idempotency_key", "ingestion:submit"],
     ["Upload original", "upload_ingestion_page: application transfers actual PNG/JPEG bytes, never model-invented base64", "ingestion:submit"],
@@ -96,6 +96,8 @@
     ["Submit proposal", "submit_record_proposal: source-set hash, cited observations, unknown labels and issues", "ingestion:submit"],
     ["Read status", "get_ingestion_status: pages, attempts, source-set hash and proposal receipts", "ingestion:read"],
     ["Read proposal", "get_record_proposal: exact original proposal and validation findings", "ingestion:read"],
+    ["List sessions", "list_ingestion_sessions: owner-scoped paginated recovery", "ingestion:read"],
+    ["Review session", "get_ingestion_review: status and complete proposal receipt history", "ingestion:read"],
     ["Application API", "POST /api/ingestion/{operation} on remote OAuth server; plain argument JSON. TLS/bearer GET API unchanged", "references/visual-ingestion.md"],
     ["Limits", "1-20 pages/session; PNG/JPEG only; 10,000,000 original bytes and 25,000,000 pixels/page; 1,000,000 JSON bytes/proposal", "get_ingestion_schema"],
     ["Envelope limit", "Remote default 1,000,000 request bytes; --max-request-bytes at least 14,000,000 for maximum image; align proxy/client limits", "scripts/retrieval_remote_mcp.py --help"],
@@ -103,8 +105,8 @@
     ["Source-only export", "Local visual_ingestion_export.py export / verify retains all originals, proposals and rejections; pins separately retained receipt", "references/visual-ingestion.md"],
     ["Prepared source", "Complete usable pages get session-named image PDF and page map for normal profiling/intake; blocked or partial PDF cannot advance", "visual_intake_source_package_v1"],
     ["Publication", "No proposal promotion, independent-vote conversion, approval, canonical update or live CRM write; business gates still apply", "references/artifact-contracts.md"],
-    ["Client support", "Actual byte transfer and vision need exact-client acceptance. No bundled capture app, attachment relay or shared review UI", "references/visual-ingestion.md"],
-    ["Future work", "Governed record create/update, safe general joins, custom metrics and saved reports remain roadmap work", "references/business-data-platform-roadmap.md"]
+    ["Client support", "Actual byte transfer and vision need exact-client acceptance. Same-origin portal is bundled; no native chat attachment relay or delegated review role is implied", "references/visual-ingestion.md"],
+    ["Governed platform", "Client YAML configures typed analytics, saved reports, analytical exports, proposal-only create/amend, plus separately scoped operator API/CLI authorization, apply, and reconciliation; these are not MCP tools", "references/business-data-platform.md"]
   ],
   "api_mcp_capabilities": [
     {"function": "Document search", "api": "GET /v1/documents?query=...&limit=...", "mcp": "search_business_documents", "result": "Approved document facts with source citations"},
@@ -120,7 +122,18 @@
     {"function": "Sales slice and dice", "api": "GET /v1/crm/analysis/sales?group_by=company&group_by=region", "mcp": "analyze_sales", "result": "Currency-partitioned sales by company, vendor, region, location, period, ACK, or job"},
     {"function": "Standard reports", "api": "GET /v1/crm/reports/{report_name}?...", "mcp": "run_crm_report", "result": "Deterministic source-linked report rows and checksum"},
     {"function": "Downloadable CSV/XLSX export", "api": "Remote MCP only", "mcp": "create_crm_export", "result": "Bounded table or standard-report artifact with snapshot lineage, row/file checksums, expiry, and a short-lived signed URL"},
-    {"function": "Export-job status", "api": "Remote MCP only", "mcp": "get_crm_export_job", "result": "Owner-bound completed-job metadata, row count, expiry, and checksums"}
+    {"function": "Export-job status", "api": "Remote MCP only", "mcp": "get_crm_export_job", "result": "Owner-bound completed-job metadata, row count, expiry, and checksums"},
+    {"function": "Business platform discovery", "api": "POST /api/platform/get_business_platform_capabilities", "mcp": "get_business_platform_capabilities", "result": "Configuration fingerprint, enabled datasets/objects/reports, and immutable-snapshot boundary"},
+    {"function": "Typed analytical query", "api": "POST /api/platform/query_business_analytics", "mcp": "query_business_analytics", "result": "Allowlisted joins, dimensions, metrics, date/fiscal grains, filters, having, totals, sort, pagination, coverage, and checksum"},
+    {"function": "Saved analytical report", "api": "POST /api/platform/run_saved_business_report", "mcp": "run_saved_business_report", "result": "Client-YAML report plan over the exact approved snapshot"},
+    {"function": "Analytical CSV/XLSX", "api": "POST /api/platform/create_business_analytics_export", "mcp": "create_business_analytics_export", "result": "Owner-bound expiring checksummed export of one typed plan or saved report"},
+    {"function": "Writable object schema", "api": "POST /api/platform/get_business_object_schema", "mcp": "get_business_object_schema", "result": "Configured create/amend fields and explicit no-model-authorization boundary"},
+    {"function": "Record change proposal", "api": "POST /api/platform/propose_business_record_change", "mcp": "propose_business_record_change", "result": "Append-only owner-scoped proposal receipt; no target or canonical mutation"},
+    {"function": "Record change preview", "api": "POST /api/platform/preview_business_record_change", "mcp": "preview_business_record_change", "result": "Snapshot-bound before/after and mapped target payload"},
+    {"function": "Record change status", "api": "POST /api/platform/get_business_record_change", "mcp": "get_business_record_change", "result": "Integrity-verified proposal and lifecycle receipts without credentials"},
+    {"function": "Operator record authorization", "api": "POST /api/platform/authorize_business_record_change", "mcp": "Not exposed to MCP", "result": "records:authorize only; explicit human decision creates an expiring signed authorization"},
+    {"function": "Operator record application", "api": "POST /api/platform/apply_business_record_change", "mcp": "Not exposed to MCP", "result": "records:apply only; applies one retained authorization through the configured no-send or HTTPS adapter"},
+    {"function": "Operator record reconciliation", "api": "POST /api/platform/reconcile_business_record_change", "mcp": "Not exposed to MCP", "result": "records:apply only; independently compares every target field and retains mismatches"}
   ],
   "client_access": [
     {"client": "Claude Code", "transport": "Local stdio MCP", "configuration": "mcp/retrieval.mcp.json.example or claude mcp add-json", "availability": "Implemented after approved-snapshot activation gates", "security": "Local workstation process and filesystem permissions"},
@@ -137,7 +150,10 @@
     {"client_question": "Show sales by company and region by quarter", "recommended_function": "analyze_sales", "example": "{\"group_by\":[\"company\",\"region\",\"quarter\"],\"filters\":{\"start_date\":\"2026-01-01\",\"end_date\":\"2026-12-31\"}}", "why": "Reusable semantic dimensions with mandatory currency partitions and auditable totals without inventing SQL"},
     {"client_question": "Show open receivables as of month end", "recommended_function": "run_crm_report", "example": "{\"report\":\"receivables_aging\",\"parameters\":{\"as_of\":\"2026-03-31\"}}", "why": "Current approved balances bucketed against the explicit as-of date; later invoices are excluded, but this is not a historical balance reconstruction"},
     {"client_question": "Export a full canonical table to another approved system", "recommended_function": "export_crm_table", "example": "{\"table\":\"invoice_header\",\"limit\":200,\"offset\":0}", "why": "Stable pagination, source-export binding, keys, and per-page SHA-256"},
-    {"client_question": "Download an Excel account directory or sales report", "recommended_function": "create_crm_export", "example": "{\"report\":\"account_directory\",\"format\":\"xlsx\"}", "why": "Creates a bounded immutable workbook with snapshot lineage, row and file checksums, formula-safe cells, expiry, and a short-lived signed URL"}
+    {"client_question": "Download an Excel account directory or sales report", "recommended_function": "create_crm_export", "example": "{\"report\":\"account_directory\",\"format\":\"xlsx\"}", "why": "Creates a bounded immutable workbook with snapshot lineage, row and file checksums, formula-safe cells, expiry, and a short-lived signed URL"},
+    {"client_question": "Show quarterly sales by region and customer above a threshold", "recommended_function": "query_business_analytics", "example": "{\"plan\":{\"dataset\":\"invoice_sales\",\"dimensions\":[\"invoice_date\",\"region\",\"customer\"],\"date_grains\":{\"invoice_date\":\"quarter\"},\"metrics\":[\"sales\"],\"having\":{\"sales\":{\"operator\":\"gte\",\"value\":\"10000\"}},\"sort\":[\"invoice_date\",\"-sales\"]}}", "why": "Typed client-approved semantic model, explicit coverage, currency partition, and no arbitrary SQL"},
+    {"client_question": "Propose an approved contact correction", "recommended_function": "propose_business_record_change", "example": "Discover the configured object schema, bind the exact prior record SHA-256, and submit a source-cited or user-asserted proposal", "why": "The assistant can propose and preview, while operator authorization/apply/reconcile remain separate"},
+    {"client_question": "Authorize and apply a reviewed record change", "recommended_function": "operator JSON API or business_record_changes.py", "example": "An authorized person uses records:authorize, then records:apply and reconciliation against the exact retained authorization", "why": "These routes are intentionally not MCP tools; the assistant cannot self-approve or execute a target write"}
   ],
   "standard_reports": [
     {"report": "account_directory", "purpose": "Accounts, roles, address/contact counts, and source links", "parameters": "none", "api_example": "GET /v1/crm/reports/account_directory", "mcp_example": "{\"report\":\"account_directory\"}"},

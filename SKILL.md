@@ -88,6 +88,7 @@ Read the relevant file completely before operating or modifying its phase:
 | Commission/sales-credit policies | `references/allocation-policy.md` |
 | Canonical deployment, load, and retrieval | `references/canonical-deployment-retrieval.md` |
 | Common CRM import/write preparation | `references/crm-write-readiness.md` |
+| Typed business analytics, governed record delivery, and client YAML deployment | `references/business-data-platform.md` and `skills/record-maintenance/SKILL.md` |
 | Production MCP activation and client registration | `references/mcp-production-integration.md` |
 | Deciding which optional lanes a corpus needs before spending on them | `skills/pipeline-selection/SKILL.md` |
 | MCP/API setup, deployment, acceptance, use, or troubleshooting | `skills/mcp-api-operations/SKILL.md` |

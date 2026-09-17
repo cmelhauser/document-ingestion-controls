@@ -37,7 +37,7 @@ from collections import Counter, defaultdict
 from datetime import UTC, datetime
 
 from cli_help import apply_shared_help
-from document_value import basis_summary, document_value
+from document_value import LINE_VALUE_FIELDS, basis_summary, document_value, numeric
 from side_channel_input import normalized_columns, rejection
 
 # Rank 6 (customer + date + amount) matches only within this window and this
@@ -129,6 +129,13 @@ DISPOSITION_CODES = {
     "payment_record",
     "blank_page",
 }
+
+# The crediting rule, applied only when an operator passes it. A document whose
+# lines name several jobs has an allocation question, and this is one answer to
+# it: each line carrying money is credited to the key that line prints. Nothing is
+# chosen among the keys and no share is estimated, so a document is credited only
+# when every one of its money lines prints a key the corpus formats accept.
+LINE_CREDIT_CODE = "credited_by_line"
 
 
 def num(entry, default=0.0):
@@ -415,6 +422,39 @@ def resolve_from_lines(rec, ref, key_fields=EXPLICIT_KEY_FIELDS):
     return None
 
 
+def credit_by_line(rec, ref, key_fields=EXPLICIT_KEY_FIELDS):
+    """The crediting rule: each line carrying money, credited to the key it prints.
+
+    Returns one credit per money line -- its index, key, the field the key was
+    read from, and its amount -- or None when the document has no money line, a
+    money line prints no key, or a key fails the corpus formats. A money line is
+    one `document_value` would count: the first line value field it carries,
+    when that value is not zero. A line printing two kinds of key is credited to
+    the first in the configured order, the order rank 1 reads them in.
+    """
+    credits = []
+    for index, line in enumerate(rec.get("lines") or []):
+        if not isinstance(line, dict):
+            continue
+        value_field = next((field for field in LINE_VALUE_FIELDS if field in line), None)
+        amount = numeric(line[value_field]) if value_field else 0.0
+        if not amount:
+            continue
+        printed = next(
+            ((field, line_value(line, field)) for field in key_fields if line_value(line, field)),
+            None,
+        )
+        if printed is None:
+            return None
+        valid, _note = validate_key(printed[1], ref)
+        if not valid:
+            return None
+        credits.append(
+            {"line": index, "key": printed[1], "key_field": printed[0], "amount": round(amount, 2)}
+        )
+    return credits or None
+
+
 def resolve_po(rec, ref):
     """Rank 3: PO number cross-reference."""
     po = next((get(rec, field) for field in PO_FIELDS if get(rec, field)), None)
@@ -621,6 +661,17 @@ def main():
         default=None,
         help="JSON map of document_id -> reason code for known non-job dollars",
     )
+    ap.add_argument(
+        "--credit-by-line",
+        default=None,
+        metavar="AUTHORIZATION",
+        help=(
+            "Apply the operator-authorized crediting rule, naming its authorization. A document no "
+            "rank attributes, whose every line carrying money prints a key, is registered "
+            f"{LINE_CREDIT_CODE} with each line's key and amount -- an answer, not a failure. A "
+            "document with a money line printing no key stays unresolved."
+        ),
+    )
     ap.add_argument("--quiet", action="store_true")
     apply_shared_help(ap)
     args = ap.parse_args()
@@ -764,20 +815,31 @@ def main():
 
         if not entry.get("ack_number"):
             code = dispositions.get(doc_id, "unresolved")
-            entry["attribution_method"] = "unattributable"
-            entry["reason_code"] = code
-            entry["is_failure"] = code not in DISPOSITION_CODES
-            unattributable.append(
-                {
-                    "document_id": doc_id,
-                    "amount": amount,
-                    "reason_code": code,
-                    "is_failure": entry["is_failure"],
-                    "rejected_key": entry.get("rejected_key"),
-                    "candidates": entry.get("candidates"),
-                    "note": entry.get("note"),
-                }
+            credits = (
+                credit_by_line(rec, ref, key_fields)
+                if code == "unresolved" and args.credit_by_line
+                else None
             )
+            entry["attribution_method"] = LINE_CREDIT_CODE if credits else "unattributable"
+            entry["reason_code"] = LINE_CREDIT_CODE if credits else code
+            entry["is_failure"] = not credits and code not in DISPOSITION_CODES
+            registered = {
+                "document_id": doc_id,
+                "amount": amount,
+                "reason_code": entry["reason_code"],
+                "is_failure": entry["is_failure"],
+                "rejected_key": entry.get("rejected_key"),
+                "candidates": entry.get("candidates"),
+                "note": entry.get("note"),
+            }
+            if credits:
+                # The credits ride on the entry and the register alike, with the
+                # authorization that applied the rule, so a credited document
+                # always reads back to the lines and the signature behind it.
+                for target in (entry, registered):
+                    target["line_credits"] = credits
+                    target["crediting_authorization"] = args.credit_by_line
+            unattributable.append(registered)
 
         entry.update(resolve_selling_location(rec, ref, entry))
         entry["document_type"] = rec.get("document_type", "unknown")
@@ -802,6 +864,7 @@ def main():
     failures = [u for u in unattributable if u["is_failure"]]
     failure_value = sum(u["amount"] for u in failures)
     disposed_value = sum(u["amount"] for u in unattributable if not u["is_failure"])
+    credited = [u for u in unattributable if u["reason_code"] == LINE_CREDIT_CODE]
 
     by_method = Counter(e["attribution_method"] for e in output)
     value_by_method = defaultdict(float)
@@ -830,6 +893,9 @@ def main():
         "unresolved_value": round(failure_value, 2),
         "disposed_documents": len(unattributable) - len(failures),
         "disposed_value": round(disposed_value, 2),
+        "credited_by_line_documents": len(credited),
+        "credited_by_line_value": round(sum(u["amount"] for u in credited), 2),
+        "crediting_authorization": args.credit_by_line,
         "attribution_by_method": dict(by_method),
         "value_by_method": {k: round(v, 2) for k, v in value_by_method.items()},
         "selling_location_resolved": len(loc_resolved),
@@ -901,6 +967,12 @@ def main():
             "mean -- selling location, ship-from, customer location, or destination "
             "-- before building anything geographic."
         )
+    if credited:
+        findings.append(
+            f"{len(credited)} documents worth ${summary['credited_by_line_value']:,.2f} are "
+            f"credited line by line under {args.credit_by_line}: each money line to the key "
+            "it prints. None of them carries a document-level key."
+        )
     summary["findings"] = findings or ["All dollars attributed."]
 
     with open(args.out, "w") as fh:
@@ -921,6 +993,7 @@ def main():
                             "attribution_confidence",
                             "reason_code",
                             "is_failure",
+                            "line_credits",
                             "evidence_chain",
                             "selling_location",
                             "method",

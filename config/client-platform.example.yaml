@@ -1,0 +1,122 @@
+schema_version: business_data_platform_v1
+
+client:
+  tenant_id: sample-tenant
+  display_name: SAMPLE - FICTIONAL - NOT CLIENT DATA
+  timezone: America/New_York
+  fiscal_year_start_month: 1
+
+deployment:
+  snapshot: /absolute/run/canonical/business_retrieval.sqlite
+  bind_host: 127.0.0.1
+  port: 9443
+  public_base_url: https://crm.example.com
+  tls_certificate: /restricted/tls.crt
+  tls_private_key_env: BUSINESS_PLATFORM_TLS_PRIVATE_KEY_FILE
+  authorization_server: https://identity.example.com
+  introspection_endpoint: https://identity.example.com/oauth2/introspect
+  client_id: business-platform-introspection
+  client_secret_env: BUSINESS_PLATFORM_INTROSPECTION_SECRET
+  tenant_claim: tenant_id
+  role_claim: roles
+  allowed_roles: [crm_reader, crm_reviewer, crm_operator]
+  allowed_origins: [https://crm.example.com]
+  audit_log: /restricted/audit/business-platform.jsonl
+  export_dir: /restricted/exports
+  intake_dir: /restricted/intake
+  change_dir: /restricted/changes
+  max_request_bytes: 14000000
+  rate_limit_per_minute: 60
+  export_ttl_seconds: 900
+  max_export_rows: 10000
+
+record_maintenance:
+  enabled: true
+  approval_ttl_seconds: 3600
+  separation_of_duties: true
+  authorization_secret_env: BUSINESS_PLATFORM_AUTHORIZATION_SECRET
+  objects:
+    account:
+      canonical_table: party
+      external_key: party_key
+      writable_fields: [natural_key, canonical_name, normalized_name, tax_id]
+      target_object: accounts
+      target_endpoint: /v1/accounts
+      field_mapping:
+        party_key: external_id
+        natural_key: account_number
+        canonical_name: account_name
+        normalized_name: normalized_name
+        tax_id: tax_id
+    contact:
+      canonical_table: contact
+      external_key: contact_key
+      writable_fields: [party_key, name, title, email, phone]
+      target_object: contacts
+      target_endpoint: /v1/contacts
+      field_mapping:
+        contact_key: external_id
+        party_key: account_external_id
+        name: full_name
+        title: title
+        email: email
+        phone: phone
+  adapter:
+    kind: file
+    output_directory: /restricted/target-staging
+    timeout_seconds: 30
+    response_id_field: id
+
+analytics:
+  enabled: true
+  max_input_rows: 100000
+  max_result_rows: 1000
+  datasets:
+    invoice_sales:
+      base_table: invoice_header
+      joins:
+        - table: party
+          local_field: payer_party_key
+          foreign_field: party_key
+          fields:
+            customer_name: canonical_name
+        - table: party
+          local_field: biller_party_key
+          foreign_field: party_key
+          fields:
+            vendor_name: canonical_name
+        - table: selling_location
+          local_field: selling_location_key
+          foreign_field: selling_location_key
+          fields:
+            region_name: state_province
+            location_name: location_name
+      dimensions:
+        customer: {field: customer_name, type: string}
+        vendor: {field: vendor_name, type: string}
+        region: {field: region_name, type: string}
+        selling_location: {field: location_name, type: string}
+        invoice_date: {field: invoice_date, type: date}
+        currency: {field: currency_code, type: string}
+        ack_number: {field: ack_number, type: string}
+        job_number: {field: job_number, type: string}
+      metrics:
+        sales:
+          field: total_amount
+          aggregation: sum
+          currency_dimension: currency
+        invoice_count:
+          field: invoice_key
+          aggregation: count_distinct
+  saved_reports:
+    sales_by_customer:
+      dataset: invoice_sales
+      dimensions: [customer]
+      metrics: [sales, invoice_count]
+      sort: [-sales]
+    monthly_sales_by_region:
+      dataset: invoice_sales
+      dimensions: [invoice_date, region]
+      date_grains: {invoice_date: month}
+      metrics: [sales, invoice_count]
+      sort: [invoice_date, region]

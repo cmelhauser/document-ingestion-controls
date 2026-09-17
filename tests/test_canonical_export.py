@@ -190,6 +190,26 @@ def test_document_without_a_type_is_withheld():
     assert exceptions[0]["reason"] == "document_type_not_established"
 
 
+def test_an_accepted_classification_types_a_document_extraction_left_unknown():
+    """Extraction writes unknown where its lanes disagreed; the accepted type is used."""
+    accepted = {
+        "doc-1": {
+            "document_type": "commission_statement",
+            "evidence": "independent_model_vendor_agreement",
+            "resolved_by": "classification_consensus.json",
+        }
+    }
+    tables, _, _ = build(consensus=consensus(document_type="unknown"), classifications=accepted)
+    assert [row["document_type"] for row in tables["document"]] == ["commission_statement"]
+    assert [row["document_type"] for row in tables["document_type"]] == ["commission_statement"]
+    # A type extraction established is kept, even where classification names another.
+    tables, _, _ = build(classifications=accepted)
+    assert tables["document"][0]["document_type"] == "commercial_invoice"
+    # With no accepted type, unknown stays unknown.
+    tables, _, _ = build(consensus=consensus(document_type="unknown"))
+    assert tables["document"][0]["document_type"] == "unknown"
+
+
 def test_reassembled_pages_become_one_document_with_a_joined_page_range():
     pages = manifest()["pages"] + [
         {
@@ -392,6 +412,31 @@ def test_cli_reports_a_fully_withheld_run_without_claiming_a_clear_gate(
     csv_api_staging.main()
     staged = json.loads((tmp_path / "staging" / "staging_manifest.json").read_text())
     assert "stages 0 rows" in staged["findings"][0]
+
+
+def test_cli_reads_accepted_types_and_refuses_another_artifact(tmp_path, monkeypatch):
+    """The command takes the classification consensus, and nothing else, for types."""
+    accepted = write(
+        tmp_path / "classification_consensus.json",
+        {
+            "artifact_type": "classification_consensus_v1",
+            "accepted": [{"document_id": "doc-1", "document_type": "commission_statement"}],
+        },
+    )
+    path = run_cli(
+        monkeypatch,
+        tmp_path,
+        "--quiet",
+        "--classifications",
+        str(accepted),
+        consensus=consensus(document_type="unknown"),
+    )
+    assert json.loads(path.read_text())["tables"]["document"][0]["document_type"] == (
+        "commission_statement"
+    )
+    other = write(tmp_path / "other.json", {"artifact_type": "something_else"})
+    with pytest.raises(SystemExit, match="Canonical export failed: not a resolution artifact"):
+        run_cli(monkeypatch, tmp_path / "second", "--classifications", str(other))
 
 
 def test_cli_refuses_a_blank_batch_and_an_unreadable_input(tmp_path, monkeypatch):

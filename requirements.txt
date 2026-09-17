@@ -11,5 +11,6 @@ XlsxWriter
 openai
 anthropic
 google-genai
+PyYAML
 fastapi
 uvicorn

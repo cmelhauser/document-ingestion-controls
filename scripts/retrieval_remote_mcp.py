@@ -28,6 +28,8 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import urlparse
 
+from business_platform_tools import OPERATIONS as PLATFORM_OPERATIONS
+from business_platform_tools import OPERATOR_OPERATIONS as PLATFORM_OPERATOR_OPERATIONS
 from cli_help import apply_shared_help
 from crm_export_jobs import ExportJobs
 from ingestion_tools import OPERATIONS as INGESTION_OPERATIONS
@@ -335,10 +337,14 @@ def required_scope(request):
     name = params.get("name") if isinstance(params, dict) else None
     if isinstance(name, str) and name in INGESTION_OPERATIONS:
         return INGESTION_OPERATIONS[name][2]
+    if isinstance(name, str) and name in PLATFORM_OPERATIONS:
+        return PLATFORM_OPERATIONS[name][2]
+    if isinstance(name, str) and name in PLATFORM_OPERATOR_OPERATIONS:
+        return PLATFORM_OPERATOR_OPERATIONS[name]
     return "crm:export" if isinstance(name, str) and name in EXPORT_TOOL_NAMES else "crm:read"
 
 
-def protected_resource_metadata(resource, authorization_server, ingestion=False):
+def protected_resource_metadata(resource, authorization_server, ingestion=False, platform=False):
     """Return the RFC 9728 protected-resource document this server publishes.
 
     The ingestion scopes appear only when an ingestion journal is actually
@@ -351,7 +357,18 @@ def protected_resource_metadata(resource, authorization_server, ingestion=False)
         "resource": resource.rstrip("/"),
         "authorization_servers": [authorization_server.rstrip("/")],
         "scopes_supported": ["crm:read", "crm:export"]
-        + (["ingestion:read", "ingestion:submit"] if ingestion else []),
+        + (["ingestion:read", "ingestion:submit"] if ingestion else [])
+        + (
+            [
+                "platform:read",
+                "records:propose",
+                "records:authorize",
+                "records:apply",
+                "analytics:read",
+            ]
+            if platform
+            else []
+        ),
         "resource_name": "Approved CRM Retrieval MCP",
         "resource_documentation": f"{origin}/docs",
     }
@@ -388,6 +405,7 @@ def handler(
     max_request_bytes,
     allowed_origins,
     ingestion=None,
+    platform=None,
 ):
     """Build one quiet stateless Streamable HTTP request handler."""
     parsed_resource = urlparse(resource)
@@ -402,6 +420,22 @@ def handler(
         Built per server rather than configured per request so that no route can
         be reached with settings that were never validated.
         """
+
+        def _static(self, payload, content_type):
+            self.send_response(200)
+            self.send_header("Content-Type", content_type)
+            self.send_header("Content-Length", str(len(payload)))
+            self.send_header("Cache-Control", "no-store")
+            self.send_header("X-Content-Type-Options", "nosniff")
+            self.send_header(
+                "Content-Security-Policy",
+                "default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; connect-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'",
+            )
+            self.end_headers()
+            self.wfile.write(payload)
+
+        def _html(self, payload):
+            self._static(payload, "text/html; charset=utf-8")
 
         def _json(self, status, payload, extra_headers=None):
             encoded = json.dumps(payload, sort_keys=True).encode()
@@ -486,7 +520,7 @@ def handler(
                 self._json(
                     200,
                     protected_resource_metadata(
-                        resource, authorization_server, ingestion is not None
+                        resource, authorization_server, ingestion is not None, platform is not None
                     ),
                 )
                 return
@@ -496,7 +530,7 @@ def handler(
                     {
                         "status": "ok",
                         "transport": "streamable_http",
-                        "read_only": ingestion is None,
+                        "read_only": ingestion is None and platform is None,
                         "canonical_read_only": True,
                     },
                 )
@@ -509,7 +543,7 @@ def handler(
                         "endpoint": resource,
                         "transport": "streamable_http",
                         "authorization": "OAuth 2.1 bearer token",
-                        "read_only": ingestion is None,
+                        "read_only": ingestion is None and platform is None,
                         "canonical_read_only": True,
                         "ingestion_review_ui": "/ingestion/review"
                         if ingestion is not None
@@ -519,11 +553,32 @@ def handler(
                         "ingestion_api": "/api/ingestion/{operation}"
                         if ingestion is not None
                         else None,
+                        "platform_api": "/api/platform/{operation}"
+                        if platform is not None
+                        else None,
                         "scopes": protected_resource_metadata(
-                            resource, authorization_server, ingestion is not None
+                            resource,
+                            authorization_server,
+                            ingestion is not None,
+                            platform is not None,
                         )["scopes_supported"],
                     },
                 )
+                return
+            if path == "/portal" and ingestion is not None:
+                from client_portal import html
+
+                self._html(html())
+                return
+            if path in {"/portal.css", "/portal.js"} and ingestion is not None:
+                from client_portal import css, javascript
+
+                payload, content_type = (
+                    (css(), "text/css; charset=utf-8")
+                    if path.endswith(".css")
+                    else (javascript(), "text/javascript; charset=utf-8")
+                )
+                self._static(payload, content_type)
                 return
             if path.startswith("/downloads/"):
                 if not rate_limiter.allow(self.client_address[0]):
@@ -558,7 +613,20 @@ def handler(
                 path.startswith("/api/crm-export/")
                 and export_api_operation in EXPORT_API_OPERATIONS
             )
-            if path != mcp_path and not is_ingestion_api and not is_export_api:
+            platform_operation = path.removeprefix("/api/platform/")
+            is_platform_api = (
+                platform is not None
+                and path.startswith("/api/platform/")
+                and platform_operation in {*PLATFORM_OPERATIONS, *PLATFORM_OPERATOR_OPERATIONS}
+            )
+            if is_platform_api:
+                api_operation = platform_operation
+            if (
+                path != mcp_path
+                and not is_ingestion_api
+                and not is_export_api
+                and not is_platform_api
+            ):
                 self._json(404, {"error": "Not found"})
                 return
             if not _origin_allowed(self.headers.get("Origin"), allowed_origins):
@@ -603,7 +671,7 @@ def handler(
                     },
                 )
                 return
-            if is_ingestion_api:
+            if is_ingestion_api or is_platform_api:
                 request = {
                     "jsonrpc": "2.0",
                     "id": 1,
@@ -623,7 +691,7 @@ def handler(
                     },
                 }
             try:
-                if not is_ingestion_api and not is_export_api:
+                if not is_ingestion_api and not is_export_api and not is_platform_api:
                     _validate_modern_headers(self.headers, request)
             except ValueError as exc:
                 request_id = request.get("id") if isinstance(request, dict) else None
@@ -631,13 +699,20 @@ def handler(
                 return
             scope = required_scope(request)
             if (
-                ingestion is not None
+                (ingestion is not None or platform is not None)
                 and isinstance(request, dict)
                 and request.get("method")
                 in ("tools/list", "initialize", "server/discover", "notifications/initialized")
                 and "crm:read" not in principal.scopes
             ):
-                scope = "ingestion:read"
+                available = (
+                    "ingestion:read",
+                    "platform:read",
+                    "analytics:read",
+                    "records:propose",
+                    "crm:export",
+                )
+                scope = next((item for item in available if item in principal.scopes), scope)
             if scope not in principal.scopes:
                 self._challenge(
                     f"OAuth access token lacks required scope {scope}",
@@ -655,13 +730,27 @@ def handler(
                         ingestion, principal.subject, api_operation, request["params"]["arguments"]
                     )
                     result = response(1, tool_result(value))
+                elif is_platform_api:
+                    arguments = request["params"]["arguments"]
+                    value = (
+                        platform.invoke_operator(principal.subject, api_operation, arguments)
+                        if api_operation in PLATFORM_OPERATOR_OPERATIONS
+                        else platform.invoke(principal.subject, api_operation, arguments)
+                    )
+                    result = response(1, tool_result(value))
                 elif method == "tools/list":
-                    result = handle(request, database, ingestion=ingestion, owner=principal.subject)
+                    result = handle(
+                        request,
+                        database,
+                        ingestion=ingestion,
+                        owner=principal.subject,
+                        platform=platform,
+                    )
                     result["result"]["tools"] = [
                         *result["result"]["tools"],
                         *REMOTE_TOOLS,
                     ]
-                    if ingestion is not None:
+                    if ingestion is not None or platform is not None:
                         result["result"]["tools"] = [
                             item
                             for item in result["result"]["tools"]
@@ -704,7 +793,13 @@ def handler(
                         modern=request_protocol_version(request) == MODERN_PROTOCOL_VERSION,
                     )
                 else:
-                    result = handle(request, database, ingestion=ingestion, owner=principal.subject)
+                    result = handle(
+                        request,
+                        database,
+                        ingestion=ingestion,
+                        owner=principal.subject,
+                        platform=platform,
+                    )
             except (KeyError, TypeError, ValueError) as exc:
                 result = response(request.get("id"), error=str(exc), code=-32602)
             audit_log.write(
@@ -727,6 +822,8 @@ def handler(
                     if tool
                     in [item["name"] for item in (*TOOLS, *REMOTE_TOOLS)]
                     + list(INGESTION_OPERATIONS)
+                    + list(PLATFORM_OPERATIONS)
+                    + list(PLATFORM_OPERATOR_OPERATIONS)
                     else None,
                     "success": not (isinstance(result, dict) and "error" in result),
                     "duration_ms": int((time.monotonic() - started) * 1000),
@@ -737,7 +834,7 @@ def handler(
                 self.send_header("Content-Length", "0")
                 self.end_headers()
                 return
-            if is_ingestion_api or is_export_api:
+            if is_ingestion_api or is_export_api or is_platform_api:
                 if "error" in result:
                     self._json(400, {"error": result["error"]["message"]})
                 else:
@@ -787,6 +884,7 @@ def build_server(
     max_request_bytes=DEFAULT_MAX_REQUEST_BYTES,
     allowed_origins=frozenset(),
     ingestion=None,
+    platform=None,
 ):
     """Build the configured HTTPS server, validating every setting before it serves.
 
@@ -830,6 +928,8 @@ def build_server(
         raise ValueError("download base URL must match the MCP resource origin")
     if ingestion is not None and ingestion.tenant != introspector.tenant:
         raise ValueError("Intake tenant must match the authenticated deployment tenant")
+    if platform is not None and platform.config["client"]["tenant_id"] != introspector.tenant:
+        raise ValueError("Platform tenant must match the authenticated deployment tenant")
     server = ThreadingHTTPServer(
         (host, port),
         handler(
@@ -843,6 +943,7 @@ def build_server(
             max_request_bytes,
             frozenset(allowed_origins),
             ingestion=ingestion,
+            platform=platform,
         ),
     )
     context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)

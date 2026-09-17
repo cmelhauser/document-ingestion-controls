@@ -14,6 +14,7 @@ import retrieval_store
 from test_retrieval_remote_mcp import (
     FakeIntrospector,
     approved_export,
+    raw_request,
     request,
     rpc,
     running_handler,
@@ -159,6 +160,9 @@ def test_remote_and_api_same_owner_receipts(database, tmp_path, monkeypatch):
         assert status == 200 and "ingestion:submit" in metadata["scopes_supported"]
         assert request(server, "GET", "/health")[2]["read_only"] is False
         assert request(server, "GET", "/docs")[2]["canonical_read_only"] is True
+        portal_status, portal_headers, portal = raw_request(server, "GET", "/portal")
+        assert portal_status == 200 and b"Source intake and proposal review" in portal
+        assert "frame-ancestors 'none'" in portal_headers["Content-Security-Policy"]
         tools = request(server, "POST", "/mcp", json.dumps(rpc("tools/list")), headers)[2][
             "result"
         ]["tools"]

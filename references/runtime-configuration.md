@@ -1,5 +1,19 @@
 # Runtime Configuration
 
+## Client-configured business platform
+
+The optional unified MCP/API platform does not add fixed `.env` names. Its
+secret-free YAML (`business_data_platform_v1`) declares the exact environment
+variable names used for the OAuth introspection secret, TLS private-key **file
+path**, record-authorization signing secret, and optional target bearer token.
+All other dynamic platform settings—including tenant/claims/roles, URLs,
+Origins, paths, limits, writable mappings, analytics datasets, and saved
+reports—are explicit YAML fields documented exhaustively in
+[`business-data-platform.md`](business-data-platform.md) and illustrated by
+`config/client-platform.example.yaml`. A setting named in the YAML must exist in
+the launch environment when its capability is used; secret values must never be
+written into YAML or this repository.
+
 This file is the canonical environment-variable reference. Every assignment in
 the tracked `.env.example` appears once in the tables below with its checked-in
 default and operational meaning. `scripts/release_check.py` enforces that

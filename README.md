@@ -33,7 +33,8 @@ implied by the stable release number or an **Unreleased** heading.
 | Operating the pipeline | [Technical Documentation](docs/TECHNICAL_DOCUMENTATION.md) | [Workflow Gates](references/workflow-gates.md) and [Artifact Contracts](references/artifact-contracts.md) |
 | Configuring a run | [Runtime Configuration](references/runtime-configuration.md) | [Command-Line Reference](references/command-line-reference.md) and [complete CLI flag catalogue](references/cli-help-catalogue.md) |
 | Setting up, deploying, or using the MCP/API | [MCP/API operations skill](skills/mcp-api-operations/SKILL.md) | [MCP Production Integration](references/mcp-production-integration.md) and [Canonical Deployment and Retrieval](references/canonical-deployment-retrieval.md) |
-| Proposing new records from page images | [Record intake skill](skills/record-intake/SKILL.md) | [Visual intake contract and setup](references/visual-ingestion.md); [future write/analytics roadmap](references/business-data-platform-roadmap.md) |
+| Proposing new records from page images | [Record intake skill](skills/record-intake/SKILL.md) | [Visual intake contract and setup](references/visual-ingestion.md) |
+| Typed analytics or governed create/amend delivery | [Record maintenance skill](skills/record-maintenance/SKILL.md) | [Client-configured business platform](references/business-data-platform.md) and [delivery record](references/business-data-platform-roadmap.md) |
 | Preparing files for a selected CRM | [CRM Write Readiness](references/crm-write-readiness.md) | [Canonical Deployment and Retrieval](references/canonical-deployment-retrieval.md) and the target tenant metadata |
 | Understanding client outputs, reporting, MCP/API access, and CRM-ready files | [Client Output, Reporting, and CRM Access Overview](docs/CLIENT_OUTPUT_OVERVIEW.md) | [MCP Production Integration](references/mcp-production-integration.md) and [CRM Write Readiness](references/crm-write-readiness.md) |
 | Extending the code | [CONTRIBUTING.md](CONTRIBUTING.md) | [Data Model](references/data-model.md), the phase reference, and [BRANCHING.md](BRANCHING.md) |
@@ -45,28 +46,30 @@ implied by the stable release number or an **Unreleased** heading.
 
 ### Optional visual intake (proposal-only)
 
-The MCP servers can now opt in to seven additional tools that retain original
+The MCP servers can opt in to nine additional tools that retain original
 PNG/JPEG pages, expose the extraction schema to the connected vision-capable
 assistant, and retain source-cited record proposals and validation findings.
 The remote OAuth server offers the same operations through a JSON API. Intake
 uses a separate private owner/tenant-bound journal, never the approved snapshot.
 It is disabled by default. Valid proposals are **pending review, not published**.
-No tool yet applies amendments, promotes these proposals into the pipeline, or
-writes canonical/target-CRM records. Native mobile attachment transfer is not
-assumed; real image bytes must be sent by a compatible client or API integration.
+No intake tool applies amendments, promotes proposals into the pipeline, or
+writes canonical/target-CRM records. The remote server includes an optional
+same-origin upload/review portal; native chat attachment transfer is still not
+assumed.
 The local source-export utility can preserve a complete journal session and
 prepare a hash-linked image PDF for the normal profiling/intake workflow. It
 retains all originals and rejected proposals; it does not promote their values.
 See the [self-contained intake guide](references/visual-ingestion.md) for flags,
 scopes, limits, examples, client requirements and acceptance, and the
-[roadmap](references/business-data-platform-roadmap.md) for the remaining work.
+[business-platform guide](references/business-data-platform.md) for governed
+analytics and separately authorized target delivery.
 
 | Surface | Default | With separately authorized intake |
 |---|---|---|
-| Local stdio MCP | 12 approved-fact tools through the shell launcher | 23 tools through `retrieval_mcp.py --ingestion-dir`; trusted local owner |
-| Remote OAuth MCP | 14 tools including CSV/XLSX and package-download jobs | Up to 25 tools, filtered by granted CRM and intake scopes |
+| Local stdio MCP | 12 approved-fact tools through the shell launcher | 23 tools through `retrieval_mcp.py --ingestion-dir`; 31 with the eight local platform operations; trusted local owner |
+| Remote OAuth MCP | 14 tools including CSV/XLSX and package-download jobs | Up to 25 tools, or up to 34 with the nine platform operations, filtered by granted CRM, intake and platform scopes |
 | TLS/bearer REST | Read-only GET queries | Unchanged; no intake routes |
-| Remote OAuth JSON API | No intake routes | Eleven `POST /api/ingestion/{operation}` routes sharing the journal and MCP permissions |
+| Remote OAuth JSON API | No intake routes | Eleven `POST /api/ingestion/{operation}` routes sharing the journal and MCP permissions, and `POST /api/platform/{operation}` for the platform operations |
 | Internal retrieval sidecar | Not enabled by default | Private localhost/same-task `FastAPI` API for a co-located app through `retrieval_sidecar.py` |
 | Local source handoff | Not part of the served query surface | `visual_ingestion_export.py export` / `verify`; new private archive, not a CRM export |
 
@@ -74,8 +77,9 @@ Tool counts describe discovery, not permission to operate. Use
 `get_crm_capabilities` for approved reporting and `get_ingestion_schema` for
 proposal intake. A valid intake receipt cannot enter sales totals, account
 cards, CRM import files, or canonical retrieval without the ordinary independent
-controls and authorization. Record create/update, saved custom reports and
-arbitrary joins are not implemented by this extension.
+controls and authorization. The separate client-configured platform implements
+allowlisted saved analytics and governed create/amend delivery; arbitrary joins,
+SQL, model approval, deletion, and canonical mutation remain forbidden.
 
 The documentation has deliberate ownership boundaries:
 
@@ -369,6 +373,13 @@ retained as an explicit provider exception for a separately authorized retry.
   table export, and seven deterministic standard reports. The remote MCP also
   creates bounded, owner-bound CSV/XLSX report or table downloads with snapshot,
   row, and file checksums plus short expiry.
+- A secret-free client YAML can add typed many-to-one analytical datasets,
+  dimensions, metrics, filters, fiscal/date grouping, having, totals, pagination,
+  saved reports, and checksummed analytical CSV/XLSX jobs. The same deployment
+  can expose schema-guided create/amend proposals; separate operator-only,
+  signed and expiring authorization/apply/reconcile API routes and CLI deliver
+  through a no-send file or generic HTTPS JSON adapter without mutating the
+  snapshot. Those operator API routes are not MCP tools.
 - Run manifests, resumable state, adapter contracts, privacy inventories,
   usage/spend telemetry, reviewer exports, CI, release checks, and acceptance
   fixtures.
@@ -389,8 +400,9 @@ retained as an explicit provider exception for a separately authorized retry.
 - Client privacy, retention, residency, mapping, amendment, and allocation
   decisions.
 - Production deployment of calibrated handwriting or party-role detectors.
-- A target CRM receiver with load, rejection, rollback, and reconciliation
-  acceptance.
+- Client configuration and sandbox/production acceptance of its target receiver,
+  identity provider, signing/target secrets, golden totals, rollback, and
+  reconciliation behavior.
 - Public hosting, identity-provider/workspace registration, and acceptance for
   the implemented tenant-bound remote MCP, or any hosted vector/reranking
   service.
@@ -460,6 +472,7 @@ surfaces from being confused:
 |---|---|---|
 | Local stdio MCP | Same-machine Claude Code/Desktop or compatible client | `bash scripts/run_retrieval_mcp.sh --help` |
 | Remote Streamable HTTP MCP | Authorized Claude or ChatGPT workspace/mobile/web connection | `python scripts/retrieval_remote_mcp.py --help` |
+| Unified client-configured MCP/API | Retrieval, analytics, exports, optional intake, and proposal maintenance | `python scripts/business_platform_server.py --help` |
 | TLS/bearer REST API | Controlled internal application or BI pilot | `python scripts/retrieval_https.py --help` |
 
 All three read one immutable SQLite snapshot built only from approved,
@@ -483,6 +496,14 @@ downloads. It does not replace acceptance of production TLS/DNS, the real
 identity provider, the selected Claude/ChatGPT workspace, operational recovery,
 or the exact approved non-empty client snapshot. Those checks are defined in
 [MCP Production Integration](references/mcp-production-integration.md).
+
+For the unified surface, start with the fictional
+[`client-platform.example.yaml`](config/client-platform.example.yaml), then read
+the [client-configured platform contract](references/business-data-platform.md).
+Generate a no-secret deployment receipt with `business_platform_deploy.py` and
+choose the provided non-root container, Compose, single-writer Kubernetes, or
+systemd template. Client OAuth, TLS, target-system, golden-total, and actual
+Claude/ChatGPT connector acceptance remain required before production use.
 
 ## Operate the pipeline
 

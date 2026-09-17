@@ -4,6 +4,110 @@ All notable repository releases are recorded here. Dates use ISO 8601.
 
 ## Unreleased
 
+- `canonical_export.py --classifications ARTIFACT` types a document from the
+  classification consensus. The extraction consensus writes `unknown` wherever
+  its lanes could not agree a type, and the export read only that. On the
+  commission run all 76 admitted documents were exported as `unknown`, though
+  the classification lane had accepted a type for each. With the classification
+  consensus the final queue resolves against, they are 48 commission
+  statements, 26 commission reports and 2 payment confirmations, and the
+  exceptions are unchanged. A type the extraction consensus established is
+  kept, and an artifact that is not a classification consensus is refused.
+- Adds the client-configured business data platform, restored from a
+  2026-09-13 work-in-progress stash and merged onto current `main`. One
+  secret-free `business_data_platform_v1` YAML names an exact tenant and
+  approved snapshot, and configures:
+  - typed analytics, saved reports, and checksummed analytical CSV/XLSX
+    export jobs;
+  - the image intake and review portal;
+  - writable-object mappings, and a file or HTTPS JSON target adapter.
+
+  The entry points are `business_platform_deploy.py`,
+  `business_platform_server.py` and `business_record_changes.py`. The
+  contract is `references/business-data-platform.md`, changes follow
+  `skills/record-maintenance/SKILL.md`, and deployment templates are in
+  `deploy/business-platform/`.
+
+  MCP stops at schema, proposals, previews and lifecycle status. Signed
+  authorization, application and field reconciliation are operator-only API
+  and CLI stages under separate scopes. No target change reaches retrieval
+  until a new approved snapshot passes the ordinary controls.
+
+  The merge made three choices:
+  - the stash's own intake session listing and review gave way to `main`'s
+    later `list_ingestion_sessions` and `get_ingestion_review_summary`, and
+    the portal calls those;
+  - analytics export jobs validate as tabular jobs beside `main`'s package
+    jobs;
+  - platform API routes sit beside `main`'s CRM-export routes.
+- `final_review_queue.py --dispositions ARTIFACT` retains a finding an operator
+  authorized a disposition for. Some findings no control will ever answer: a
+  lane that returned no candidate, a provider's own review flag, a handwritten
+  region under a comment-only policy. Each held its document out of canonical.
+  - The artifact is an `operator_item_dispositions_v1`, and it must be
+    operator-authorized.
+  - It names each item by its `review_item_id`, the digest of the finding, with
+    the rule and evidence that dispose of it.
+  - The item moves to `reconciled` as `dispositioned_by_operator`, and is never
+    deleted.
+  - An artifact naming no item, or an entry without a rule, is refused, and a
+    disposition matching no item is counted.
+
+  `client_review_lane.py build` takes the same option.
+- `attribution.py --credit-by-line AUTHORIZATION` applies a crediting rule to
+  statements whose lines name several jobs. Each line carrying money is credited
+  to the key it prints. The document is registered `credited_by_line` -- an
+  answer, not a failure -- with each line's key and amount. Nothing is chosen
+  among keys and no share is estimated, so a document with a money line
+  printing no key stays unresolved. On the commission run the rule credits 215
+  of the 468 unresolved documents, worth $28.06M of $65.73M: 140 name between
+  two and ten jobs, and 75 more than ten.
+- `agent_surface_check.py` no longer reports a stalled process launch as stale
+  documentation. A catalogued command's `--help` returns in well under a
+  second, but endpoint security can stall a launch for several seconds. On
+  2026-09-16 the check failed seven times on the operator's Mac, and every
+  failure whose errors were kept was one help timing out -- a help that takes
+  under half a second alone. The release check and the quality gate both run
+  this check. A timed-out help is now tried again with a longer limit (5, 15,
+  then 30 seconds). Only a help that times out on every attempt is reported,
+  naming the attempts, so a help that genuinely hangs still fails.
+- A client review pack no longer asks what the final queue retains.
+  `client_review_lane.py build` builds the same queue by its own path and took
+  only `--resolved-by`, so a pack from the final queue's inputs asked every
+  finding the queue retains as superseded by a re-read or settled by a vendor
+  vote. On the commission run it asked 36,796 items where the queue asks
+  35,742: 522 superseded findings and 532 settled ones. It now takes the
+  queue's `--supersede ARTIFACT MANIFEST` and `--settled-by-vote VOTE ARTIFACT`,
+  read by the queue's own functions, so it refuses what the queue refuses, and
+  its summary counts `superseded_items` and `settled_by_vote_items` beside
+  `reconciled_items`. Built from the same inputs with the same options, the
+  pack asks exactly the queue's 35,742 items. A pack whose every finding is
+  retained is refused with that count rather than as a pack built from nothing.
+- A cut-off party name goes to the company, not to the branch its longer
+  reading names. `entity_resolve.py`'s `completed_by` completes a cut name
+  with the longest reading that finishes the cut word. So where a branch's
+  spelling (`Cornerwise Design Services-Jacksonville`) nested over the
+  company's own (`CORNERWISE DESIGN SERVICES`), the cut went to the branch.
+  On the commission run five cut names did:
+  - `CORNERWISE DESIGN SERVICE`;
+  - `Merrow Off`;
+  - two cut readings of Office Quarters;
+  - one cut reading of Interior Initiatives.
+
+  `branch_base` now reads a name, a dash and a label as that name. When the
+  name is printed on its own and finishes the cut word, it takes the
+  completion. Nothing else in the master moves.
+- A vote over a subset re-read settles that re-read's findings in the queue.
+  `multi_engine_vote.py --pages MANIFEST` votes only on the documents a subset
+  read's manifest lists and passes every other document to `--records-out`
+  unchanged, so the vote's counts describe the pages its handoffs read.
+  `final_review_queue.py --settled-by-vote VOTE ARTIFACT` retains the named
+  input's findings on a field the vote settled as `settled_by_vendor_vote`,
+  naming the vote and the value it accepted, instead of queuing them: on the
+  commission run every one of the 532 fields a vote over the 24 OSALL pages
+  settles was still in the queue. Another artifact's finding on the same field
+  is still asked, and an artifact that is not an input, or a file that is not a
+  vote, is refused.
 - A record's fields and its header and line views stay in step.
   `multi_engine_vote.py` and `arithmetic_reconcile.py` wrote accepted values to
   `fields` alone, so attribution, arithmetic, valuation, entity resolution and

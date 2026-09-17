@@ -337,7 +337,7 @@ Before production acceptance, retain evidence for each applicable row:
 | Local MCP | malformed JSON/JSON-RPC; discovery and initialize negotiation; closed-world arguments; unknown tools/methods; structured output; quiet stdout; launcher path/database failures |
 | Remote MCP | 2025 and 2026 protocol eras; path-specific OAuth discovery; routing-header/body agreement; inactive/expired/wrong-audience/wrong-tenant/wrong-role tokens; read/export scope step-up; Origin, size, rate, method, and content-type refusal |
 | Exports | table/report CSV and XLSX; snapshot change between pages; row/cell/column caps; formula text; owner isolation; exact-expiry refusal; bad token; changed file; malformed manifest; failed-build cleanup |
-| Claude acceptance | local Claude Code registration; Desktop extension/configuration where selected; remote Claude Code OAuth; claude.ai connector; selected iOS/Android use; representative prompts and all fourteen baseline remote tools, plus seven scope-filtered intake tools when enabled |
+| Claude acceptance | local Claude Code registration; Desktop extension/configuration where selected; remote Claude Code OAuth; claude.ai connector; selected iOS/Android use; representative prompts and all fourteen baseline remote tools, plus nine scope-filtered intake and nine unified-platform tools when enabled |
 | Operations | TLS/reverse-proxy headers; Anthropic egress allow-list; identity deprovisioning and refresh; audit/alert retention; backup; export cleanup; load/rate test; restart; incident revoke/rebuild exercise |
 
 Run the official MCP Inspector against the deployed URL in addition to the
@@ -347,6 +347,33 @@ that deployed exercise can prove the selected DNS, proxy, identity provider,
 Claude account policy, and production snapshot work together.
 
 ## Stop and rebuild conditions
+
+### Unified client-YAML deployment
+
+For typed analytics, analytical downloads, the review portal, and governed
+record proposals, use `config/client-platform.example.yaml` and the complete
+[Business Data Platform](business-data-platform.md) contract. Validate the exact
+client configuration and approved snapshot with `business_platform_deploy.py`,
+then run `business_platform_server.py --enable` through one of the templates in
+`deploy/business-platform/`. The unified remote catalogue has up to thirty-two
+tools: fourteen baseline, nine intake, and nine platform/export operations,
+filtered by granted scopes. Local stdio has up to twenty-nine because the
+download-job operation is remote-only.
+
+The YAML owns every non-secret deployment path, OAuth claim/role/Origin setting,
+limit, semantic dataset, saved report, writable object, and target mapping.
+Secrets are supplied only through the environment variable names in the YAML.
+Models can submit proposals but cannot call authorize/apply/reconcile. Client
+identity, infrastructure, target sandbox, golden totals, backup/recovery, and
+the exact Claude/ChatGPT desktop/mobile client still require deployed acceptance.
+
+The remote JSON API additionally exposes three operator-only record lifecycle
+routes. `authorize_business_record_change` requires `records:authorize` and
+signs an explicit human decision; `apply_business_record_change` and
+`reconcile_business_record_change` require `records:apply`. These routes are
+intentionally excluded from MCP discovery, so a connected model can never
+self-authorize or execute a write. The equivalent local operator interface is
+`business_record_changes.py`.
 
 Stop serving the snapshot and build a new one when its canonical source hash no
 longer matches the authorized facts, an affected control is rerun, an amendment
@@ -366,7 +393,8 @@ checklist are in [Visual Intake](visual-ingestion.md), with an operator skill at
 [`skills/record-intake/SKILL.md`](../skills/record-intake/SKILL.md).
 
 Enabled local discovery has twenty-three tools; enabled remote has up to
-twenty-five filtered by scopes. Remote JSON API routes share the OAuth
+twenty-five filtered by scopes; the client platform adds eight local or nine
+remote tools. Remote JSON API routes share the OAuth
 deployment at `/api/ingestion/{operation}`; the separate TLS/bearer REST
 service remains GET only. `ingestion:read`/`ingestion:submit` do not grant CRM
 access. The intake extension now includes session discovery, additive reviewer
@@ -387,3 +415,5 @@ slice. Existing fictional acceptance tests the default disabled-intake surface;
 run intake-specific tests and actual deployed-client acceptance separately. The
 [roadmap](business-data-platform-roadmap.md) tracks those next stages and
 governed vendor-neutral analytics.
+The implemented client-YAML analytics and governed change adapter are specified
+in [Business Data Platform](business-data-platform.md).

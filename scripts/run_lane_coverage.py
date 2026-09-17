@@ -322,6 +322,12 @@ NON_LANE_COMMANDS = frozenset(
         "retrieval_https.py",
         "retrieval_remote_mcp.py",
         "retrieval_mcp.py",
+        # Client-configured service deployment and governed target operations
+        # are external-service/operator utilities. They produce deployment or
+        # lifecycle receipts, not a pipeline lane whose absence can clear a run.
+        "business_platform_deploy.py",
+        "business_platform_server.py",
+        "business_record_changes.py",
         "retrieval_sidecar.py",
         "visual_ingestion_export.py",  # Optional pre-pipeline journal maintenance, not a run lane.
         "openai_adapter.py",

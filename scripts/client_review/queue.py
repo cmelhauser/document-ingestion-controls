@@ -332,15 +332,108 @@ def governed_pages(pairs, paths):
     return governed
 
 
-def consolidate(paths, accepted=None, governed=None):
+VOTE_ARTIFACT = "multi_engine_vote_v1"
+
+
+def vote_settlements(pairs, paths):
+    """Read which findings a vendor vote settled, and in which input artifact.
+
+    A vote accepts a field the consensus left open and the record carries the
+    agreed value, but the consensus finding on that field is still in the
+    artifact the gate is handed -- so the queue asks about a value the record
+    has already accepted. On the commission run every one of the 532 fields the
+    vote over the OSALL pages settled was still queued. Each pair names the vote
+    artifact and one input by file name; only that input's findings on a settled
+    field are retained as settled, so a validation or arithmetic finding on the
+    same field is still asked.
+    """
+    names = {Path(path).name for path in paths}
+    settled = {}
+    for vote_path, artifact in pairs:
+        name = Path(artifact).name
+        if name not in names:
+            # Rule 9: a settlement that matched no input settled nothing, and
+            # reads exactly like one that did.
+            raise ValueError(f"--settled-by-vote names an artifact that is not an input: {name}")
+        data = json.loads(Path(vote_path).read_text())
+        summary = data.get("summary") if isinstance(data, dict) else None
+        if not isinstance(summary, dict) or summary.get("artifact_type") != VOTE_ARTIFACT:
+            raise ValueError(f"not a vote artifact ({VOTE_ARTIFACT}): {vote_path}")
+        fields = settled.setdefault(name, {})
+        for entry in data.get("resolutions") or []:
+            fields[(str(entry.get("document_id") or ""), str(entry.get("field") or ""))] = {
+                "settled_by": Path(vote_path).name,
+                "resolved_value": entry.get("resolved_value"),
+                "resolved_by": entry.get("resolved_by"),
+                "agreeing_vendors": entry.get("agreeing_vendors"),
+            }
+    return settled
+
+
+DISPOSITIONS_ARTIFACT = "operator_item_dispositions_v1"
+
+
+def operator_dispositions(paths):
+    """Read the queue items an operator authorized a disposition for, by item id.
+
+    Some findings no control will ever answer: a lane that returned no
+    candidate, a provider's own review flag, a handwritten region under a
+    comment-only policy. Each stays in the queue, and each holds a document out
+    of canonical, until someone decides it. This reads those decisions. Every
+    entry names one `review_item_id` -- the digest of the finding itself, so it
+    cannot drift onto another finding when the queue is rebuilt -- and the rule
+    that disposes of it. Only an operator-authorized artifact is read, so no
+    model output and no client note can dispose of a finding by itself.
+    """
+    disposed = {}
+    for path in paths:
+        data = json.loads(Path(path).read_text())
+        if not isinstance(data, dict) or data.get("artifact_type") != DISPOSITIONS_ARTIFACT:
+            raise ValueError(
+                f"not an operator disposition artifact ({DISPOSITIONS_ARTIFACT}): {path}"
+            )
+        if data.get("authorization_status") != "operator_authorized" or not data.get(
+            "authorization_id"
+        ):
+            raise ValueError(f"an operator-authorized disposition artifact is required: {path}")
+        entries = data.get("dispositions")
+        if not isinstance(entries, list) or not entries:
+            # Rule 9: a disposition artifact naming nothing disposed of nothing,
+            # and reads exactly like one that did.
+            raise ValueError(
+                f"a disposition artifact that names no item disposes of nothing: {path}"
+            )
+        for entry in entries:
+            if (
+                not isinstance(entry, dict)
+                or not entry.get("review_item_id")
+                or not entry.get("rule")
+            ):
+                raise ValueError(f"each disposition names a review_item_id and a rule: {path}")
+            disposed[str(entry["review_item_id"])] = {
+                "disposed_by": Path(path).name,
+                "disposition_authorization_id": data["authorization_id"],
+                "disposition_rule": entry["rule"],
+                "disposition_evidence": entry.get("evidence"),
+            }
+    return disposed
+
+
+def consolidate(paths, accepted=None, governed=None, settled=None, disposed=None):
     """Create the final client queue; no item is silently removed or resolved.
 
     A finding a governing re-read supersedes is moved, not dropped: it joins the
     reconciled list with disposition `superseded_by_re_read` and the manifest
-    that governs its page.
+    that governs its page. A finding on a field a vendor vote settled joins it
+    as `settled_by_vendor_vote`, naming the vote and the value it accepted. A
+    finding an operator authorized a disposition for joins it as
+    `dispositioned_by_operator`, naming the artifact, the authorization and the
+    rule.
     """
     accepted = accepted or {}
     governed = governed or {}
+    settled = settled or {}
+    disposed = disposed or {}
     unique, sources, examined, reconciled = {}, [], [], []
     for path in paths:
         try:
@@ -394,6 +487,16 @@ def consolidate(paths, accepted=None, governed=None):
             if manifest:
                 reconciled.append(
                     {**item, "disposition": "superseded_by_re_read", "governed_by": manifest}
+                )
+                continue
+            vote = settled.get(Path(path).name, {}).get((item["document_id"], item["field"]))
+            if vote:
+                reconciled.append({**item, **vote, "disposition": "settled_by_vendor_vote"})
+                continue
+            disposition = disposed.get(item["review_item_id"])
+            if disposition:
+                reconciled.append(
+                    {**item, **disposition, "disposition": "dispositioned_by_operator"}
                 )
                 continue
             unique.setdefault(review_key(item), item)
@@ -490,6 +593,32 @@ def main():
             "Supply the re-read's own findings as inputs."
         ),
     )
+    parser.add_argument(
+        "--settled-by-vote",
+        nargs=2,
+        action="append",
+        default=[],
+        metavar=("VOTE", "ARTIFACT"),
+        help=(
+            "Repeatable. Findings in the input named ARTIFACT (by file name) on a field "
+            "the multi_engine_vote.py artifact VOTE settled are retained as "
+            "settled_by_vendor_vote rather than queued, because the record carries the "
+            "agreed value. Name the artifact holding the open fields the vote was run on."
+        ),
+    )
+    parser.add_argument(
+        "--dispositions",
+        action="append",
+        default=[],
+        metavar="ARTIFACT",
+        help=(
+            "Repeatable. An operator-authorized operator_item_dispositions_v1 artifact naming "
+            "queue items by review_item_id, each with the rule and evidence that dispose of it. A "
+            "named item is retained as dispositioned_by_operator rather than queued. An artifact "
+            "that is not operator-authorized, or names no item, is refused; a disposition that "
+            "matches no item is counted."
+        ),
+    )
     parser.add_argument("--quiet", action="store_true")
     apply_shared_help(parser)
     args = parser.parse_args()
@@ -497,10 +626,17 @@ def main():
     try:
         accepted = resolutions(args.resolved_by) if args.resolved_by else {}
         governed = governed_pages(args.supersede, args.artifacts)
-        items, sources, reconciled = consolidate(args.artifacts, accepted, governed)
+        settled = vote_settlements(args.settled_by_vote, args.artifacts)
+        disposed = operator_dispositions(args.dispositions) if args.dispositions else {}
+        items, sources, reconciled = consolidate(
+            args.artifacts, accepted, governed, settled, disposed
+        )
         cards = review_cards(items)
     except (OSError, ValueError, json.JSONDecodeError) as exc:
         sys.exit(f"Final review queue failed: {exc}")
+    dispositioned = {
+        r["review_item_id"] for r in reconciled if r["disposition"] == "dispositioned_by_operator"
+    }
     summary = {
         "schema_version": SCHEMA_VERSION,
         "generated_at": datetime.now(UTC).isoformat(),
@@ -512,6 +648,17 @@ def main():
             1 for r in reconciled if r["disposition"] == "superseded_by_re_read"
         ),
         "superseded_by": [list(pair) for pair in args.supersede],
+        "settled_by_vote_items": sum(
+            1 for r in reconciled if r["disposition"] == "settled_by_vendor_vote"
+        ),
+        "settled_by_vote": [list(pair) for pair in args.settled_by_vote],
+        "dispositioned_items": sum(
+            1 for r in reconciled if r["disposition"] == "dispositioned_by_operator"
+        ),
+        "disposition_artifacts": [Path(path).name for path in args.dispositions],
+        # Rule 9: a disposition naming no finding in this queue disposed of
+        # nothing. Counted, so a stale or mistyped artifact is visible.
+        "dispositions_matching_no_item": len(set(disposed) - dispositioned),
         "resolution_artifacts": [Path(path).name for path in args.resolved_by],
         "gate_status": "blocked_pending_client_review" if items else "clear",
         "findings": [
@@ -547,6 +694,14 @@ def main():
             print(f"Retained as already resolved: {summary['reconciled_items']}")
         if summary["superseded_items"]:
             print(f"Retained as superseded by a re-read: {summary['superseded_items']}")
+        if summary["settled_by_vote_items"]:
+            print(f"Retained as settled by a vendor vote: {summary['settled_by_vote_items']}")
+        if summary["dispositioned_items"]:
+            print(f"Retained as dispositioned by an operator: {summary['dispositioned_items']}")
+        if summary["dispositions_matching_no_item"]:
+            print(
+                f"Dispositions matching no queue item: {summary['dispositions_matching_no_item']}"
+            )
 
 
 if __name__ == "__main__":

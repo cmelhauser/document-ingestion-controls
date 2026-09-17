@@ -1,0 +1,4 @@
+interface:
+  display_name: "Record Maintenance"
+  short_description: "Govern record proposals, approval, and reconciliation"
+  default_prompt: "Use $record-maintenance to propose or operate a governed client-configured record change without granting the model approval or publication authority."

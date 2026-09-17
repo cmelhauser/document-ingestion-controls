@@ -222,7 +222,7 @@ evidence of an accepted client deployment. Remote MCP adds two report-job tools
 to the twelve-tool baseline; see `mcp-production-integration.md` for scopes,
 download authorization, client registration, and exact-snapshot acceptance.
 
-Optional visual intake adds seven MCP/JSON API operations in a private,
+Optional visual intake adds nine MCP/JSON API operations in a private,
 owner-bound proposal journal, not a fifth approved data layer. Original images,
 candidate versions, and rejection history stay separate from canonical facts.
 The local export/verify utility can prepare a receipt-bound source-only package

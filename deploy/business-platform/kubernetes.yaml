@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: business-data-platform
+spec:
+  # The bundled append-only stores are SQLite; keep one writer replica. Scale
+  # only after replacing them with a client-approved transactional store.
+  replicas: 1
+  selector: {matchLabels: {app: business-data-platform}}
+  template:
+    metadata: {labels: {app: business-data-platform}}
+    spec:
+      securityContext: {runAsNonRoot: true, runAsUser: 10001, fsGroup: 10001}
+      containers:
+        - name: platform
+          image: CLIENT_REGISTRY/business-data-platform:CLIENT_TAG
+          args: ["/config/client-platform.yaml", "--enable"]
+          ports: [{name: https, containerPort: 9443}]
+          envFrom: [{secretRef: {name: business-platform-secrets}}]
+          volumeMounts:
+            - {name: config, mountPath: /config, readOnly: true}
+            - {name: snapshot, mountPath: /data, readOnly: true}
+            - {name: tls, mountPath: /tls, readOnly: true}
+            - {name: state, mountPath: /state}
+          readinessProbe: {httpGet: {path: /health, port: https, scheme: HTTPS}}
+          livenessProbe: {httpGet: {path: /health, port: https, scheme: HTTPS}}
+          resources:
+            requests: {cpu: 250m, memory: 512Mi}
+            limits: {cpu: "2", memory: 2Gi}
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities: {drop: ["ALL"]}
+      volumes:
+        - {name: config, configMap: {name: business-platform-config}}
+        - {name: snapshot, persistentVolumeClaim: {claimName: approved-snapshot}}
+        - {name: tls, secret: {secretName: business-platform-tls}}
+        - {name: state, persistentVolumeClaim: {claimName: business-platform-state}}
+---
+apiVersion: v1
+kind: Service
+metadata: {name: business-data-platform}
+spec:
+  selector: {app: business-data-platform}
+  ports: [{name: https, port: 443, targetPort: https}]

@@ -29,6 +29,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 from cli_help import apply_shared_help
+from client_review.queue import resolutions
 from review_status import ARITHMETIC_CLEAR, REVIEW_CLEAR
 from runtime_config import load_project_env
 
@@ -277,8 +278,15 @@ def carried_fields(record, accepted):
     return accepted & carried
 
 
-def build(manifest, consensus, arithmetic, queue, batch_id, registry_version):
-    """Gate every extracted document into canonical rows or an explicit exception."""
+def build(manifest, consensus, arithmetic, queue, batch_id, registry_version, classifications=None):
+    """Gate every extracted document into canonical rows or an explicit exception.
+
+    ``classifications`` maps a document to the type the classification consensus
+    accepted. The extraction consensus writes ``unknown`` wherever its lanes could
+    not agree a type, which on the commission run was nearly every document, so a
+    document it left unknown takes the accepted type. A type extraction did
+    establish is kept.
+    """
     documents = manifest_documents(manifest)
     records = consensus.get("documents")
     if not isinstance(records, list):
@@ -360,7 +368,12 @@ def build(manifest, consensus, arithmetic, queue, batch_id, registry_version):
             )
             continue
         accepted = accepted_fields(record)
-        document_type = text(record.get("document_type")) or provenance["classified_type"]
+        extracted = text(record.get("document_type"))
+        accepted_type = text((classifications or {}).get(document_id, {}).get("document_type"))
+        if extracted and extracted != "unknown":
+            document_type = extracted
+        else:
+            document_type = accepted_type or extracted or provenance["classified_type"]
         if not document_type:
             exceptions.append(
                 exclusion(
@@ -473,6 +486,17 @@ def main():
     parser.add_argument("--final-review", help="final review queue JSON")
     parser.add_argument("--batch-id", required=True, help="load batch identifier")
     parser.add_argument("--registry-version", help="approved mapping registry version")
+    parser.add_argument(
+        "--classifications",
+        action="append",
+        default=[],
+        metavar="ARTIFACT",
+        help=(
+            "Repeatable classification_consensus_v1 artifact. A document the extraction "
+            "consensus left 'unknown' takes the type classification accepted; a type "
+            "extraction established is kept."
+        ),
+    )
     parser.add_argument("--out", required=True, help="new canonical export JSON")
     parser.add_argument("--exceptions", required=True, help="retained exclusion JSON")
     parser.add_argument("--quiet", action="store_true")
@@ -486,6 +510,7 @@ def main():
             if Path(path).exists():
                 raise ValueError(f"Output already exists: {path}")
         consensus = load_object(args.consensus, "Consensus artifact")
+        classifications = resolutions(args.classifications) if args.classifications else None
         tables, exceptions, withheld = build(
             load_object(args.manifest, "Intake manifest"),
             consensus,
@@ -493,6 +518,7 @@ def main():
             load_object(args.final_review, "Final-review queue") if args.final_review else {},
             args.batch_id.strip(),
             args.registry_version,
+            classifications,
         )
     except (OSError, ValueError, json.JSONDecodeError) as exc:
         sys.exit(f"Canonical export failed: {exc}")

@@ -308,6 +308,26 @@ def apply_resolutions(documents, resolutions):
     return output, applied
 
 
+def pages_in(manifests):
+    """Read the documents a subset read covers from its ingestion manifests.
+
+    A subset re-read's handoffs hold readings for its own pages alone. Voted over
+    the whole corpus, every other document's open field comes back as
+    `no_vendor_read_this_field`, and the vote's counts describe documents it
+    never had a reading for.
+    """
+    ids = set()
+    for manifest in manifests:
+        pages = json.loads(Path(manifest).read_text()).get("pages") or []
+        found = {
+            str(page[key]) for page in pages for key in ("page_id", "document_id") if page.get(key)
+        }
+        if not found:
+            raise ValueError(f"a manifest that names no page scopes nothing: {manifest}")
+        ids |= found
+    return ids
+
+
 def main(argv=None):
     """Write the vote proposal, and optionally the amended records."""
     load_project_env()
@@ -347,6 +367,17 @@ def main(argv=None):
             "proves the string is printed on the page, not that it belongs in that cell."
         ),
     )
+    parser.add_argument(
+        "--pages",
+        action="append",
+        default=[],
+        metavar="MANIFEST",
+        help=(
+            "Repeatable ingestion manifest of a subset read. Only the documents on its "
+            "pages are voted on and counted; every other document passes to "
+            "--records-out unchanged. Use it when the handoffs read only those pages."
+        ),
+    )
     parser.add_argument("--quiet", action="store_true")
     apply_shared_help(parser)
     args = parser.parse_args(argv)
@@ -364,11 +395,24 @@ def main(argv=None):
                 f"{args.minimum_vendors} required; lanes of one vendor are one reading"
             )
         evidence = extractor_evidence(args.tiebreak_with) if args.tiebreak_with else None
-        resolutions, unresolved, counts = vote(documents, votes, args.minimum_vendors, evidence)
+        scope = pages_in(args.pages) if args.pages else None
+        # A malformed document is kept in scope so `vote` refuses it as before.
+        voted = [
+            document
+            for document in documents
+            if scope is None
+            or not isinstance(document, dict)
+            or str(document.get("document_id")) in scope
+        ]
+        if scope is not None and not voted:
+            raise ValueError("no document in the records is on the supplied manifests' pages")
+        resolutions, unresolved, counts = vote(voted, votes, args.minimum_vendors, evidence)
         summary = {
             "generated_at": datetime.now(UTC).isoformat(),
             "artifact_type": ARTIFACT_TYPE,
-            "documents": len(documents),
+            "documents": len(voted),
+            "documents_passed_through": len(documents) - len(voted),
+            "pages_manifests": [Path(path).name for path in args.pages],
             "vendors": {name: sorted(paths) for name, paths in sorted(vendors.items())},
             "minimum_vendors": args.minimum_vendors,
             "open_fields": counts["open"],
@@ -409,6 +453,11 @@ def main(argv=None):
         sys.exit(f"Multi-engine vote failed: {exc}")
     if not args.quiet:
         print(f"Vendors counted: {', '.join(sorted(summary['vendors']))}")
+        if args.pages:
+            print(
+                f"Documents on the manifests' pages: {summary['documents']}; "
+                f"passed through unchanged: {summary['documents_passed_through']}"
+            )
         print(f"Open fields: {summary['open_fields']}")
         for key, value in summary["by_agreement"].items():
             print(f"  {value:6d}  {key}")

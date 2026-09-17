@@ -109,6 +109,18 @@ BRANCH_MARKERS = re.compile(
     re.I,
 )
 
+# A name followed by a dash and a label: `Cornerwise Design Services-Jacksonville`,
+# `Office Quarters Inc - NY`. The label names a site of the company before it.
+BRANCH_LABEL = re.compile(r"^(?P<base>.*\w)\s*[-–—]\s*(?P<label>[^-–—]*[A-Za-z][^-–—]*)$")
+
+
+def branch_base(raw):
+    """Return the normalized name a dash-labelled reading qualifies, if it has one."""
+    match = BRANCH_LABEL.match(str(raw or "").strip())
+    if not match:
+        return None
+    return normalize_name(match.group("base")) or None
+
 
 # The corpus is an Excel print-to-PDF, so a name wider than its column is cut
 # off and marked. The marker is positive evidence that a reading is incomplete.
@@ -708,7 +720,7 @@ def party_mentions_from(holder, scope, doc_id, mentions, rejected, client_names=
 MIN_PREFIX_NAME = 4
 
 
-def completed_by(names):
+def completed_by(names, branch_bases=None):
     """Map each cut-off name to the one longer name that completes it.
 
     Part of this corpus is a spreadsheet printed too narrow, so a party arrives
@@ -723,7 +735,17 @@ def completed_by(names):
     truncation -- `Supply Co 40` and `Supply Co 400` are two accounts. A name
     completed by several longer names is left alone, because choosing between
     them is a question rather than an answer.
+
+    Where the longer names nest, the longest completes the cut. But a cut stops
+    inside the word it cuts, so it carries no evidence for a branch label printed
+    after the name. `branch_bases` maps a dash-labelled reading to the name
+    before its dash. When that name is itself printed and finishes the cut word,
+    it takes the cut in the branch's place. On the commission run,
+    `cornerwise design service` went to the Jacksonville branch while
+    `cornerwise design services` was printed on its own, and `merrow off` went
+    to the Hialeah branch in the same way.
     """
+    branch_bases = branch_bases or {}
     by_length = sorted(names, key=len, reverse=True)
     completions = {}
     for name in names:
@@ -738,7 +760,8 @@ def completed_by(names):
             other for other in longer if not any(o != other and o.startswith(other) for o in longer)
         ]
         if len(maximal) == 1:
-            completions[name] = maximal[0]
+            base = branch_bases.get(maximal[0])
+            completions[name] = base if base in longer else maximal[0]
     return completions
 
 
@@ -795,7 +818,12 @@ def cluster(mentions, threshold, review_band):
     first_by_name = {}
     for group in readings.values():
         first_by_name.setdefault(mentions[group[0]]["norm_name"], group[0])
-    for cut, whole in completed_by(set(first_by_name)).items():
+    branch_bases = {}
+    for name, index in first_by_name.items():
+        base = branch_base(mentions[index].get("account_name") or mentions[index]["raw_name"])
+        if base:
+            branch_bases[name] = base
+    for cut, whole in completed_by(set(first_by_name), branch_bases).items():
         union(first_by_name[cut], first_by_name[whole])
         evidence.append(
             {

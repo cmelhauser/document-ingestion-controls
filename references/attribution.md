@@ -183,6 +183,23 @@ invent an attribution the page does not make. Only a document whose lines are
 unanimous is a document-level attribution, and it is still rank 8 until someone
 decides that unanimity counts.
 
+### The crediting rule
+
+When the client gives a crediting rule for those statements,
+`attribution.py --credit-by-line AUTHORIZATION` applies it. Each line carrying
+money is credited to the key that line prints. The document is registered
+`credited_by_line` -- an answer, not a failure -- with each line's key, key field
+and amount, and the authorization.
+
+A line carries money when the first line value field it carries
+(`commission_amount`, `line_total`, `amount`, `extended_amount`) is not zero,
+which is the reading `document_value` uses. A line printing two kinds of key is
+credited to the first in rank 1's order.
+
+The rule chooses nothing and estimates nothing. A document with a money line
+that prints no key, or a key the corpus formats refuse, stays `unresolved`, and
+a credited document still carries no document-level key.
+
 ### Rank 6 discipline
 
 Customer + date + amount matching resolves only on a **unique** match. If two

@@ -90,6 +90,41 @@ def main(argv=None):
         ),
     )
     build.add_argument(
+        "--supersede",
+        nargs=2,
+        action="append",
+        type=Path,
+        metavar=("ARTIFACT", "MANIFEST"),
+        help=(
+            "Repeatable, as final_review_queue.py takes it. Findings in the input named ARTIFACT "
+            "(by file name) on the pages a subset re-read's MANIFEST lists are retained as "
+            "superseded rather than asked, because the record carries the re-read's readings."
+        ),
+    )
+    build.add_argument(
+        "--settled-by-vote",
+        nargs=2,
+        action="append",
+        type=Path,
+        metavar=("VOTE", "ARTIFACT"),
+        help=(
+            "Repeatable, as final_review_queue.py takes it. Findings in the input named ARTIFACT "
+            "(by file name) on a field the multi_engine_vote.py artifact VOTE settled are "
+            "retained as settled_by_vendor_vote rather than asked."
+        ),
+    )
+    build.add_argument(
+        "--dispositions",
+        type=Path,
+        action="append",
+        metavar="ARTIFACT",
+        help=(
+            "Repeatable, as final_review_queue.py takes it. An operator-authorized "
+            "operator_item_dispositions_v1 artifact; each item it names by review_item_id is "
+            "retained as dispositioned_by_operator rather than asked."
+        ),
+    )
+    build.add_argument(
         "--prefill-from",
         type=Path,
         help=(
@@ -224,6 +259,9 @@ def main(argv=None):
             consensus=args.consensus,
             classifications=args.classifications,
             resolved_by=args.resolved_by,
+            supersede=args.supersede,
+            settled_by_vote=args.settled_by_vote,
+            dispositions=args.dispositions,
             prefill_from=args.prefill_from,
             scan_profile=args.scan_profile,
             manifest=args.manifest,
@@ -254,6 +292,15 @@ def main(argv=None):
                 f"({summary.get('coverage_pct', 0)}%)"
             )
             print(f"  triggered by: {', '.join(trigger['triggered_blocks']) or 'force'}")
+        for key, label in (
+            ("reconciled_items", "retained as already resolved"),
+            ("superseded_items", "retained as superseded by a re-read"),
+            ("settled_by_vote_items", "retained as settled by a vendor vote"),
+            ("dispositioned_items", "retained as dispositioned by an operator"),
+        ):
+            if summary.get(key):
+                print(f"  {label}: {summary[key]}")
+        if trigger["produced_documents"]:
             print(f"  written to {args.out_dir}")
     return 0
 

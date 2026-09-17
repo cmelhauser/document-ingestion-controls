@@ -45,8 +45,12 @@ approved CRM records. Require actual byte transfer and image-reading support;
 a chat attachment is not proof of an upload. Retain receipt/session IDs and all
 rejections. The local source-only exporter preserves the complete session,
 prepares a derivative for normal profiling/intake, and requires receipt-pinned
-verification. It never promotes model readings or clears review. Governed
-create/update, native capture, and expanded analytics remain roadmap work.
+verification. It never promotes model readings or clears review. For the
+implemented client-YAML analytics and governed create/amend adapter, read
+[`references/business-data-platform.md`](references/business-data-platform.md)
+and use [`skills/record-maintenance/SKILL.md`](skills/record-maintenance/SKILL.md).
+Models may propose only. The separately scoped authorization/application API is
+operator-only and intentionally absent from MCP tool discovery.
 
 ## Operating facts that have cost a run
 

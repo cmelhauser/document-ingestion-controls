@@ -123,11 +123,11 @@ readMe.getRange("A6:B18").values = [
   ["LLM adjudication sample", "LLM Adjudication; audit-only proposal, never client approval"],
   ["CRM export contract", "CRM Export; 28 ordered canonical tables, package contents, and reconciliation controls"],
   ["CRM write readiness", "CRM Writes; 12 common import files, tenant mapping, sandbox, authorization, reconciliation, and rollback gates"],
-  ["API and MCP surface", "API and MCP; shared approved-fact capabilities, exact route/tool mappings, and downloadable remote exports"],
+  ["API and MCP surface", "API and MCP; shared approved-fact capabilities, exact route/tool mappings, downloadable remote exports, and separately scoped operator-only record lifecycle routes"],
   ["Client connector access", "Connector Access; local and remote options for Claude, ChatGPT, and API consumers"],
   ["Standard report examples", "Standard Reports; deterministic report catalog with API and MCP call examples"],
   ["Common query recipes", "Query Examples; record, account card, address/contact, sales slicing, aging, and export examples"],
-  ["Optional image proposals", "Visual Intake; seven MCP/API operations, original-image retention, source-only handoff, limits, and unimplemented writes"],
+  ["Optional image proposals", "Visual Intake; nine MCP/API operations, original-image retention, portal/review, and source-only handoff"],
   ["Operational final review", "references/artifact-contracts.md; it remains a separate eight-field queue"],
   ["Update rule", "Change schemas first, update these samples, rebuild this workbook, then run the quality gate."],
 ];
@@ -197,8 +197,8 @@ const schemaRows = [
   ["Derived/control", "Consensus, arithmetic proof, entity resolution, attribution, sampling, and review controls", "references/derived-field-schema.md", "Derived Controls"],
   ["LLM adjudication", "Explicit candidate and audit-only amendment proposal", "references/artifact-contracts.md", "LLM Adjudication"],
   ["Canonical CRM", "Approved canonical tables, source provenance, idempotency, staging, and reconciliation", "references/canonical-deployment-retrieval.md", "CRM Export"],
-  ["CRM writes", "No-send common-object import files, target mapping, sandbox proof, authorization, reconciliation, and rollback", "references/crm-write-readiness.md", "CRM Writes"],
-  ["CRM API/MCP", "Read-only approved-fact discovery, schema, table export, and report functions", "references/canonical-deployment-retrieval.md", "API and MCP"],
+  ["CRM writes", "No-send common-object files plus governed client-YAML create/amend proposal, authorization, adapter, and reconciliation", "references/business-data-platform.md", "CRM Writes"],
+  ["CRM API/MCP", "Approved-fact retrieval plus optional typed analytics, analytical exports, intake, and record proposals", "references/business-data-platform.md", "API and MCP"],
   ["Connector access", "Local stdio and OAuth-protected remote Streamable HTTP deployment choices", "references/mcp-production-integration.md", "Connector Access"],
   ["Standard reports", "Seven deterministic operational and financial report shapes", "references/canonical-deployment-retrieval.md", "Standard Reports"],
   ["Query recipes", "Cross-table search, exact lookup, account cards, governed filtering, and multidimensional sales analysis", "references/canonical-deployment-retrieval.md", "Query Examples"],
@@ -300,14 +300,15 @@ crmWrites.getRange("C:C").format.columnWidth = 72;
 crmWrites.getRange("D:D").format.columnWidth = 30;
 crmWrites.getRange("E:E").format.columnWidth = 72;
 
-const capabilityRows = crm.api_mcp_capabilities.map((item) => [item.function, item.api, item.mcp, item.result, item.mcp === "create_crm_export" ? "Additive, non-idempotent report artifact; canonical facts unchanged; no CRM upload" : "Read-only; approved canonical facts only; no CRM upload"]);
+const additiveTools = new Set(["create_crm_export", "create_business_analytics_export", "propose_business_record_change"]);
+const capabilityRows = crm.api_mcp_capabilities.map((item) => [item.function, item.api, item.mcp, item.result, item.mcp === "Not exposed to MCP" ? "Separately scoped human/operator API; never callable by the model; canonical facts unchanged" : additiveTools.has(item.mcp) ? "Additive artifact/proposal; canonical facts unchanged; no model authorization" : "Read-only; approved facts or owner-scoped receipts; no CRM upload"]);
 apiMcp.mergeCells("A1:E1");
 apiMcp.getRange("A1").values = [["SAMPLE - FICTIONAL - NOT CLIENT DATA: API and MCP"]];
 apiMcp.getRange("A1:E1").format = titleStyle;
 apiMcp.mergeCells("A2:E2");
 apiMcp.getRange("A2").values = [["All query tools call the same integrity-checked service layer. Local MCP uses stdio; remote MCP uses OAuth-protected Streamable HTTP and adds owner-bound, expiring CSV/XLSX export jobs. The TLS/bearer REST API remains GET-only and is not an MCP endpoint."]];
 apiMcp.getRange("A2:E2").format = noteStyle;
-apiMcp.getRange("A2").values = [["Approved-data tools share one integrity-checked service. Remote MCP adds owner-bound expiring CSV/XLSX jobs. TLS/bearer REST stays GET-only. Optional source/proposal writes are separate: see Visual Intake."]];
+apiMcp.getRange("A2").values = [["Approved-data tools share one integrity-checked service. Client YAML adds typed analytics, exports, intake, and record proposals; separately scoped operator API authorization/apply/reconcile is intentionally not MCP. TLS/bearer REST stays GET-only."]];
 apiMcp.getRange(`A4:E${4 + capabilityRows.length}`).values = [["Function", "HTTPS API", "MCP tool", "Returns", "Safety boundary"], ...capabilityRows];
 apiMcp.getRange("A4:E4").format = headerStyle;
 apiMcp.getRange(`A4:E${4 + capabilityRows.length}`).format.borders = border;

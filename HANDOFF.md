@@ -3,8 +3,8 @@ project: business-doc-ingestion
 release_baseline: "1.0.0"
 repository_channel: unreleased-main
 state: public-snapshot
-last_verified: "2026-09-14"
-documentation_verified: "2026-09-14"
+last_verified: "2026-09-17"
+documentation_verified: "2026-09-17"
 next_external_event: none
 ---
 

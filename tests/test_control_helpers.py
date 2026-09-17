@@ -950,6 +950,96 @@ def test_the_run_records_a_key_found_on_the_lines_as_its_own_method(tmp_path, mo
     assert summary["attribution_by_method"] == {"explicit_printed_on_lines": 1}
 
 
+def test_the_crediting_rule_credits_each_money_line_to_the_key_it_prints():
+    """Several jobs on one statement are credited line by line, never to a chosen one."""
+    ref = attribution.empty_reference()
+    record = {
+        "lines": [
+            printed(job_number="12951", commission_amount="100.00"),
+            printed(job_number="13096", project_number="P-1", commission_amount="(25.00)"),
+            printed(description="carried forward", commission_amount="0.00"),
+            printed(description="a heading"),
+            "not a line",
+        ]
+    }
+    assert attribution.credit_by_line(record, ref) == [
+        {"line": 0, "key": "12951", "key_field": "job_number", "amount": 100.0},
+        {"line": 1, "key": "13096", "key_field": "job_number", "amount": -25.0},
+    ]
+    # A money line printing no key, or a key the corpus formats refuse, credits nothing.
+    unkeyed = {
+        "lines": [
+            printed(job_number="12951", commission_amount="1.00"),
+            printed(commission_amount="2.00"),
+        ]
+    }
+    assert attribution.credit_by_line(unkeyed, ref) is None
+    formats = attribution.empty_reference()
+    formats["formats"] = {"######"}
+    keyed = {"lines": [printed(job_number="12951", commission_amount="1.00")]}
+    assert attribution.credit_by_line(keyed, formats) is None
+    # A document with no money line has nothing to credit.
+    assert attribution.credit_by_line({"lines": [printed(job_number="12951")]}, ref) is None
+    assert attribution.credit_by_line({}, ref) is None
+
+
+def test_the_run_registers_a_statement_credited_by_line_as_an_answer(tmp_path, monkeypatch):
+    """Under the rule a statement of several jobs is credited, not left unresolved."""
+    import json
+    import sys
+
+    records = tmp_path / "records.json"
+    records.write_text(
+        json.dumps(
+            [
+                {
+                    "document_id": "run__p1",
+                    "header": {},
+                    "lines": [
+                        printed(job_number="12951", commission_amount="100.00"),
+                        printed(job_number="13096", commission_amount="50.00"),
+                    ],
+                },
+                {
+                    "document_id": "run__p2",
+                    "header": {},
+                    "lines": [printed(commission_amount="10.00")],
+                },
+            ]
+        )
+    )
+
+    def run(*extra):
+        out, register = tmp_path / "attributed.json", tmp_path / "register.json"
+        argv = ["attribution.py", str(records), "--out", str(out), "--register", str(register)]
+        monkeypatch.setattr(sys, "argv", [*argv, "--quiet", *extra])
+        try:
+            attribution.main()
+        except SystemExit as exc:
+            assert not exc.code
+        registered = {e["document_id"]: e for e in json.loads(register.read_text())["register"]}
+        return json.loads(out.read_text())["summary"], registered
+
+    summary, registered = run("--credit-by-line", "run-authorization-amendment-63")
+    credited = registered["run__p1"]
+    assert (credited["reason_code"], credited["is_failure"]) == ("credited_by_line", False)
+    assert [credit["key"] for credit in credited["line_credits"]] == ["12951", "13096"]
+    assert credited["crediting_authorization"] == "run-authorization-amendment-63"
+    assert (registered["run__p2"]["reason_code"], registered["run__p2"]["is_failure"]) == (
+        "unresolved",
+        True,
+    )
+    assert (summary["credited_by_line_documents"], summary["credited_by_line_value"]) == (1, 150.0)
+    assert "credited line by line under run-authorization-amendment-63" in " ".join(
+        summary["findings"]
+    )
+
+    # Without the rule the same statement is an allocation question, unresolved.
+    summary, registered = run()
+    assert {entry["reason_code"] for entry in registered.values()} == {"unresolved"}
+    assert summary["credited_by_line_documents"] == 0
+
+
 def test_a_payment_record_and_a_blank_page_are_answers_not_failures(tmp_path, monkeypatch):
     """A page the image shows is a payment, or blank, is registered with its reason."""
     import json
@@ -1641,3 +1731,63 @@ def test_a_cut_name_with_two_possible_completions_is_left_alone():
     # Too short to carry the evidence.
     assert entity_resolve.completed_by({"abc", "abcdef"}) == {}
     assert entity_resolve.completed_by({"wb latha", "wb latham"}) == {"wb latha": "wb latham"}
+
+
+def test_a_cut_name_goes_to_the_company_not_the_branch_its_label_names():
+    """A cut stops inside its word; it carries no evidence for a branch label.
+
+    On the commission run `cornerwise design service` went to the Jacksonville
+    branch although `cornerwise design services` was printed on its own.
+    """
+    names = {
+        "cornerwise design service",
+        "cornerwise design services",
+        "cornerwise design services jacksonville",
+    }
+    bases = {"cornerwise design services jacksonville": "cornerwise design services"}
+    assert entity_resolve.completed_by(names, bases) == {
+        "cornerwise design service": "cornerwise design services"
+    }
+    # Without the label's evidence the longest completion stands, as before.
+    assert entity_resolve.completed_by(names) == {
+        "cornerwise design service": "cornerwise design services jacksonville"
+    }
+    # A base never printed on its own is no candidate, so the branch completes it.
+    only_branch = {"merrow off", "merrow office products haileah fl"}
+    assert entity_resolve.completed_by(
+        only_branch, {"merrow office products haileah fl": "merrow office products"}
+    ) == {"merrow off": "merrow office products haileah fl"}
+    assert entity_resolve.branch_base("Cornerwise Design Services-Jacksonville") == (
+        "cornerwise design services"
+    )
+    assert entity_resolve.branch_base("Office Quarters Inc - NY") == "office quarters"
+    assert entity_resolve.branch_base("Holdens Business Environments") is None
+
+
+def test_clustering_puts_a_cut_name_with_the_company_and_keeps_the_branch_apart():
+    def mention(name, index):
+        return {
+            "raw_name": name,
+            "raw_address": None,
+            "role": "dealer",
+            "document_id": f"d{index}",
+            "field": "dealer_name",
+        }
+
+    mentions = [
+        mention("CORNERWISE DESIGN SERVICE", 0),
+        mention("CORNERWISE DESIGN SERVICES", 1),
+        mention("Cornerwise Design Services-Jacksonville", 2),
+    ]
+    groups, evidence, _ = entity_resolve.cluster(mentions, 0.99, 0.98)
+    together = sorted(
+        sorted(mentions[i]["raw_name"] for i in members) for members in groups.values()
+    )
+    assert together == [
+        ["CORNERWISE DESIGN SERVICE", "CORNERWISE DESIGN SERVICES"],
+        ["Cornerwise Design Services-Jacksonville"],
+    ]
+    assert any(
+        (item["a"], item["b"]) == ("CORNERWISE DESIGN SERVICE", "CORNERWISE DESIGN SERVICES")
+        for item in evidence
+    )

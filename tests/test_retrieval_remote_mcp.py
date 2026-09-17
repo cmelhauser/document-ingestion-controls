@@ -325,6 +325,7 @@ def running_handler(
     ingestion=None,
     canonical_export=None,
     canonical_load_plan=None,
+    platform=None,
 ):
     audit = remote.AuditLog(tmp_path / f"audit-{time.time_ns()}.jsonl")
     exports = remote.ExportJobs(
@@ -345,6 +346,7 @@ def running_handler(
         10_000,
         frozenset(origins),
         ingestion=ingestion,
+        platform=platform,
     )
     server = ThreadingHTTPServer(("127.0.0.1", 0), request_handler)
     thread = threading.Thread(target=server.serve_forever, daemon=True)

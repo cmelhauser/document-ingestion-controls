@@ -27,7 +27,13 @@ from typing import Any
 from client_review import evidence, instructions, questions, thresholds, workbook
 from client_review.answers import carry_forward
 from client_review.grouping import build_groups
-from client_review.queue import consolidate, resolutions
+from client_review.queue import (
+    consolidate,
+    governed_pages,
+    operator_dispositions,
+    resolutions,
+    vote_settlements,
+)
 
 PACK_SCHEMA_VERSION = "client_review_pack_v1"
 
@@ -43,6 +49,9 @@ def build_pack(
     consensus: Path | None = None,
     classifications: list[Path] | None = None,
     resolved_by: list[Path] | None = None,
+    supersede: list[tuple[Path, Path]] | None = None,
+    settled_by_vote: list[tuple[Path, Path]] | None = None,
+    dispositions: list[Path] | None = None,
     prefill_from: Path | None = None,
     scan_profile: Path | None = None,
     manifest: Path | None = None,
@@ -58,20 +67,40 @@ def build_pack(
     operator preparing a deliberate mid-run client conversation needs. It never
     lowers a threshold: the pack records that it was forced, so a reader can tell
     a pack the pipeline asked for from a pack a person asked for.
+
+    ``resolved_by``, ``supersede``, ``settled_by_vote`` and ``dispositions`` are
+    the final queue's reconciliations, read by the queue's own functions, so a
+    pack built from the gate's inputs retains what the gate retains and refuses
+    what it refuses.
     """
     out_dir = Path(out_dir)
     if out_dir.exists():
         raise FileExistsError(f"refusing to overwrite existing review pack: {out_dir}")
     if not artifacts:
         raise ValueError("a review pack requires at least one source artifact")
-    # The gate reconciles a document-type proposal against a classification the
-    # run already accepted (`final_review_queue.py --resolved-by`). This lane
-    # builds the same queue by a second path and did not, so a pack issued from
-    # it re-asked 1,121 questions the run had already answered.
-    accepted = resolutions([Path(path) for path in (resolved_by or [])]) if resolved_by else None
-    items, sources, reconciled = consolidate([Path(path) for path in artifacts], accepted)
+    # The gate reconciles three ways before it asks (`final_review_queue.py
+    # --resolved-by`, `--supersede`, `--settled-by-vote`). This lane builds the
+    # same queue by a second path. With none of them a pack issued from it
+    # re-asked 1,121 questions the run had already answered; with the first
+    # alone, a pack from the commission run's final-queue inputs asked 1,054
+    # findings the queue retains: 522 a re-read superseded, 532 a vote settled.
+    paths = [Path(path) for path in artifacts]
+    accepted = resolutions([Path(path) for path in resolved_by]) if resolved_by else None
+    governed = governed_pages(supersede or [], paths)
+    settled = vote_settlements(settled_by_vote or [], paths)
+    disposed = operator_dispositions(dispositions) if dispositions else None
+    items, sources, reconciled = consolidate(paths, accepted, governed, settled, disposed)
+    reconciliation = _reconciliation(
+        reconciled, resolved_by, supersede, settled_by_vote, dispositions
+    )
     # Rule 9: a lane that processed nothing has not produced a clean review.
     if not items:
+        if reconciled:
+            # Not nothing: every finding was answered, superseded or settled.
+            raise ValueError(
+                f"all {len(reconciled)} findings in {', '.join(sources)} are retained "
+                "as reconciled; there is nothing left to ask"
+            )
         raise ValueError(
             "no review items were found in "
             f"{', '.join(sources)}; a pack built from nothing would report a clear "
@@ -100,6 +129,7 @@ def build_pack(
                 if not enabled
                 else "no control cleared its configured threshold"
             ),
+            **reconciliation,
         }
         (out_dir / "review_pack.json").write_text(json.dumps(pack, indent=2) + "\n")
         return pack
@@ -120,9 +150,9 @@ def build_pack(
         renderer=renderer,
     )
     pack["summary"] = built["summary"]
-    # Questions the run had already answered, retained rather than asked.
-    pack["summary"]["reconciled_items"] = len(reconciled)
-    pack["summary"]["resolution_artifacts"] = [Path(path).name for path in (resolved_by or [])]
+    # Findings the run had already answered, superseded or settled, retained
+    # rather than asked, and counted as the final queue counts them.
+    pack["summary"].update(reconciliation)
     pack["reconciled"] = reconciled
     pack["questions"] = built["questions"]
     pack["deferred_questions"] = built["deferred_questions"]
@@ -186,6 +216,34 @@ def write_compile_inputs(
     consolidation_out.write_text(json.dumps(consolidation, indent=2) + "\n")
     decisions_out.write_text(json.dumps(decisions, indent=2) + "\n")
     return decisions
+
+
+def _reconciliation(
+    reconciled: list[dict[str, Any]],
+    resolved_by: list[Path] | None,
+    supersede: list[tuple[Path, Path]] | None,
+    settled_by_vote: list[tuple[Path, Path]] | None,
+    dispositions: list[Path] | None = None,
+) -> dict[str, Any]:
+    """Count what the pack retained instead of asking, under the queue's names.
+
+    ``final_review_queue.py`` counts each reconciliation separately, and the pack
+    reports the same counts, so a pack and the queue can be compared directly.
+    """
+
+    def count(disposition: str) -> int:
+        return sum(1 for entry in reconciled if entry["disposition"] == disposition)
+
+    return {
+        "reconciled_items": count("already_resolved"),
+        "resolution_artifacts": [Path(path).name for path in (resolved_by or [])],
+        "superseded_items": count("superseded_by_re_read"),
+        "superseded_by": [[str(artifact), str(manifest)] for artifact, manifest in supersede or []],
+        "settled_by_vote_items": count("settled_by_vendor_vote"),
+        "settled_by_vote": [[str(vote), str(artifact)] for vote, artifact in settled_by_vote or []],
+        "dispositioned_items": count("dispositioned_by_operator"),
+        "disposition_artifacts": [Path(path).name for path in (dispositions or [])],
+    }
 
 
 def _consensus_document(consensus: Path | None) -> dict[str, Any]:

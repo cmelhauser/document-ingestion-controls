@@ -21,15 +21,16 @@ analytics work, not as an operating procedure.
    replace it with arbitrary SQL, filesystem writes or canonical inserts.
 3. Confirm the client can transfer actual original image bytes and inspect
    returned MCP images. A chat attachment alone does not prove server access.
-   Never invent base64 or pretend an upload occurred. If unavailable, stop and
-   request the documented operator-controlled API integration; no bundled mobile
-   capture/attachment relay or browser uploader is currently implemented.
+   Never invent base64 or pretend an upload occurred. If native connector
+   transfer is unavailable, use the deployed same-origin `/portal` or documented
+   operator-controlled API integration; no native chat attachment relay is
+   implied.
 
 ## Retain, read and propose
 
 1. Create a session with `create_ingestion_session` using the exact page count
    and a client-generated idempotency key. Preserve the receipt/session ID.
-2. Have the application upload each original PNG/JPEG page through
+2. Have the application or bundled review portal upload each original PNG/JPEG page through
    `upload_ingestion_page`. Retain and inspect every receipt, including rejected
    attempts. Do not omit failed pages or overwrite a retained page slot.
 3. Call `get_ingestion_status`; do not submit a passing proposal until every
@@ -77,4 +78,5 @@ No intake tool approves, applies or publishes records. Follow the existing
 ordered business-document controls only through their supported input
 contracts; do not synthesize clearance artifacts. Changes
 to approved records, entity merges, canonical refresh and live target-CRM writes
-require the separately planned authorization, amendment and acceptance stages.
+use `../record-maintenance/SKILL.md` and the implemented client-configured
+authorization, adapter, reconciliation, and replacement-snapshot stages.

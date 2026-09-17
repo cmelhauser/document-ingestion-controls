@@ -1,4 +1,12 @@
-# Vendor-neutral business data platform roadmap
+# Vendor-neutral business data platform delivery record and roadmap
+
+The repository now implements the generic client-YAML platform described in
+`business-data-platform.md`: mobile/browser intake and review, governed
+create/amend adapters, typed analytics, saved reports, analytical exports, and
+container/systemd deployment templates. The sections below preserve the design
+history. Remaining work is client-specific configuration, infrastructure,
+identity/target integration, golden-total validation, and production acceptance;
+it is not permission to bypass those gates.
 
 This is an implementation sequence, not a list of production capabilities.
 Salesforce was an analogy for flexible business analysis, not a target-system
@@ -28,13 +36,14 @@ refuse progression. Verification pins the export receipt, every file and each
 journal entry. No host-LLM proposal is converted into a consensus vote or
 approved fact. See [Visual Intake](visual-ingestion.md) for operation and limits.
 
-## Next: client transfer and review integration
+## Delivered: client transfer and review integration
 
-Build a small authenticated capture/upload application with actual byte
+The remote server includes a small authenticated capture/upload portal with actual byte
 transfer, orientation-aware preview and receipt display, usable separately from
-a chat conversation. Add PDF/container preservation and page preparation without
-replacing originals. Add owner-safe session discovery and explicitly authorized
-reviewer access. Test the exact intended ChatGPT/Claude desktop and iOS clients;
+a chat conversation. It preserves supported original PNG/JPEG bytes and adds
+owner-safe session discovery and proposal-history review. PDF/container intake
+still enters through the established pipeline rather than this image-only journal.
+Test the exact intended ChatGPT/Claude desktop and iOS clients;
 native connector attachment support is a separate acceptance question. Do not
 depend on an LLM generating base64 or on speculative protocol features.
 
@@ -47,8 +56,11 @@ golden set, source derivative visual acceptance for intended capture devices,
 recoverable interrupted capture/provider failures, and deeper delegated-review
 or mobile capture flows. Do not treat the archive as a producer-authenticated
 extraction or consensus input.
+The client-configured business platform adds a same-origin upload and review
+portal, analytics and a governed change adapter; see
+[Business Data Platform](business-data-platform.md).
 
-## Then: governed create/update adapter
+## Delivered generic boundary: governed create/update adapter
 
 Expose a separate versioned business-object schema for create and amendment
 requests. Define account/contact/address/transaction/line/payment relationships,
@@ -56,31 +68,35 @@ stable keys, allowed fields, types, null/clear semantics and validation rules.
 Keep user assertions and source-backed facts distinct. All operations use an
 authenticated actor, tenant, reason, source references and request key.
 
-Build `propose -> validate -> preview -> authorize -> apply -> reconcile` around
+The implementation provides `propose -> validate -> preview -> authorize -> apply -> reconcile` around
 an append-only change set. Updates name the exact prior record version/hash;
 stale writes conflict, not silently overwrite. A preview shows before/after,
 affected relationships and downstream controls. Approval binds the immutable
 preview hash, actor and expiry; submitters cannot manufacture approval payloads.
-Apply only after required independent controls and authorization, then publish a
-new immutable approved snapshot. Rejected changes stay visible. Rollback is a
-compensating amendment, never deletion of history. Separate permission scopes
-and optional separation of duties govern submission, approval and application.
+The remote scope governs submission. Approval, application, and reconciliation
+are available only through three separately scoped **operator JSON API** routes
+or the equivalent operator CLI; they are intentionally absent from MCP tool
+discovery and require separate credentials. `records:authorize` signs an
+explicit human decision, while `records:apply` permits application and
+reconciliation of that retained authorization.
+Rejected changes stay visible. Rollback is a compensating amendment, never
+deletion of history.
 
 Define a target-neutral adapter contract for schema/capabilities, mapping,
 validation/dry-run, idempotent create/upsert/amend, status and reconciliation.
-First ship verified no-send common-object CSV/JSON packages using existing CRM
-import packages. External delivery follows only after target sandbox acceptance,
-explicit authorization and credential configuration. Keep server-side outbox,
-retry classification, exact external IDs and partial-failure receipts so a
-timeout cannot create duplicate records. Defer hard deletion and entity merge
-until their dependency and authorization semantics are designed and tested.
+The file adapter emits verified no-send JSON alongside the existing common-object
+CSV/XLSX import packages. The generic HTTPS JSON adapter follows only after
+target sandbox acceptance, explicit authorization, and credential configuration.
+It retains exact external IDs and forces reconciliation after ambiguous timeout.
+Hard deletion, entity merge, and target-specific bulk APIs remain deliberately
+outside the generic contract.
 
-Acceptance: duplicates, repeated/concurrent requests, stale versions, cross-owner
-and tenant access, replayed/expired approvals, tampering, partial batch outcomes,
-lost acknowledgments, reconciliation and compensating changes tested. Add
-record-maintenance and target-adapter skills only when their real tools exist.
+Repository acceptance covers idempotency, stale versions, owner/tenant boundaries,
+expired/tampered approvals, lost acknowledgments, and reconciliation. A client
+must separately exercise its target API's partial-batch and compensating-change
+semantics. The `record-maintenance` skill governs the implemented tools.
 
-## Analytics: reusable governed metrics and query plans
+## Delivered generic boundary: reusable governed metrics and query plans
 
 Retain current account cards, exact lookup, search, filters, standard reports and
 exports. Extend the shared MCP/API semantic service, not provider-specific logic.
@@ -88,11 +104,12 @@ Define measures/dimensions and allowed joins with explicit grain, aggregation,
 currency, timezone, fiscal calendar, null and deduplication semantics. Avoid
 double-counting invoices through lines, addresses or payment applications.
 
-Add a typed query plan for multi-dimension grouping, safe joins, date windows,
-ranking, drill-down and comparison periods; compile through allowlisted SQL and
-bound parameters. No model-supplied unrestricted SQL. Push bounded aggregation
-into an indexed query store instead of scaling Python table scans. Add budgets,
-cancellation, explainable errors, pagination and snapshot-bound cache keys.
+The typed query plan provides multi-dimension grouping, safe joins, typed date
+windows, drill-down by dimensions, metric having, numeric sort/ranking order,
+totals, and pagination. No model-supplied unrestricted SQL is accepted. The
+engine scans only the configured, bounded immutable snapshot and refuses its
+input budget; deployments exceeding that budget should implement and accept a
+compatible warehouse compiler rather than silently raising the limit.
 
 Build reusable saved reports and CSV/XLSX exports from that same query plan:
 sales by company/region/product, trends and period-over-period change, customer

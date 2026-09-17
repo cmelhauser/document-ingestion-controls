@@ -33,6 +33,34 @@ builds the queue by its own path, so without it the pack re-asks every
 document-type question the gate already reconciled -- 1,121 of them on the
 commission run.
 
+`--supersede ARTIFACT MANIFEST` and `--settled-by-vote VOTE ARTIFACT` are the
+gate's other two reconciliations. When the run has a subset re-read, or a vote
+over one, give the lane the same pairs the final queue was given:
+
+```bash
+python scripts/client_review_lane.py build RUN/controls/consensus_exceptions.json \
+  RUN/controls/consensus_reread_exceptions.json \
+  --out-dir RUN/review/pack_02 \
+  --supersede consensus_exceptions.json RUN/pages/ingestion_manifest_reread.json \
+  --settled-by-vote RUN/controls/vote_reread.json consensus_reread_exceptions.json
+```
+
+Without them the pack asks what the queue retains: built from the commission
+run's final-queue inputs it asked 36,796 items where the queue asks 35,742, the
+difference being 522 findings a re-read superseded and 532 a vendor vote
+settled. With them it asks exactly the queue's items. The pack's summary counts
+each kind as the queue's does (`reconciled_items`, `superseded_items`,
+`settled_by_vote_items`). `superseded_items` counts retained entries (725
+there): a finding two superseded inputs both report counts twice, and one that
+another input also reports is still asked. An artifact that is not an input, or
+a file that is not a vote, is refused before anything is written.
+
+`--dispositions ARTIFACT` is the gate's fourth reconciliation. It takes an
+operator-authorized `operator_item_dispositions_v1` artifact naming items by
+`review_item_id`, each with the rule that disposes of it. Give the lane the same
+disposition artifacts the final queue was given, and it counts what they
+retained as `dispositioned_items`.
+
 Pass `--classifications` for the reason in
 [`review-reduction.md`](review-reduction.md): the extraction consensus says
 `unknown` wherever its lanes could not agree a document type, and without the

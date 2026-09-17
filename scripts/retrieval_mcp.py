@@ -276,7 +276,7 @@ def validate_arguments(arguments, allowed, required=()):
         raise ValueError(f"Missing required tool arguments: {missing}")
 
 
-def handle(request, database, ingestion=None, owner="local-operator"):
+def handle(request, database, ingestion=None, owner="local-operator", platform=None):
     """Handle modern discovery, legacy initialization, and read-only retrieval."""
     if not isinstance(request, dict):
         return response(None, error="Request must be an object", code=-32600)
@@ -292,6 +292,11 @@ def handle(request, database, ingestion=None, owner="local-operator"):
             instructions.replace("This server is read-only", "Approved-fact retrieval is read-only")
             + " "
             + INGESTION_INSTRUCTIONS
+        )
+    if platform is not None:
+        instructions += (
+            " Configured analytics are typed and bounded. Record create/amend calls retain "
+            "proposals only; a separate human/operator authorization and adapter run are required."
         )
     if method == "notifications/initialized":
         return None
@@ -342,6 +347,8 @@ def handle(request, database, ingestion=None, owner="local-operator"):
             from ingestion_tools import tool_definitions
 
             tools.extend(tool_definitions())
+        if platform is not None:
+            tools.extend(platform.tool_definitions())
         result = {"tools": tools}
         if modern:
             result.update({"ttlMs": 0, "cacheScope": "private"})
@@ -355,6 +362,16 @@ def handle(request, database, ingestion=None, owner="local-operator"):
     if not isinstance(arguments, dict):
         return response(request_id, error="tool arguments must be an object")
     try:
+        if platform is not None:
+            from business_platform_tools import OPERATIONS as PLATFORM_OPERATIONS
+
+            name = params.get("name")
+            if isinstance(name, str) and name in PLATFORM_OPERATIONS:
+                return response(
+                    request_id,
+                    tool_result(platform.invoke(owner, name, arguments)),
+                    modern=modern,
+                )
         if ingestion is not None:
             from ingestion_tools import OPERATIONS, as_tool_result, invoke
 
@@ -500,7 +517,9 @@ def handle(request, database, ingestion=None, owner="local-operator"):
         return response(request_id, error=str(exc))
 
 
-def serve(database, input_stream=sys.stdin, output_stream=sys.stdout, ingestion=None):
+def serve(
+    database, input_stream=sys.stdin, output_stream=sys.stdout, ingestion=None, platform=None
+):
     """Serve line-delimited JSON-RPC over stdio; malformed messages are isolated."""
     for line in input_stream:
         if not line.strip():
@@ -510,7 +529,7 @@ def serve(database, input_stream=sys.stdin, output_stream=sys.stdout, ingestion=
         except (json.JSONDecodeError, RecursionError):
             result = response(None, error="Invalid JSON", code=-32700)
         else:
-            result = handle(request, database, ingestion=ingestion)
+            result = handle(request, database, ingestion=ingestion, platform=platform)
         if result is not None:
             output_stream.write(json.dumps(result, sort_keys=True) + "\n")
             output_stream.flush()
@@ -520,10 +539,14 @@ def main():
     parser = argparse.ArgumentParser(
         description="Serve a read-only canonical retrieval MCP endpoint over stdio."
     )
-    parser.add_argument("database")
+    parser.add_argument("database", help="Immutable approved-fact SQLite snapshot to serve.")
     parser.add_argument(
         "--ingestion-dir",
         help="Opt in to a separate private visual-intake journal directory; never the approved snapshot directory.",
+    )
+    parser.add_argument(
+        "--client-config",
+        help="Opt in to configured governed analytics and record-change proposals using this client YAML.",
     )
     parser.add_argument(
         "--ingestion-tenant",
@@ -539,7 +562,13 @@ def main():
         ingestion = IngestionStore(
             args.ingestion_dir, args.ingestion_tenant, protected_database=args.database
         )
-    serve(args.database, ingestion=ingestion)
+    platform = None
+    if args.client_config:
+        from business_platform_tools import PlatformService
+        from client_platform_config import load
+
+        platform = PlatformService(load(args.client_config), args.database)
+    serve(args.database, ingestion=ingestion, platform=platform)
 
 
 if __name__ == "__main__":

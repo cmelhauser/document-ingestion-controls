@@ -1,6 +1,6 @@
 ---
 name: mcp-api-operations
-description: Set up, deploy, validate, connect, and operate the approved-fact CRM MCP and APIs, including optional separate visual-intake activation. Use for stdio or OAuth MCP, TLS/bearer GET queries, OAuth intake API, CRM reports/exports, and client acceptance. Route image proposals to record-intake; never authorize canonical or target-CRM writes.
+description: Set up, deploy, validate, connect, and operate approved-fact CRM MCP/APIs plus the optional client-YAML analytics, visual-intake, and governed record-proposal platform. Use for stdio or OAuth MCP, reports/exports, client registration, and acceptance; never grant a model authorization or target-write authority.
 ---
 
 # MCP and API Operations
@@ -26,6 +26,9 @@ read:
 - `../../references/crm-write-readiness.md` when the request crosses from
   retrieval/export into CRM import or mutation. That is a separate no-send and
   authorization boundary.
+- `../../references/business-data-platform.md` for the client YAML, typed
+  analytics, analytical exports, portal, governed change adapter, and deployment
+  templates; use `../record-maintenance/SKILL.md` for an actual change lifecycle.
 - `../business-doc-operations/SKILL.md` when Phase 6 prerequisites do not yet
   exist and the document run itself must be operated.
 
@@ -38,6 +41,7 @@ Use `../../docs/TECHNICAL_DOCUMENTATION.md` for end-to-end context and
 |---|---|---|
 | Same-machine Claude Code/Desktop or compatible client | Local stdio MCP | `scripts/run_retrieval_mcp.sh` |
 | Claude or ChatGPT workspace/mobile/web connection | Remote Streamable HTTP MCP | `scripts/retrieval_remote_mcp.py` at the exact public `/mcp` resource |
+| Unified client-configured analytics/intake/proposals | YAML-driven OAuth MCP/API | `scripts/business_platform_server.py`; templates in `deploy/business-platform/` |
 | Controlled internal application or BI integration | TLS/bearer read-only REST API | `scripts/retrieval_https.py` |
 | Co-located application container or ECS sidecar | Internal FastAPI sidecar | `scripts/retrieval_sidecar.py` |
 | Direct local inspection or snapshot construction | Retrieval CLI | `scripts/retrieval_store.py` |
@@ -139,6 +143,22 @@ routes before deployment.
 
 ## Query and report safely
 
+For the unified platform, start from `config/client-platform.example.yaml`, keep
+the client copy and all secrets outside the repository, and run
+`business_platform_deploy.py` to fingerprint the configuration/snapshot and
+write a no-secret acceptance plan. Launch `business_platform_server.py --enable`
+through the supplied non-root Docker/Compose, single-writer Kubernetes, or
+systemd template only after deployment authorization.
+
+That surface adds eight local operations or nine remote operations when export
+jobs are available. Typed analytics provides allowlisted many-to-one joins,
+dimensions, measures, date/fiscal grains, typed filters, having, totals, numeric
+sorting, and pagination. Analytical exports use the same owner-bound expiring
+CSV/XLSX job controls as standard CRM exports. Record operations stop at
+schema/propose/preview/status; authorization, live application, and
+reconciliation are operator-only CLI actions, and a successful target
+reconciliation still requires a new approved snapshot.
+
 Start with capabilities, export summary, and schema discovery. Then choose:
 
 - `search_crm_records` when the canonical key is unknown.
@@ -171,8 +191,9 @@ retains unapproved images/proposals separately from the snapshot. No intake
 operation approves, applies or publishes a fact. All deployment/snapshot gates
 above still apply, and the new source/model data flow requires authorization.
 
-Enabled local intake exposes twenty-three tools; enabled remote exposes up to
-twenty-five, filtered by OAuth scopes. Add `ingestion:read` and
+Enabled local intake exposes twenty-three tools; with the client platform it can
+expose thirty-one. The unified remote service exposes up to thirty-four tools,
+filtered by OAuth scopes. Add `ingestion:read` and
 `ingestion:submit` only for authorized users. The JSON application API is on the
 remote OAuth server at `/api/ingestion/{operation}`, not the GET-only
 `retrieval_https.py` surface. Check full-request base64 size limits, real image
@@ -183,10 +204,16 @@ covered by the intake handoff tests; it is not an MCP filesystem-write tool and
 does not approve proposals. Require the intake test suite and the guide's deployed-client
 acceptance checklist as well.
 
+For a governed record change, MCP remains proposal-only. The remote JSON API
+has operator-only `authorize_business_record_change` (`records:authorize`) and
+`apply_business_record_change` / `reconcile_business_record_change`
+(`records:apply`) routes, plus the equivalent local CLI. They are deliberately
+not MCP tools and must never be called by the connected model.
+
 Do not interpret `get_crm_capabilities().read_only` as a statement about the
 whole enabled service: it describes the approved-fact semantic layer. Remote
 `/health` and `/docs` report overall intake enablement separately. Preserve the
-seven-operation scope-filtered catalogue and do not register the GET-only REST
+nine-operation scope-filtered catalogue and do not register the GET-only REST
 URL as either MCP or the intake API. A chat tool approval permits that request,
 not business-record approval or downstream publication.
 Target-specific receivers remain outside this skill and belong on the

@@ -216,21 +216,39 @@ def normalize_help_usage(help_text):
     ).rstrip()
 
 
+# A help returns in well under a second, but endpoint security can stall a
+# process launch for several seconds. On 2026-09-16 the check failed seven times
+# on the operator's Mac, and every failure whose errors were kept was one help
+# timing out -- a help that takes under half a second alone. A stall is not stale
+# documentation, so a timed-out help is tried again with a longer limit. Only a
+# help that times out on every attempt is reported, so one that hangs still fails.
+HELP_TIMEOUTS = (5, 15, 30)
+
+
 def help_output(root, entry, arguments=()):
     """Return one entry point's side-effect-free help text or raise clearly."""
     script = Path(root) / "scripts" / entry
     command = [sys.executable, str(script)] if entry.endswith(".py") else ["bash", str(script)]
-    try:
-        completed = subprocess.run(  # noqa: S603 - fixed, checked-in CLI plus --help only
-            [*command, *arguments, "--help"],
-            cwd=root,
-            check=False,
-            capture_output=True,
-            encoding="utf-8",
-            timeout=5,
-        )
-    except subprocess.TimeoutExpired as exc:
-        raise ValueError(f"{entry} help timed out") from exc
+    stalls = []
+    for limit in HELP_TIMEOUTS:
+        try:
+            completed = subprocess.run(  # noqa: S603 - fixed, checked-in CLI plus --help only
+                [*command, *arguments, "--help"],
+                cwd=root,
+                check=False,
+                capture_output=True,
+                encoding="utf-8",
+                timeout=limit,
+            )
+        except subprocess.TimeoutExpired as exc:
+            stalls.append(exc)
+            continue
+        break
+    else:
+        limits = ", ".join(f"{seconds}s" for seconds in HELP_TIMEOUTS)
+        raise ValueError(
+            f"{entry} help timed out on all {len(HELP_TIMEOUTS)} attempts ({limits})"
+        ) from stalls[-1]
     if completed.returncode:
         detail = (completed.stderr or completed.stdout).strip().splitlines()
         message = detail[-1] if detail else f"exit status {completed.returncode}"

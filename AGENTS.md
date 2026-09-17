@@ -69,10 +69,13 @@ remain human matters.
 - Semantic mappings: `references/semantic-schema-discovery.md`.
 - Canonical load/retrieval: `references/canonical-deployment-retrieval.md`.
 - Common CRM import/write preparation: `references/crm-write-readiness.md`.
+- Client-configured analytics, exports, governed create/amend adapters, portal,
+  and deployment templates: `references/business-data-platform.md` and
+  `skills/record-maintenance/SKILL.md`.
 - Connected-LLM image intake: `skills/record-intake/SKILL.md` and
   `references/visual-ingestion.md`. Intake is an optional separate proposal-only
-  journal, not canonical mutation or pipeline clearance. Planned governed writes
-  and vendor-neutral analytics: `references/business-data-platform-roadmap.md`.
+  journal, not canonical mutation or pipeline clearance. Implementation history
+  and remaining client acceptance: `references/business-data-platform-roadmap.md`.
 - Choosing which optional lanes a corpus needs: `skills/pipeline-selection/SKILL.md`
   and `scripts/pipeline_plan.py`. A proposal measured from retained artifacts. It
   authorizes nothing, clears nothing, and reports an unmeasured lane as undecided
@@ -120,14 +123,17 @@ clearly labelled fictional samples.
 ## Operating boundary
 
 The optional visual-intake extension is a separate pre-pipeline proposal store:
-seven MCP/JSON API operations retain original images, schema-mapped candidates,
+nine MCP/JSON API operations retain original images, schema-mapped candidates,
 and receipts; the local source-only exporter preserves the entire session for
 normal profiling/intake. Approved canonical data remains read-only. Do not
 claim a pending proposal is published, count its self-reported model as an
 independent voter, or mistake byte-intact source export for review clearance.
 Use `skills/record-intake/SKILL.md` for this boundary and
-`references/business-data-platform-roadmap.md` for unimplemented create/update,
-client capture, review integration, and advanced analytics. Deployment still
+`references/business-data-platform.md` plus `skills/record-maintenance/SKILL.md`
+for the client-configured typed analytics and governed create/amend boundary.
+Models may propose changes but cannot authorize/apply them; separately scoped
+operator API/CLI actions may do so, and a reconciled target still requires a
+new approved snapshot. Deployment still
 requires an approved non-empty snapshot plus separate source-flow authority.
 
 Version 1.0.0 is the stable implemented control baseline and vendor-neutral

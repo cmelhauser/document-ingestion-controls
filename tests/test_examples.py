@@ -63,7 +63,7 @@ def test_samples_are_clearly_labelled_and_linked():
         "get_account_card",
         "analyze_sales",
     }
-    assert len(crm["standard_reports"]) == 7 and len(crm["query_examples"]) == 8
+    assert len(crm["standard_reports"]) == 7 and len(crm["query_examples"]) == 11
 
 
 def test_extracted_sample_uses_evidence_bearing_fields():
@@ -153,6 +153,9 @@ def test_schema_workbook_contains_clear_notice_and_views():
     assert "Query Recipes" in strings
     assert "get_ingestion_schema" in strings
     assert "submit_record_proposal" in strings
+    assert "query_business_analytics" in strings
+    assert "propose_business_record_change" in strings
+    assert "authorize_business_record_change" in strings
     assert "visual_ingestion_export.py" in strings
     intake_rows = load_sample("crm_api_mcp_summary_sample.json")["visual_intake"]
     assert tables["VisualIntakeGuideTable"] == f"A4:C{4 + len(intake_rows)}"

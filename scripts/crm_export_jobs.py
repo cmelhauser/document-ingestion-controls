@@ -254,6 +254,32 @@ class ExportJobs:
             if len(rows) > self.max_rows:
                 raise ValueError(f"export exceeds the configured {self.max_rows}-row limit")
             subject = {"kind": "report", "name": report, "arguments": parameters}
+        return self.create_rows(owner, subject=subject, rows=rows, snapshot=snapshot, format=format)
+
+    def create_rows(self, owner, *, subject, rows, snapshot, format="xlsx"):
+        """Create an immutable export from already-governed rows and snapshot metadata."""
+        if not isinstance(owner, str) or not owner:
+            raise ValueError("export owner must be a non-empty string")
+        if format not in TABULAR_FORMATS:
+            raise ValueError("format must be csv or xlsx")
+        if (
+            not isinstance(subject, dict)
+            or set(subject) != {"kind", "name", "arguments"}
+            or subject["kind"] not in {"table", "report", "analytics"}
+            or not isinstance(subject["name"], str)
+            or not isinstance(subject["arguments"], dict)
+        ):
+            raise ValueError("export subject is invalid")
+        if not isinstance(rows, list) or not all(isinstance(row, dict) for row in rows):
+            raise ValueError("export rows must be a list of objects")
+        if len(rows) > self.max_rows:
+            raise ValueError(f"export exceeds the configured {self.max_rows}-row limit")
+        if (
+            not isinstance(snapshot, dict)
+            or not isinstance(snapshot.get("batch_id"), str)
+            or not isinstance(snapshot.get("source_export_sha256"), str)
+        ):
+            raise ValueError("export snapshot metadata is invalid")
         return self._create_tabular_job(owner, subject, format, rows, snapshot)
 
     def _create_tabular_job(self, owner, subject, format_name, rows, snapshot):
@@ -445,7 +471,7 @@ class ExportJobs:
             or manifest.get("status") != "completed"
             or not isinstance(subject, dict)
             or set(subject) != {"kind", "name", "arguments"}
-            or subject.get("kind") not in {"table", "report", "package"}
+            or subject.get("kind") not in {"table", "report", "analytics", "package"}
             or not isinstance(subject.get("name"), str)
             or not isinstance(subject.get("arguments"), dict)
             or not isinstance(manifest.get("batch_id"), str)
@@ -468,7 +494,7 @@ class ExportJobs:
             )
         ):
             raise ValueError("export job manifest is invalid")
-        if subject["kind"] in {"table", "report"}:
+        if subject["kind"] in {"table", "report", "analytics"}:
             columns = tabular_summary.get("columns") if isinstance(tabular_summary, dict) else None
             if (
                 format_name not in TABULAR_FORMATS

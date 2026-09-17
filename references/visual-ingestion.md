@@ -43,7 +43,8 @@ pipeline run and separate from the immutable retrieval snapshot. The local
 handoff, described below. It preserves the whole session and prepares an image
 PDF for the existing profiling/intake commands. It never turns a host-LLM
 proposal into an extraction handoff, independent vote, approval or canonical
-record. The remaining stages are in the [development roadmap](business-data-platform-roadmap.md).
+record. Governed follow-on proposals are described separately in the
+[client-configured business platform](business-data-platform.md).
 
 The current MCP servers still require an approved retrieval snapshot positional
 argument, even for an intake-only OAuth user. A standalone intake deployment is
@@ -80,6 +81,8 @@ the fixed owner `local-operator`; this is a trusted single-user process, not a
 multi-user authorization boundary. `--ingestion-tenant` defaults to `local` and
 binds the journal permanently. Omit `--ingestion-dir` to retain the original
 twelve-tool read-only surface. Enabled local intake exposes twenty-three tools.
+Adding the client platform with `--client-config` exposes thirty-one local
+tools; its record operations remain proposals.
 
 For remote deployment, follow the full TLS/OAuth procedure in
 [MCP Production Integration](mcp-production-integration.md), adding
@@ -99,7 +102,7 @@ The authenticated OAuth subject owns a session; a different subject cannot
 inspect or modify it unless the owner explicitly grants read-only reviewer
 access. Owner transfer and administrator review tools are not implemented. The
 remote server offers twenty-five tools when enabled and all scopes are granted,
-versus fourteen by default. Enabled discovery filters tools to the caller's
+versus fourteen by default; the unified client platform offers up to thirty-four. Enabled discovery filters tools to the caller's
 scopes; an intake-only reader sees seven tools, while a caller with both intake
 scopes sees eleven.
 
@@ -110,8 +113,8 @@ proxy/client limits when that size is needed. The default therefore supports
 only smaller page uploads. The API and MCP share the per-address rate limit
 (default 60 requests per rolling minute). Keep payload and connection limits at
 the reverse proxy; this Python server is not a hardened public upload platform.
-It does not implement browser CORS preflight: use an authorized same-origin
-backend integration, not an assumed cross-origin browser uploader.
+It does not implement browser CORS preflight: use the bundled same-origin
+`/portal`, a native MCP client, or an authorized same-origin backend integration.
 
 ## Exact operation contracts
 
@@ -135,6 +138,8 @@ All keys listed below are required; identifiers are nonblank strings of at most
 | `list_ingestion_session_reviewers` | `ingestion:read` | `session_id` | Owner-only active reviewer grants for one session |
 | `get_ingestion_review_summary` | `ingestion:read` | `session_id` | Structured retained-page and proposal-version comparison for one accessible session |
 | `get_record_proposal` | `ingestion:read` | `session_id`, `proposal_id` | Exact original proposal and full validation receipt |
+| `list_ingestion_sessions` | `ingestion:read` | `limit`, `offset` | Owner-scoped session summaries with explicit pagination |
+| `get_ingestion_review` | `ingestion:read` | `session_id` | Status plus append-only proposal history for review/recovery |
 
 MCP image retrieval returns actual ImageContent alongside metadata; it does not
 place base64 into the text result. The JSON API returns the base64 in `data`.
@@ -162,6 +167,7 @@ browser review page at `/ingestion/review` can create sessions, upload actual
 image bytes, grant reviewers, submit proposal JSON, preview retained pages, and
 load review summaries against the authenticated API. A packaged mobile capture
 app and attachment relay are not yet shipped.
+The client platform also bundles a same-origin portal at `/portal`.
 
 Once every declared page is retained, get status and the schema, ask the model
 to inspect each page via `get_ingestion_page`, and populate exactly the returned
@@ -415,7 +421,7 @@ role and owner; actual maximum payload handling; rejected pages/proposals;
 interrupted uploads; replay after restart; backup/restore; token revocation; and
 no source-bearing logs. In each intended desktop/mobile client verify schema
 visibility, real-byte transfer, image rendering, the selected model's vision,
-all eleven operations, and visible pending-review boundaries. Record versions,
+all eleven operations, the bundled portal, and visible pending-review boundaries. Record versions,
 source hashes, expected readings, errors and results. No automated test in this
 repository currently proves native iOS capture, a client-provider connection,
-approved publication, or target-CRM mutation.
+approved publication, or a client target-CRM integration.

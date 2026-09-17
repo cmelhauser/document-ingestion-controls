@@ -16,6 +16,8 @@ maintenance:
 capability_routes:
   approved_crm: "skills/mcp-api-operations/SKILL.md"
   visual_proposals: "skills/record-intake/SKILL.md"
+  governed_record_changes: "skills/record-maintenance/SKILL.md"
+  typed_business_analytics: "references/business-data-platform.md"
   source_handoff: "references/visual-ingestion.md"
-  future_work: "references/business-data-platform-roadmap.md"
-  boundary: "Intake writes only to a separate proposal journal. Source export never approves readings; canonical/target-CRM mutation and native capture remain unimplemented."
+  delivery_record: "references/business-data-platform-roadmap.md"
+  boundary: "Intake writes only to a separate proposal journal. Models may propose configured changes, but only an operator can authorize/apply/reconcile them, and a new approved snapshot is required before reads change."

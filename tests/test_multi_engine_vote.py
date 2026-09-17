@@ -391,3 +391,91 @@ def test_a_proposal_run_does_not_claim_to_have_applied_anything(tmp_path, capsys
     printed = capsys.readouterr().out
     assert "agreed_by_2_vendors" in printed
     assert "applied to records" not in printed
+
+
+def test_a_subset_read_votes_on_its_own_pages_and_passes_the_rest_through(tmp_path, capsys):
+    """Handoffs that read 24 pages cannot speak for the corpus's other documents."""
+    open_total = {"header.total": cell()}
+    records = write(
+        tmp_path / "r.json",
+        {
+            "documents": [
+                {"document_id": "p1", "fields": dict(open_total)},
+                {"document_id": "p2", "fields": dict(open_total)},
+            ]
+        },
+    )
+    both = [record("p1", header={"total": cell("10")}), record("p2", header={"total": cell("10")})]
+    a = write(tmp_path / "a.json", handoff("openai", "gpt-x", both))
+    b = write(tmp_path / "b.json", handoff("openrouter", "x-ai/grok", both))
+    manifest = write(tmp_path / "manifest.json", {"pages": [{"page_id": "p1"}]})
+    common = ["--pages", manifest, "--exceptions", str(tmp_path / "e.json")]
+    lane.main(
+        [records, a, b, *common, "--out", str(tmp_path / "o.json")]
+        + ["--records-out", str(tmp_path / "amended.json")]
+    )
+    written = json.loads((tmp_path / "o.json").read_text())
+    assert (written["summary"]["documents"], written["summary"]["documents_passed_through"]) == (
+        1,
+        1,
+    )
+    assert written["summary"]["pages_manifests"] == ["manifest.json"]
+    assert [item["document_id"] for item in written["resolutions"]] == ["p1"]
+    # The other document is neither voted on nor listed as read by no vendor.
+    assert json.loads((tmp_path / "e.json").read_text())["exceptions"] == []
+    amended = {
+        d["document_id"]: d
+        for d in json.loads((tmp_path / "amended.json").read_text())["documents"]
+    }
+    assert amended["p1"]["fields"]["header.total"]["accepted"] is True
+    assert amended["p2"]["fields"] == open_total
+    assert "passed through unchanged: 1" in capsys.readouterr().out
+
+    # Rule 9: a manifest naming no page, or pages the records never hold, scopes
+    # nothing and must not read as a vote that ran.
+    unnamed = write(tmp_path / "unnamed.json", {"pages": [{"page_label": "x"}]})
+    with pytest.raises(SystemExit, match="names no page"):
+        lane.main(
+            [
+                records,
+                a,
+                b,
+                "--pages",
+                unnamed,
+                "--out",
+                str(tmp_path / "o2.json"),
+                "--exceptions",
+                str(tmp_path / "e2.json"),
+            ]
+        )
+    elsewhere = write(tmp_path / "elsewhere.json", {"pages": [{"page_id": "p9"}]})
+    with pytest.raises(SystemExit, match="manifests' pages"):
+        lane.main(
+            [
+                records,
+                a,
+                b,
+                "--pages",
+                elsewhere,
+                "--out",
+                str(tmp_path / "o3.json"),
+                "--exceptions",
+                str(tmp_path / "e3.json"),
+            ]
+        )
+    # A malformed document stays in scope, so it is refused rather than skipped.
+    malformed = write(tmp_path / "m.json", {"documents": ["not a document"]})
+    with pytest.raises(SystemExit, match="must be an object"):
+        lane.main(
+            [
+                malformed,
+                a,
+                b,
+                "--pages",
+                manifest,
+                "--out",
+                str(tmp_path / "o4.json"),
+                "--exceptions",
+                str(tmp_path / "e4.json"),
+            ]
+        )
